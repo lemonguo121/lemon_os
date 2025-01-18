@@ -1,0 +1,48 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+class VoiceAndLightFeedbackPositoned extends StatelessWidget {
+  final bool isAdjustingBrightness;
+
+  final String text;
+
+  final double videoPlayerHeight;
+
+  const VoiceAndLightFeedbackPositoned({
+    Key? key,
+    required this.isAdjustingBrightness,
+    required this.text,
+    required this.videoPlayerHeight,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: videoPlayerHeight / 2 - 50,
+      left: MediaQuery.of(context).size.width / 2 - 50,
+      child: Container(
+        width: 100,
+        height: 100,
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.7),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              isAdjustingBrightness ? Icons.brightness_6 : Icons.volume_up,
+              color: Colors.white,
+              size: 40,
+            ),
+            Text(
+              // "${((isAdjustingBrightness ? _currentBrightness : _currentVolume) * 100).toInt()}%",
+              text,
+              style: const TextStyle(color: Colors.white, fontSize: 12),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
