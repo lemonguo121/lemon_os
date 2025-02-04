@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+
 import '../category/CategoryFragment.dart';
 import '../http/HttpService.dart';
-import '../http/data/AlClass.dart';
+import '../http/data/CategoryBean.dart';
 import '../http/data/RealVideo.dart';
 import '../http/data/Video.dart';
 import '../search/SearchScreen.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -18,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   PageController _pageController = PageController();
   TabController? _tabController;
   final HttpService _httpService = HttpService();
-  List<AlClass> categories = [];
+  List<CategoryBean> categories = [];
   int selectedCategory = 0;
   bool isLoading = false;
 
@@ -45,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
       setState(() {
         categories = responseString.alClass;
-        categories.insert(0, AlClass(typeId: -1, typePid: -1, typeName: "首页"));
+        categories.insert(0, CategoryBean(typeId: -1, typePid: -1, typeName: "首页",categoryChildList: []));
         _initializeTabController();
       });
     } catch (e) {
@@ -63,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   // 获取或创建 CategoryFragment
-  Widget _getCategoryFragment(AlClass alClass) {
+  Widget _getCategoryFragment(CategoryBean alClass) {
     // 如果缓存中有对应的 Fragment，直接返回
     if (_cachedFragments.containsKey(alClass.typeName)) {
       return _cachedFragments[alClass.typeName]!;
@@ -93,6 +94,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Column(
       children: [
         TabBar(
+          padding: EdgeInsets.zero,
           controller: _tabController,
           isScrollable: true,
           tabs:

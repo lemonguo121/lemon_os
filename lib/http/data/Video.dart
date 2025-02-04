@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'AlClass.dart';
+import 'CategoryBean.dart';
+import 'CategoryChildBean.dart';
 
 // 视频数据模型
 class Video {
@@ -46,7 +48,7 @@ class ResponseData {
   final String limit;
   final int total;
   final List<Video> videos;
-  final List<AlClass> alClass;
+  final List<CategoryBean> alClass;
 
   ResponseData({
     required this.code,
@@ -63,7 +65,35 @@ class ResponseData {
     var videoList = json['list'] as List;
     var classList = json['class'] as List;
     List<Video> videos = videoList.map((e) => Video.fromJson(e)).toList();
-    List<AlClass> allClass = classList.map((e) => AlClass.fromJson(e)).toList();
+
+    // List<CategoryBean> allClass = classList.map((e) => CategoryBean.fromJson(e)).toList();
+    List<CategoryBean> allClass = [];
+    Map<int, CategoryBean> categoryMap = {};
+
+    // 先解析所有分类
+    for (var item in classList) {
+      CategoryBean category = CategoryBean.fromJson(item);
+      categoryMap[category.typeId] = category;
+
+      if (category.typePid == 0) {
+        allClass.add(category); // 父类直接添加到 alClass
+      }
+    }
+
+    // 再遍历一次，将子分类放入对应的父类
+    for (var item in classList) {
+      CategoryBean category = categoryMap[item['type_id']]!;
+
+      if (category.typePid != 0) {
+        CategoryBean? parent = categoryMap[category.typePid];
+        if (parent != null) {
+          parent.categoryChildList.add(CategoryChildBean(
+              typeId: category.typeId,
+              typeName: category.typeName,
+              typePid: category.typePid));
+        }
+      }
+    }
 
     return ResponseData(
       code: json['code'],
