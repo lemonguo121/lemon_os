@@ -5,7 +5,8 @@
   "pagecount": 1,
   "limit": "20",
   "total": 20,
-  "list": [{
+  "list": [
+    {
     "vod_id": 42866,
     "type_id": 60,
     "type_id_1": 3,

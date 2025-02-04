@@ -21,7 +21,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   List<AlClass> categories = [];
   int selectedCategory = 0;
   bool isLoading = false;
-  final Map<String, Widget> _cachedFragments = {}; // 缓存 Fragment 实例
+
+  // 缓存 Fragment 实例
+  final Map<String, CategoryFragment> _cachedFragments = {};
+
+  // 缓存每个分类的数据
+  final Map<String, RealResponseData> _cachedData = {};
 
   @override
   void initState() {
@@ -39,9 +44,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       var responseString = ResponseData.fromJson(jsonMap);
 
       setState(() {
-
         categories = responseString.alClass;
-        categories.insert(0,AlClass(typeId: -1, typePid: -1, typeName: "首页"));
+        categories.insert(0, AlClass(typeId: -1, typePid: -1, typeName: "首页"));
         _initializeTabController();
       });
     } catch (e) {
@@ -58,6 +62,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _tabController = TabController(length: categories.length, vsync: this);
   }
 
+  // 获取或创建 CategoryFragment
   Widget _getCategoryFragment(AlClass alClass) {
     // 如果缓存中有对应的 Fragment，直接返回
     if (_cachedFragments.containsKey(alClass.typeName)) {
@@ -65,7 +70,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
 
     // 否则创建新实例并存入缓存
-    final fragment = CategoryFragment(alClass: alClass);
+    final fragment = CategoryFragment(
+      alClass: alClass,
+      cachedData: _cachedData[alClass.typeName],
+      onDataLoaded: (data) {
+        // 当数据加载完成后，更新缓存
+        _cachedData[alClass.typeName] = data;
+      },
+    );
     _cachedFragments[alClass.typeName] = fragment;
     return fragment;
   }
@@ -117,8 +129,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         children: [
           const SizedBox(height: 50.0),
           _buildSearch(),
-          const SizedBox(height: 12.0),
-          _buildBanner(),
+          // const SizedBox(height: 12.0),
+          // _buildBanner(),
           const SizedBox(height: 8),
           Expanded(child: _buildCategorySelector()),
         ],

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-
 import '../home/HomeListItem.dart';
 import '../http/HttpService.dart';
 import '../http/data/AlClass.dart';
@@ -11,44 +10,64 @@ import '../http/data/Video.dart';
 
 class CategoryFragment extends StatefulWidget {
   final AlClass alClass;
+  final RealResponseData? cachedData; // 缓存数据
+  final Function(RealResponseData)? onDataLoaded; // 数据加载完成回调
 
-  const CategoryFragment({required this.alClass});
+  const CategoryFragment({
+    required this.alClass,
+    this.cachedData,
+    this.onDataLoaded,
+  });
 
   @override
   _CategoryState createState() => _CategoryState();
 }
 
-class _CategoryState extends State<CategoryFragment> {
+class _CategoryState extends State<CategoryFragment>
+    with AutomaticKeepAliveClientMixin {
   ScrollController _scrollController = ScrollController();
+  final PageStorageKey _pageStorageKey =
+      PageStorageKey('CategoryFragment_${UniqueKey()}'); // 唯一标识
+  @override
+  bool get wantKeepAlive => true; // 保持页面状态
   final HttpService _httpService = HttpService();
   RealResponseData responseData = RealResponseData(
     code: 0,
     msg: '',
     videos: [],
   );
-  bool isLoading = false; // 防止重复加载
-  bool hasMore = true; // 判断是否还有更多数据
+  bool isLoading = false;
+  bool hasMore = true;
   int currentPage = 1;
-
-  Future<void> _refreshData() async {
-    setState(() {
-      responseData.videos.clear();
-    });
-    await _getData();
-  }
 
   @override
   void initState() {
     super.initState();
-    _getData();
+
+    // 如果有缓存数据，直接使用
+    if (widget.cachedData != null) {
+      responseData = widget.cachedData!;
+    } else {
+      _getData();
+    }
+
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent - 100 &&
           !isLoading &&
           hasMore) {
-        _getData(); // 加载更多数据
+        _getData();
       }
     });
+  }
+
+  Future<void> _refreshData() async {
+    setState(() {
+      responseData.videos.clear();
+      currentPage = 1;
+      hasMore = true;
+    });
+    await _getData();
   }
 
   Future<void> _getData() async {
@@ -60,7 +79,6 @@ class _CategoryState extends State<CategoryFragment> {
 
       Map<String, dynamic> newJsonMap;
       if (widget.alClass.typePid == -1 && widget.alClass.typeId == -1) {
-        // 处理视频 ID 列表逻辑
         Map<String, dynamic> jsonMap = await _httpService.get("");
         var responseString = ResponseData.fromJson(jsonMap);
         List<int> ids = responseString.videos.map((e) => e.vodId).toList();
@@ -70,10 +88,6 @@ class _CategoryState extends State<CategoryFragment> {
           params: {"ac": "detail", "ids": idsString},
         );
       } else {
-        // 普通分页加载逻辑
-        var typeId = 0;
-        typeId = widget.alClass.typeId;
-        // https://json.heimuer.xyz/api.php/provide/vod/?ac=detail&t=8&pg=1&f=
         newJsonMap = await _httpService.get(
           "",
           params: {
@@ -84,15 +98,21 @@ class _CategoryState extends State<CategoryFragment> {
           },
         );
       }
-      responseData = RealResponseData.fromJson(newJsonMap);
+
+      final newData = RealResponseData.fromJson(newJsonMap);
       setState(() {
-        if (RealResponseData.fromJson(newJsonMap).videos.isEmpty) {
-          hasMore = false; // 没有更多数据
+        if (newData.videos.isEmpty) {
+          hasMore = false;
         } else {
-          responseData.videos.addAll(RealResponseData.fromJson(newJsonMap).videos);
-          currentPage++; // 加载下一页
+          responseData.videos.addAll(newData.videos);
+          currentPage++;
         }
       });
+
+      // 通知父组件数据已加载
+      if (widget.onDataLoaded != null) {
+        widget.onDataLoaded!(responseData);
+      }
     } catch (e) {
       print("Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
@@ -131,15 +151,19 @@ class _CategoryState extends State<CategoryFragment> {
     return Expanded(
       child: RefreshIndicator(
         onRefresh: _refreshData,
-        child: ListView(
+        child: ListView.builder(
+          key: _pageStorageKey,
+          // 使用 PageStorageKey
           padding: EdgeInsets.zero,
           controller: _scrollController,
-          children: [
-            ...responseData.videos.map((video) {
-              return HomeListItem(video: video);
-            }).toList(),
-            _buildLoadingIndicator(),
-          ],
+          itemCount: responseData.videos.length + 1,
+          itemBuilder: (context, index) {
+            if (index < responseData.videos.length) {
+              return HomeListItem(video: responseData.videos[index]);
+            } else {
+              return _buildLoadingIndicator();
+            }
+          },
         ),
       ),
     );
