@@ -46,7 +46,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
       setState(() {
         categories = responseString.alClass;
-        categories.insert(0, CategoryBean(typeId: -1, typePid: -1, typeName: "首页",categoryChildList: []));
+        categories.insert(
+            0,
+            CategoryBean(
+                typeId: -1,
+                typePid: -1,
+                typeName: "首页",
+                categoryChildList: []));
         _initializeTabController();
       });
     } catch (e) {
@@ -97,8 +103,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           padding: EdgeInsets.zero,
           controller: _tabController,
           isScrollable: true,
+          dividerColor: Colors.transparent,
           tabs:
-              categories.map((alClass) => Tab(text: alClass.typeName)).toList(),
+          categories.map((alClass) => Tab(text: alClass.typeName)).toList(),
         ),
         Expanded(
           child: TabBarView(

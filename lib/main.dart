@@ -1,16 +1,28 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import '../category/CategoryFragment.dart';
-import '../history/PlayHistory.dart';
-import '../recommon/RecommendScreen.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:permission_handler/permission_handler.dart';
 
+import '../history/PlayHistory.dart';
+import 'download/DownloadManager.dart';
 import 'home/HomeScreen.dart';
 import 'http/data/MyHttpOverrides.dart';
 import 'mine/ProfileScreen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
+  // 请求存储权限
+  await Permission.storage.request();
+  // 初始化 FlutterDownloader
+  await FlutterDownloader.initialize(debug: true);
+  // 初始化下载管理器
+  final downloadManager = DownloadManager();
+  await downloadManager.initialize();
+  // 加载先前的下载任务（如果有）
+  await downloadManager.loadTasks();
+
   runApp(ElectronicsStoreApp());
 }
 

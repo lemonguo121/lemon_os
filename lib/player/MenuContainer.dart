@@ -20,6 +20,7 @@ class MenuContainer extends StatefulWidget {
   final VoidCallback playNextVideo;
   final VoidCallback toggleFullScreen;
   final bool isFullScreen;
+  final VoidCallback goDownload;
 
   const MenuContainer({
     Key? key,
@@ -36,6 +37,7 @@ class MenuContainer extends StatefulWidget {
     required this.playNextVideo,
     required this.toggleFullScreen,
     required this.isFullScreen,
+    required this.goDownload,
   }) : super(key: key);
 
   @override
@@ -89,13 +91,13 @@ class _MenuContainerState extends State<MenuContainer> {
                   }
                 },
               )),
-              Flexible(child:  Text(
+              Flexible(
+                  child: Text(
                 widget.videoTitle,
                 style: const TextStyle(color: Colors.white, fontSize: 14),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-              ))
-             ,
+              )),
             ],
           ),
         ),
@@ -262,8 +264,8 @@ class _MenuContainerState extends State<MenuContainer> {
                               widget.onSetState;
                             },
                             child: FutureBuilder<Duration>(
-                              future: SPManager.getSkipHeadTimes(
-                                  widget.videoId),
+                              future:
+                                  SPManager.getSkipHeadTimes(widget.videoId),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData && snapshot.data != null) {
                                   final headTime = snapshot.data!;
@@ -297,8 +299,8 @@ class _MenuContainerState extends State<MenuContainer> {
                               widget.onSetState;
                             },
                             child: FutureBuilder<Duration>(
-                              future: SPManager.getSkipTailTimes(
-                                  widget.videoId),
+                              future:
+                                  SPManager.getSkipTailTimes(widget.videoId),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData && snapshot.data != null) {
                                   final headTime = snapshot.data!;
@@ -307,6 +309,16 @@ class _MenuContainerState extends State<MenuContainer> {
                                 } else {
                                   return _buildMenuText("00:00");
                                 }
+                              },
+                            ),
+                          ),
+                          SizedBox(
+                            child: IconButton(
+                              padding: EdgeInsets.zero,
+                              icon: const Icon(Icons.file_download,
+                                  color: Colors.white),
+                              onPressed: () {
+                                widget.goDownload();
                               },
                             ),
                           ),

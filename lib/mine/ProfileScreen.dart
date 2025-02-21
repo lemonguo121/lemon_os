@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lemen_os/download/DownloadManagerScreen.dart';
 
 class ProfileScreen extends StatelessWidget {
   @override
@@ -16,8 +17,7 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 40,
-                  backgroundImage: NetworkImage(
-                      'https://via.placeholder.com/150'),
+                  child: Icon(Icons.image),
                 ),
                 SizedBox(width: 16),
                 Text(
@@ -36,6 +36,17 @@ class ProfileScreen extends StatelessWidget {
             leading: Icon(Icons.login),
             title: Text("登录"),
             onTap: () {},
+          ),
+          ListTile(
+            leading: Icon(Icons.file_download),
+            title: Text("下载"),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DownloadManagerScreen(),
+                  ));
+            },
           ),
         ],
       ),

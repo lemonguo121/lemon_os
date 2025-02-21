@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../player/MenuContainer.dart';
-import '../player/SPManager.dart';
-import '../util/CommonUtil.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
+
+import '../download/DownloadManager.dart';
 // import 'package:volume_control/volume_control.dart';
 
 import '../http/data/RealVideo.dart';
+import '../player/MenuContainer.dart';
+import '../player/SPManager.dart';
+import '../util/CommonUtil.dart';
 import 'SkipFeedbackPositoned.dart';
 import 'VoiceAndLightFeedbackPositoned.dart';
 
@@ -333,20 +335,22 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
             ),
           if (_isControllerVisible)
             MenuContainer(
-                videoId: videoId,
-                videoTitle:
-                    "${widget.videoTitle} ${videoList[_currentIndex]['title']!}",
-                controller: _controller,
-                onSetState: setState,
-                showSkipFeedback: showSkipFeedback,
-                playPositonTips: playPositonTips,
-                seekToPosition: _seekToPosition,
-                isPlaying: _isPlaying,
-                togglePlayPause: _togglePlayPause,
-                playPreviousVideo: _playPreviousVideo,
-                playNextVideo: _playNextVideo,
-                toggleFullScreen: _toggleFullScreen,
-                isFullScreen: _isFullScreen),
+              videoId: videoId,
+              videoTitle:
+                  "${widget.videoTitle} ${videoList[_currentIndex]['title']!}",
+              controller: _controller,
+              onSetState: setState,
+              showSkipFeedback: showSkipFeedback,
+              playPositonTips: playPositonTips,
+              seekToPosition: _seekToPosition,
+              isPlaying: _isPlaying,
+              togglePlayPause: _togglePlayPause,
+              playPreviousVideo: _playPreviousVideo,
+              playNextVideo: _playNextVideo,
+              toggleFullScreen: _toggleFullScreen,
+              isFullScreen: _isFullScreen,
+              goDownload: _downloadVideo,
+            ),
           if (!_isPlaying && _controller.value.isInitialized)
             Center(
               child: GestureDetector(
@@ -379,5 +383,16 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
         _initializePlayer();
       });
     }
+  }
+
+  _downloadVideo() {
+    String url = videoList[_currentIndex]['url']!;
+    String title = "${widget.videoTitle} ${videoList[_currentIndex]['title']!}";
+
+    // 调用全局 DownloadManager 添加下载
+    DownloadManager().startDownload(url, title);
+
+    // 提示用户
+    CommonUtil.showToast("已添加到下载队列");
   }
 }
