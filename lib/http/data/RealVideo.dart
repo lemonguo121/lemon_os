@@ -11,6 +11,7 @@ class RealVideo {
   final String vodYear;
   final String typeName;
   final String vodPlayUrl;
+  final int typePid;
 
 
   // 构造函数名称应与类名一致
@@ -27,6 +28,7 @@ class RealVideo {
     required this.typeName,
     required this.vodYear,
     required this.vodPlayUrl,
+    required this.typePid,
   });
 
 
@@ -46,6 +48,7 @@ class RealVideo {
       typeName: json['type_name'] ?? '',
       vodYear: json['vod_year']??'未知年份',
       vodPlayUrl: json['vod_play_url'] ?? '',
+      typePid: json['type_id_1'] ?? '',
     );
   }
 
@@ -65,6 +68,7 @@ class RealVideo {
       'vodYear': vodYear,
       'typeName': typeName,
       'vodPlayUrl': vodPlayUrl,
+      'typePid': typePid,
     };
   }
 
@@ -82,6 +86,7 @@ class RealVideo {
       vodYear: json['vodYear'],
       typeName: json['typeName'],
       vodPlayUrl: json['vodPlayUrl'],
+      typePid: json['typePid'],
     );
   }
 }

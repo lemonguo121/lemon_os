@@ -80,16 +80,7 @@ class _CategoryState extends State<CategoryFragment>
       });
 
       Map<String, dynamic> newJsonMap;
-      if (widget.alClass.typePid == -1 && widget.alClass.typeId == -1) {
-        Map<String, dynamic> jsonMap = await _httpService.get("");
-        var responseString = ResponseData.fromJson(jsonMap);
-        List<int> ids = responseString.videos.map((e) => e.vodId).toList();
-        String idsString = ids.join(',');
-        newJsonMap = await _httpService.get(
-          "",
-          params: {"ac": "detail", "ids": idsString},
-        );
-      } else {
+
         var typeId = widget.alClass.categoryChildList[selectedCategoryPosition].typeId.toString();
         print("typeId = $typeId");
         newJsonMap = await _httpService.get(
@@ -101,7 +92,6 @@ class _CategoryState extends State<CategoryFragment>
             "f": ""
           },
         );
-      }
 
       final newData = RealResponseData.fromJson(newJsonMap);
       setState(() {
