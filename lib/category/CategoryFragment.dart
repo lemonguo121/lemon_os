@@ -131,8 +131,10 @@ class _CategoryState extends State<CategoryFragment>
       body: Column(
         children: [
           //二级分类
+          SizedBox(height: 10,),
           _buildSecendCategory(),
           // 视频列表
+
           _buildListView(),
         ],
       ),
@@ -202,8 +204,8 @@ class _CategoryState extends State<CategoryFragment>
     return Container(
       padding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
       child: Wrap(
-        spacing: 6.0, // 子元素间的水平间距
-        runSpacing: 8.0, // 子元素间的垂直间距
+        spacing: 12.0, // 子元素间的水平间距
+        runSpacing:10.0, // 子元素间的垂直间距
         children: List.generate(subCategories.length, (index) {
           CategoryChildBean category = subCategories[index];
           bool isSelected = selectedCategoryPosition == index; // 是否被选中
