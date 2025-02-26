@@ -6,10 +6,10 @@ class SkipFeedbackPositoned extends StatelessWidget {
   final double videoPlayerHeight; // 用于显示的文本
 
   const SkipFeedbackPositoned({
-    Key? key,
+    super.key,
     required this.text,
     required this.videoPlayerHeight,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class SkipFeedbackPositoned extends StatelessWidget {
       top: videoPlayerHeight / 2 - 50,
       left: MediaQuery.of(context).size.width / 2 - 50,
       child: Container(
-        width: 100,
+        width: 120,
         height: 100,
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.7),

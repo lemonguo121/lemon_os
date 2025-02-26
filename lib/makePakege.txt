@@ -1,0 +1,6 @@
+
+flutter build macos
+
+create-dmg \
+ "lemon_os.dmg" \
+ "lemen_os.app/"

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
-import 'package:flutter/services.dart';
 
 class VideoControlPanel extends StatelessWidget {
   final bool isPlaying;
@@ -13,7 +11,7 @@ class VideoControlPanel extends StatelessWidget {
   final Function onFullScreen;
   final bool isFullScreen;
 
-  VideoControlPanel({
+  const VideoControlPanel({super.key, 
     required this.isPlaying,
     required this.currentPosition,
     required this.totalDuration,
@@ -64,7 +62,7 @@ class VideoControlPanel extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "${Duration(seconds: currentPosition.toInt()).toString().split('.').first}", // 当前时间
+              Duration(seconds: currentPosition.toInt()).toString().split('.').first, // 当前时间
               style: TextStyle(color: Colors.white),
             ),
             Text(

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class CollapsibleText extends StatefulWidget {
@@ -7,11 +6,11 @@ class CollapsibleText extends StatefulWidget {
   final TextStyle? style;
 
   const CollapsibleText({
-    Key? key,
+    super.key,
     required this.text,
     this.maxLines = 3, // 默认折叠为 3 行
     this.style,
-  }) : super(key: key);
+  });
 
   @override
   _CollapsibleTextState createState() => _CollapsibleTextState();

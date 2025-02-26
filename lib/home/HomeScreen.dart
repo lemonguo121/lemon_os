@@ -13,12 +13,14 @@ import '../search/SearchScreen.dart';
 import '../category/HomeFragment.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
-  PageController _pageController = PageController();
+  final PageController _pageController = PageController();
   TabController? _tabController;
   final HttpService _httpService = HttpService();
   List<CategoryBean> categories = [];
@@ -221,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildBanner() {
     return Stack(
       children: [
-        Container(
+        SizedBox(
           height: 200,
           child: PageView(
             controller: _pageController,

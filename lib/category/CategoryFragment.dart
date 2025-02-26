@@ -5,17 +5,15 @@ import 'package:lemen_os/http/data/CategoryBean.dart';
 
 import '../home/HomeListItem.dart';
 import '../http/HttpService.dart';
-import '../http/data/AlClass.dart';
 import '../http/data/CategoryChildBean.dart';
 import '../http/data/RealVideo.dart';
-import '../http/data/Video.dart';
 
 class CategoryFragment extends StatefulWidget {
   final CategoryBean alClass;
   final RealResponseData? cachedData; // 缓存数据
   final Function(RealResponseData)? onDataLoaded; // 数据加载完成回调
 
-  const CategoryFragment({
+  const CategoryFragment({super.key, 
     required this.alClass,
     this.cachedData,
     this.onDataLoaded,
@@ -27,7 +25,7 @@ class CategoryFragment extends StatefulWidget {
 
 class _CategoryState extends State<CategoryFragment>
     with AutomaticKeepAliveClientMixin {
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
   final PageStorageKey _pageStorageKey =
       PageStorageKey('CategoryFragment_${UniqueKey()}'); // 唯一标识
   @override

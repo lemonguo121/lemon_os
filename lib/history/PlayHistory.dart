@@ -7,7 +7,7 @@ import '../util/CommonUtil.dart';
 import '../util/LoadingImage.dart';
 
 class PlayHistory extends StatefulWidget {
-   PlayHistory({super.key});
+   const PlayHistory({super.key});
 
   @override
   State<PlayHistory> createState() => _PlayHistoryState();
@@ -17,7 +17,7 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
   List<RealVideo>? _historyList;
   int _playIndex = 0;
   bool _isLoading = true;
-  Map<int, String> _videoTitles = {}; // 缓存每个视频的标题
+  final Map<int, String> _videoTitles = {}; // 缓存每个视频的标题
   @override
   void initState() {
     super.initState();
@@ -54,8 +54,7 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
       await _getIndex(video.vodId);
       var playList = CommonUtil.getPlayList(video);
 
-      if (_playIndex != null &&
-          _playIndex >= 0 &&
+      if (_playIndex >= 0 &&
           _playIndex < playList.length) {
         setState(() {
           _videoTitles[video.vodId] = playList[_playIndex]['title']!;

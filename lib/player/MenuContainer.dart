@@ -1,5 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../util/CommonUtil.dart';
 import 'package:video_player/video_player.dart';
@@ -22,7 +20,7 @@ class MenuContainer extends StatefulWidget {
   final bool isFullScreen;
 
   const MenuContainer({
-    Key? key,
+    super.key,
     required this.videoId,
     required this.videoTitle,
     required this.controller,
@@ -36,7 +34,7 @@ class MenuContainer extends StatefulWidget {
     required this.playNextVideo,
     required this.toggleFullScreen,
     required this.isFullScreen,
-  }) : super(key: key);
+  });
 
   @override
   _MenuContainerState createState() => _MenuContainerState();
@@ -68,11 +66,11 @@ class _MenuContainerState extends State<MenuContainer> {
       children: [
         // 顶部控制栏
         Container(
-          height: 60.0,
+          height: 70.0,
           color: Colors.black.withOpacity(0.7),
           padding: EdgeInsets.only(
               left: 16,
-              top: widget.isFullScreen ? 0 : 25,
+              top:  35,
               right: 16,
               bottom: 0),
           child: Row(

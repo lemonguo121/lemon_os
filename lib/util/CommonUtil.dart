@@ -3,9 +3,9 @@ import '../http/data/RealVideo.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class CommonUtil {
-  static Future showToast(String _content) async {
+  static Future showToast(String content) async {
     Fluttertoast.showToast(
-      msg: _content,
+      msg: content,
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.CENTER,
       backgroundColor: Colors.black,

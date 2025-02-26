@@ -11,7 +11,7 @@ import 'CollapsibleText.dart';
 class DetailScreen extends StatefulWidget {
   final int vodId;
 
-  const DetailScreen({required this.vodId});
+  const DetailScreen({super.key, required this.vodId});
 
   @override
   _DetailScreenState createState() => _DetailScreenState();
@@ -133,20 +133,21 @@ class _DetailScreenState extends State<DetailScreen> {
     return Scaffold(
       body: isLoading
           ? const Center(child: CircularProgressIndicator()) // 加载中显示
-          : (video == null || responseData.videos.isEmpty)
+          : (responseData.videos.isEmpty)
           ? const Center(child: Text("无法加载详情")) // 数据加载失败显示
           : _buildCustomScrollView(),
     );
   }
 
   Widget _buildCustomScrollView() {
+    var playerHeight=MediaQuery.of(context).size.height/9*4;
     return Column(
       children: [
         // 播放器部分，固定在顶部
         SizedBox(
           height: _isFullScreen
               ? MediaQuery.of(context).size.height
-              : MediaQuery.of(context).size.height/3, // 非全屏时固定高度
+              : playerHeight, // 非全屏时固定高度
           child: VideoPlayerScreen(
             initialIndex: _selectedIndex,
             videoTitle: video.vodName,
@@ -154,7 +155,7 @@ class _DetailScreenState extends State<DetailScreen> {
             onFullScreenChanged: _onFullScreenChanged,
             onChangePlayPositon: _onChangePlayPositon,
             videoPlayerHeight:
-            _isFullScreen ? MediaQuery.of(context).size.height : MediaQuery.of(context).size.height/3,
+            _isFullScreen ? MediaQuery.of(context).size.height : playerHeight,
           ),
         ),
 

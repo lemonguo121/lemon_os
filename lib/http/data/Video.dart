@@ -1,6 +1,4 @@
-import 'dart:convert';
 
-import 'AlClass.dart';
 import 'CategoryBean.dart';
 import 'CategoryChildBean.dart';
 

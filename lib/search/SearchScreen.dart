@@ -3,16 +3,17 @@ import '../http/HttpService.dart';
 import '../http/data/RealVideo.dart';
 import '../detail/DetailScreen.dart';
 import '../util/LoadingImage.dart';
-import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchScreen extends StatefulWidget {
+  const SearchScreen({super.key});
+
   @override
   _SearchScreenState createState() => _SearchScreenState();
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   bool _isLoading = false;
   RealResponseData responseData = RealResponseData(
     code: 0,
@@ -114,6 +115,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   height: 40,
                   child: TextField(
                     controller: _searchController,
+                    onSubmitted: (value) => _searchVideos(),
                     decoration: const InputDecoration(
                       hintText: "输入搜索内容",
                       prefixIcon: Icon(Icons.search),
@@ -274,7 +276,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                             ),
                           );
-                        }).toList(),
+                        }),
                       ],
                     ),
                   ),

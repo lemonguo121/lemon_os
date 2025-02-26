@@ -14,7 +14,7 @@ class HomeFragment extends StatefulWidget {
   final Function(Map<int, List<HomeCategoryData>> homeCategoryList)?
       onDataLoaded;
 
-  const HomeFragment({
+  const HomeFragment({super.key, 
     required this.alClass,
     this.cachedData,
     this.categories,
