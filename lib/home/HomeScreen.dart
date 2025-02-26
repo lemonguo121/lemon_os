@@ -148,8 +148,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
 
     if (categories.isEmpty) {
-      return const Center(
-        child: Text('暂无数据'),
+      return Center(
+        child: GestureDetector(
+          onTap: _loadData,  // 点击时重新获取数据
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Icon(Icons.refresh, size: 64, color: Colors.grey), // 可选的刷新图标
+              SizedBox(height: 16),
+              Text(
+                '暂无数据，点击刷新',
+                style: TextStyle(color: Colors.grey, fontSize: 16),
+              ),
+            ],
+          ),
+        ),
       );
     }
 

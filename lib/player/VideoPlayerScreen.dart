@@ -71,6 +71,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   Future<void> _initializePlayer() async {
+    if (_controller.value.isInitialized) {
+      await _controller.pause();
+      await _controller.dispose(); // 🔥 释放旧的控制器资源
+    }
     videoList = CommonUtil.getPlayList(widget.video);
     _controller =
         VideoPlayerController.network(videoList[_currentIndex]['url']!);
@@ -376,7 +380,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
             videoList[_currentIndex]['url']!, _controller.value.position);
         _currentIndex = index;
         _isLoadVideoPlayed = true;
-        _initializePlayer();
+        await _initializePlayer();
       });
     }
   }

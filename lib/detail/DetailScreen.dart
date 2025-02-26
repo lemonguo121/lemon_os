@@ -146,7 +146,7 @@ class _DetailScreenState extends State<DetailScreen> {
         SizedBox(
           height: _isFullScreen
               ? MediaQuery.of(context).size.height
-              : 300, // 非全屏时固定高度
+              : MediaQuery.of(context).size.height/3, // 非全屏时固定高度
           child: VideoPlayerScreen(
             initialIndex: _selectedIndex,
             videoTitle: video.vodName,
@@ -154,7 +154,7 @@ class _DetailScreenState extends State<DetailScreen> {
             onFullScreenChanged: _onFullScreenChanged,
             onChangePlayPositon: _onChangePlayPositon,
             videoPlayerHeight:
-            _isFullScreen ? MediaQuery.of(context).size.height : 300,
+            _isFullScreen ? MediaQuery.of(context).size.height : MediaQuery.of(context).size.height/3,
           ),
         ),
 
