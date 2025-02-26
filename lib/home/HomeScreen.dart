@@ -120,24 +120,30 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildCategorySelector() {
-    return Column(
-      children: [
-        TabBar(
-          padding: EdgeInsets.zero,
-          controller: _tabController,
-          isScrollable: true,
-          tabs:
-              categories.map((alClass) => Tab(text: alClass.typeName)).toList(),
-        ),
-        Expanded(
-          child: TabBarView(
+    return MediaQuery.removePadding(
+      context: context,
+      removeTop: true,
+      child: Column(
+        children: [
+          TabBar(
+            padding: EdgeInsets.zero,
             controller: _tabController,
-            children: categories
-                .map((alClass) => _getCategoryFragment(alClass))
+            isScrollable: true,
+            tabs: categories
+                .map((alClass) => Tab(text: alClass.typeName))
                 .toList(),
           ),
-        ),
-      ],
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              physics: const BouncingScrollPhysics(),
+              children: categories
+                  .map((alClass) => _getCategoryFragment(alClass))
+                  .toList(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -175,8 +181,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           _buildSearch(),
           // const SizedBox(height: 12.0),
           // _buildBanner(),
-          const SizedBox(height: 8),
-          Expanded(child: _buildCategorySelector()),
+          Expanded(
+              child: _buildCategorySelector()),
         ],
       ),
     );

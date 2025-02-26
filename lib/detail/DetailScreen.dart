@@ -234,7 +234,7 @@ class _DetailScreenState extends State<DetailScreen> {
           crossAxisCount: 3, // 每行显示 3 个
           mainAxisSpacing: 8.0,
           crossAxisSpacing: 8.0,
-          childAspectRatio: 3.5, // 宽高比例
+          mainAxisExtent: 30,
         ),
         itemCount: CommonUtil.getPlayList(video).length,
         itemBuilder: (context, index) {
