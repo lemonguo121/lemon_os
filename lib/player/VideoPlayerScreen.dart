@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../player/MenuContainer.dart';
-import '../player/SPManager.dart';
+import '../util/SPManager.dart';
 import '../util/CommonUtil.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';

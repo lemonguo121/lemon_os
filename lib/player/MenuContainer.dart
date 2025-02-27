@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../util/CommonUtil.dart';
 import 'package:video_player/video_player.dart';
 
-import 'SPManager.dart';
+import '../util/SPManager.dart';
 
 class MenuContainer extends StatefulWidget {
   final int videoId;

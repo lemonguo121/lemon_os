@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:lemen_os/player/SPManager.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../category/CategoryFragment.dart';
@@ -26,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   List<CategoryBean> categories = [];
   int selectedCategory = 0;
   bool isLoading = false;
+  String scripName = "";
 
   // 缓存 Fragment 实例
   final Map<String, CategoryFragment> _cachedFragments = {};
@@ -33,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   // 缓存每个分类的数据
   final Map<String, RealResponseData> _cachedData = {};
-  final Map<String,  Map<int, List<HomeCategoryData>>> _cachedHomeData = {};
+  final Map<String, Map<int, List<HomeCategoryData>>> _cachedHomeData = {};
 
   @override
   void initState() {
@@ -49,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
       Map<String, dynamic> jsonMap = await _httpService.get("");
       var responseString = ResponseData.fromJson(jsonMap);
-
+      _getSubscripName();
       setState(() {
         categories = responseString.alClass;
         categories.insert(
@@ -158,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     if (categories.isEmpty) {
       return Center(
         child: GestureDetector(
-          onTap: _loadData,  // 点击时重新获取数据
+          onTap: _loadData, // 点击时重新获取数据
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
@@ -181,8 +183,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           _buildSearch(),
           // const SizedBox(height: 12.0),
           // _buildBanner(),
-          Expanded(
-              child: _buildCategorySelector()),
+          Expanded(child: _buildCategorySelector()),
         ],
       ),
     );
@@ -192,6 +193,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Row(
       children: [
         const SizedBox(width: 12.0),
+        Text(
+          scripName,
+          style: TextStyle(fontSize: 12, color: Colors.black87),
+          overflow: TextOverflow.ellipsis,
+        ),
         Expanded(
           child: InkWell(
             onTap: () {
@@ -268,5 +274,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
       ],
     );
+  }
+
+  Future<String> _getSubscripName() async {
+    List<Map<String, String>> subscriptions =
+        await SPManager.getSubscriptions();
+    subscriptions.
+    setState(() {
+      scripName = rwerer;
+    });
   }
 }

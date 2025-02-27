@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../detail/DetailScreen.dart';
 import '../http/data/RealVideo.dart';
-import '../player/SPManager.dart';
+import '../util/SPManager.dart';
 import '../util/CommonUtil.dart';
 import '../util/LoadingImage.dart';
 
