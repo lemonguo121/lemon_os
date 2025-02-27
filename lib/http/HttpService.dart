@@ -6,7 +6,7 @@ class HttpService {
   factory HttpService() => _instance;
 
   final String baseUrl = "https://json02.heimuer.xyz/api.php/provide/vod/";
-  // final String baseUrl = "https://api.apilyzy.com/api.php/provide/vod/";
+  // final String baseUrl = "https://ikunzyapi.com/api.php/provide/vod/from/ikm3u8/";
   // final String baseUrl = "https://lbapi9.com/api.php/provide/vod/";
 
   HttpService._internal();
@@ -70,7 +70,7 @@ class HttpService {
   // 获取请求头
   Map<String, String> _getHeaders() {
     return {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json; charset=utf-8',
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
     };
   }
@@ -78,7 +78,9 @@ class HttpService {
   // 处理响应
   dynamic _handleResponse(http.Response response) {
     if (response.statusCode == 200) {
-      return json.decode(response.body);  // 解码 JSON 响应体
+      // 使用 UTF-8 解码，避免中文乱码
+      String decodedBody = utf8.decode(response.bodyBytes);
+      return json.decode(decodedBody);
     } else {
       throw Exception("Server Error: ${response.statusCode}");
     }
