@@ -6,17 +6,21 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../category/CategoryFragment.dart';
 import '../http/HttpService.dart';
 import '../http/data/CategoryBean.dart';
+import '../http/data/HomeCateforyData.dart';
 import '../http/data/RealVideo.dart';
 import '../http/data/Video.dart';
 import '../search/SearchScreen.dart';
+import '../category/HomeFragment.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
-  PageController _pageController = PageController();
+  final PageController _pageController = PageController();
   TabController? _tabController;
   final HttpService _httpService = HttpService();
   List<CategoryBean> categories = [];
@@ -25,9 +29,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   // 缓存 Fragment 实例
   final Map<String, CategoryFragment> _cachedFragments = {};
+  final Map<String, HomeFragment> _cachehomeFragment = {};
 
   // 缓存每个分类的数据
   final Map<String, RealResponseData> _cachedData = {};
+  final Map<String,  Map<int, List<HomeCategoryData>>> _cachedHomeData = {};
 
   @override
   void initState() {
@@ -72,21 +78,38 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   // 获取或创建 CategoryFragment
   Widget _getCategoryFragment(CategoryBean alClass) {
     // 如果缓存中有对应的 Fragment，直接返回
-    if (_cachedFragments.containsKey(alClass.typeName)) {
-      return _cachedFragments[alClass.typeName]!;
-    }
+    if (alClass.typeName == "首页") {
+      if (_cachehomeFragment.containsKey("首页")) {
+        return _cachehomeFragment[alClass.typeName]!;
+      }
+      final homeFragment = HomeFragment(
+        alClass: alClass,
+        cachedData: _cachedHomeData[alClass.typeName],
+        categories: categories,
+        onDataLoaded: (data) {
+          // 当数据加载完成后，更新缓存
+          _cachedHomeData[alClass.typeName] = data;
+        },
+      );
+      _cachehomeFragment[alClass.typeName] = homeFragment;
+      return homeFragment;
+    } else {
+      if (_cachedFragments.containsKey(alClass.typeName)) {
+        return _cachedFragments[alClass.typeName]!;
+      }
 
-    // 否则创建新实例并存入缓存
-    final fragment = CategoryFragment(
-      alClass: alClass,
-      cachedData: _cachedData[alClass.typeName],
-      onDataLoaded: (data) {
-        // 当数据加载完成后，更新缓存
-        _cachedData[alClass.typeName] = data;
-      },
-    );
-    _cachedFragments[alClass.typeName] = fragment;
-    return fragment;
+      // 否则创建新实例并存入缓存
+      final fragment = CategoryFragment(
+        alClass: alClass,
+        cachedData: _cachedData[alClass.typeName],
+        onDataLoaded: (data) {
+          // 当数据加载完成后，更新缓存
+          _cachedData[alClass.typeName] = data;
+        },
+      );
+      _cachedFragments[alClass.typeName] = fragment;
+      return fragment;
+    }
   }
 
   @override
@@ -97,25 +120,30 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildCategorySelector() {
-    return Column(
-      children: [
-        TabBar(
-          padding: EdgeInsets.zero,
-          controller: _tabController,
-          isScrollable: true,
-          dividerColor: Colors.transparent,
-          tabs:
-          categories.map((alClass) => Tab(text: alClass.typeName)).toList(),
-        ),
-        Expanded(
-          child: TabBarView(
+    return MediaQuery.removePadding(
+      context: context,
+      removeTop: true,
+      child: Column(
+        children: [
+          TabBar(
+            padding: EdgeInsets.zero,
             controller: _tabController,
-            children: categories
-                .map((alClass) => _getCategoryFragment(alClass))
+            isScrollable: true,
+            tabs: categories
+                .map((alClass) => Tab(text: alClass.typeName))
                 .toList(),
           ),
-        ),
-      ],
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              physics: const BouncingScrollPhysics(),
+              children: categories
+                  .map((alClass) => _getCategoryFragment(alClass))
+                  .toList(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -128,8 +156,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
 
     if (categories.isEmpty) {
-      return const Center(
-        child: Text('暂无数据'),
+      return Center(
+        child: GestureDetector(
+          onTap: _loadData,  // 点击时重新获取数据
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Icon(Icons.refresh, size: 64, color: Colors.grey), // 可选的刷新图标
+              SizedBox(height: 16),
+              Text(
+                '暂无数据，点击刷新',
+                style: TextStyle(color: Colors.grey, fontSize: 16),
+              ),
+            ],
+          ),
+        ),
       );
     }
 
@@ -140,8 +181,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           _buildSearch(),
           // const SizedBox(height: 12.0),
           // _buildBanner(),
-          const SizedBox(height: 8),
-          Expanded(child: _buildCategorySelector()),
+          Expanded(
+              child: _buildCategorySelector()),
         ],
       ),
     );
@@ -188,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildBanner() {
     return Stack(
       children: [
-        Container(
+        SizedBox(
           height: 200,
           child: PageView(
             controller: _pageController,

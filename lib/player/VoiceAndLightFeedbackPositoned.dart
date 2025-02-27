@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class VoiceAndLightFeedbackPositoned extends StatelessWidget {
@@ -9,11 +8,11 @@ class VoiceAndLightFeedbackPositoned extends StatelessWidget {
   final double videoPlayerHeight;
 
   const VoiceAndLightFeedbackPositoned({
-    Key? key,
+    super.key,
     required this.isAdjustingBrightness,
     required this.text,
     required this.videoPlayerHeight,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -5,17 +5,15 @@ import 'package:lemen_os/http/data/CategoryBean.dart';
 
 import '../home/HomeListItem.dart';
 import '../http/HttpService.dart';
-import '../http/data/AlClass.dart';
 import '../http/data/CategoryChildBean.dart';
 import '../http/data/RealVideo.dart';
-import '../http/data/Video.dart';
 
 class CategoryFragment extends StatefulWidget {
   final CategoryBean alClass;
   final RealResponseData? cachedData; // 缓存数据
   final Function(RealResponseData)? onDataLoaded; // 数据加载完成回调
 
-  const CategoryFragment({
+  const CategoryFragment({super.key, 
     required this.alClass,
     this.cachedData,
     this.onDataLoaded,
@@ -27,7 +25,7 @@ class CategoryFragment extends StatefulWidget {
 
 class _CategoryState extends State<CategoryFragment>
     with AutomaticKeepAliveClientMixin {
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
   final PageStorageKey _pageStorageKey =
       PageStorageKey('CategoryFragment_${UniqueKey()}'); // 唯一标识
   @override
@@ -80,16 +78,7 @@ class _CategoryState extends State<CategoryFragment>
       });
 
       Map<String, dynamic> newJsonMap;
-      if (widget.alClass.typePid == -1 && widget.alClass.typeId == -1) {
-        Map<String, dynamic> jsonMap = await _httpService.get("");
-        var responseString = ResponseData.fromJson(jsonMap);
-        List<int> ids = responseString.videos.map((e) => e.vodId).toList();
-        String idsString = ids.join(',');
-        newJsonMap = await _httpService.get(
-          "",
-          params: {"ac": "detail", "ids": idsString},
-        );
-      } else {
+
         var typeId = widget.alClass.categoryChildList[selectedCategoryPosition].typeId.toString();
         print("typeId = $typeId");
         newJsonMap = await _httpService.get(
@@ -101,7 +90,6 @@ class _CategoryState extends State<CategoryFragment>
             "f": ""
           },
         );
-      }
 
       final newData = RealResponseData.fromJson(newJsonMap);
       setState(() {
@@ -139,8 +127,10 @@ class _CategoryState extends State<CategoryFragment>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           //二级分类
+          SizedBox(height: 10,),
           _buildSecendCategory(),
           // 视频列表
           _buildListView(),
@@ -210,31 +200,39 @@ class _CategoryState extends State<CategoryFragment>
     }
 
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
-      child: Wrap(
-        spacing: 6.0, // 子元素间的水平间距
-        runSpacing: 8.0, // 子元素间的垂直间距
-        children: List.generate(subCategories.length, (index) {
+      padding: EdgeInsets.symmetric(horizontal: 16.0),
+      height: ((subCategories.length / 5).ceil() * 30).toDouble(), // 动态高度
+      child: GridView.builder(
+        padding: EdgeInsets.zero,
+        physics: const NeverScrollableScrollPhysics(), // 禁止网格单独滚动
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 5, // 每行显示3个标签
+          mainAxisSpacing: 5.0, // 垂直间距
+          crossAxisSpacing: 5.0, // 水平间距
+          mainAxisExtent: 25, // 🔥 固定子项高度为50
+        ),
+        itemCount: subCategories.length,
+        itemBuilder: (context, index) {
           CategoryChildBean category = subCategories[index];
-          bool isSelected = selectedCategoryPosition == index; // 是否被选中
+          bool isSelected = selectedCategoryPosition == index;
 
           return GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () {
               setState(() {
-                selectedCategoryPosition = index; // 更新选中状态
+                selectedCategoryPosition = index;
                 responseData.videos.clear();
                 currentPage = 1;
                 hasMore = true;
-                widget.alClass.typeId = category.typeId; // 切换到点击的子分类
+                widget.alClass.typeId = category.typeId;
               });
-              _getData(); // 重新加载数据
+              _getData();
             },
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 1.0),
+              alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: isSelected ? Colors.blueAccent : Colors.grey[300],
-                // 选中时变蓝色，未选中灰色
-                borderRadius: BorderRadius.circular(20.0),
+                borderRadius: BorderRadius.circular(6.0),
                 border: Border.all(
                   color: isSelected ? Colors.blue : Colors.transparent,
                   width: 1.5,
@@ -242,15 +240,18 @@ class _CategoryState extends State<CategoryFragment>
               ),
               child: Text(
                 category.typeName,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.black, // 选中白字，未选中黑字
+                  color: isSelected ? Colors.white : Colors.black,
                   fontSize: 10,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
             ),
           );
-        }),
+        },
       ),
     );
   }

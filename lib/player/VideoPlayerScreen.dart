@@ -21,7 +21,7 @@ class VideoPlayerScreen extends StatefulWidget {
   final ValueChanged<int> onChangePlayPositon;
   final double videoPlayerHeight;
   static final GlobalKey<_VideoPlayerScreenState> _globalKey =
-      GlobalKey<_VideoPlayerScreenState>();
+  GlobalKey<_VideoPlayerScreenState>();
 
   static _VideoPlayerScreenState? of(BuildContext context) {
     return _globalKey.currentState;
@@ -80,7 +80,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     _isLoadVideoPlayed = false; // 确保每次初始化时复位
     var isSkipTail = false;
     final savedPosition =
-        await SPManager.getProgress(videoList[_currentIndex]['url']!);
+    await SPManager.getProgress(videoList[_currentIndex]['url']!);
     videoId = widget.video.vodId;
     SPManager.saveIndex(videoId, _currentIndex);
     // 获取跳过时间
@@ -195,6 +195,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
             videoList[_currentIndex]['url']!, _controller.value.position);
         _currentIndex--;
         _isLoadVideoPlayed = true;
+        await _controller.pause();
+        await _controller.dispose();
         _initializePlayer();
         widget.onChangePlayPositon(_currentIndex);
         SPManager.saveHistory(widget.video);
@@ -209,6 +211,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
             videoList[_currentIndex]['url']!, _controller.value.position);
         _currentIndex++;
         _isLoadVideoPlayed = true;
+        await _controller.pause();
+        await _controller.dispose();
         _initializePlayer();
         widget.onChangePlayPositon(_currentIndex);
       });
@@ -228,14 +232,17 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     }
     return Center(
         child: AspectRatio(
-      aspectRatio: _controller.value.aspectRatio,
-      child: VideoPlayer(_controller),
-    ));
+          aspectRatio: _controller.value.aspectRatio,
+          child: VideoPlayer(_controller),
+        ));
   }
 
   void _handleVerticalDrag(DragUpdateDetails details) {
     double delta = details.primaryDelta ?? 0;
-    if (details.localPosition.dx < MediaQuery.of(context).size.width / 2) {
+    if (details.localPosition.dx < MediaQuery
+        .of(context)
+        .size
+        .width / 2) {
       // 左侧滑动 - 调节亮度
       if (delta.abs() > 1) {
         _adjustBrightness(delta / 2);
@@ -251,13 +258,18 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   void _handleHorizontalDrag(DragUpdateDetails details) {
     double delta = details.primaryDelta ?? 0;
     if (delta.abs() > 1) {
-      Duration newPosition =
-          _controller.value.position + Duration(seconds: (delta / 2).toInt());
-      _playPositonTips =
-          "${CommonUtil.formatDuration(newPosition)}/${CommonUtil.formatDuration(_controller.value.duration)}";
-      _seekToPosition(newPosition);
-      _showSkipFeedback = true;
+      _seekPlayProgress((delta / 2).toInt());
     }
+  }
+
+  void _seekPlayProgress(int delta) {
+    Duration newPosition =
+        _controller.value.position + Duration(seconds: delta);
+    _playPositonTips =
+    "${CommonUtil.formatDuration(newPosition)}/${CommonUtil.formatDuration(
+        _controller.value.duration)}";
+    _seekToPosition(newPosition);
+    _showSkipFeedback = true;
   }
 
   void _adjustBrightness(double dy) async {
@@ -280,6 +292,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   void _cancelDrag(DragEndDetails details) {
+    _cancelControll();
+  }
+
+  void _cancelControll() {
     Future.delayed(Duration(seconds: 1), () {
       setState(() {
         _showFeedback = false;
@@ -302,69 +318,92 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _isControllerVisible = !_isControllerVisible;
-              });
-            },
-            // 监听双击事件
-            onDoubleTap: _togglePlayPause,
-            // 双击屏幕切换播放/暂停
-            onVerticalDragUpdate: _handleVerticalDrag,
-            onVerticalDragEnd: _cancelDrag,
-            onHorizontalDragUpdate: _handleHorizontalDrag,
-            onHorizontalDragEnd: _cancelDrag,
-            child: _buildVideoPlayer(),
-          ),
-          if (_showFeedback)
-            VoiceAndLightFeedbackPositoned(
-              isAdjustingBrightness: _isAdjustingBrightness,
-              text:
-                  "${((_isAdjustingBrightness ? _currentBrightness : _currentVolume) * 100).toInt()}%",
-              videoPlayerHeight: widget.videoPlayerHeight,
-            ),
-          if (_showSkipFeedback)
-            SkipFeedbackPositoned(
-              text: _playPositonTips,
-              videoPlayerHeight: widget.videoPlayerHeight,
-            ),
-          if (_isControllerVisible)
-            MenuContainer(
-              videoId: videoId,
-              videoTitle:
-                  "${widget.videoTitle} ${videoList[_currentIndex]['title']!}",
-              controller: _controller,
-              onSetState: setState,
-              showSkipFeedback: showSkipFeedback,
-              playPositonTips: playPositonTips,
-              seekToPosition: _seekToPosition,
-              isPlaying: _isPlaying,
-              togglePlayPause: _togglePlayPause,
-              playPreviousVideo: _playPreviousVideo,
-              playNextVideo: _playNextVideo,
-              toggleFullScreen: _toggleFullScreen,
-              isFullScreen: _isFullScreen,
-              goDownload: _downloadVideo,
-            ),
-          if (!_isPlaying && _controller.value.isInitialized)
-            Center(
-              child: GestureDetector(
-                onTap: _togglePlayPause,
-                child: const Icon(
-                  Icons.play_arrow,
-                  size: 100,
-                  color: Colors.white,
-                ),
+    return RawKeyboardListener(
+        focusNode: FocusNode()
+          ..requestFocus(), // 自动获取焦点以监听按键
+        autofocus: true,
+        onKey: (RawKeyEvent event) {
+          if (event is RawKeyDownEvent) {
+            if (event.logicalKey == LogicalKeyboardKey.space) {
+              _togglePlayPause(); // 空格键控制播放暂停
+            } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+              _seekPlayProgress(5);
+            } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+              _seekPlayProgress(-5);
+            } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+              _adjustVolume(-1); // 上键增加音量
+            } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+              _adjustVolume(1); // 下键降低音量
+            }
+          }else if (event is RawKeyUpEvent) {
+            // 键盘抬起时的事件
+            _cancelControll();
+          }
+        },
+        child: Scaffold(
+          backgroundColor: Colors.black,
+          body: Stack(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _isControllerVisible = !_isControllerVisible;
+                  });
+                },
+                // 监听双击事件
+                onDoubleTap: _togglePlayPause,
+                // 双击屏幕切换播放/暂停
+                onVerticalDragUpdate: _handleVerticalDrag,
+                onVerticalDragEnd: _cancelDrag,
+                onHorizontalDragUpdate: _handleHorizontalDrag,
+                onHorizontalDragEnd: _cancelDrag,
+                child: _buildVideoPlayer(),
               ),
-            ),
-        ],
-      ),
-    );
+              if (_showFeedback)
+                VoiceAndLightFeedbackPositoned(
+                  isAdjustingBrightness: _isAdjustingBrightness,
+                  text:
+                  "${((_isAdjustingBrightness
+                      ? _currentBrightness
+                      : _currentVolume) * 100).toInt()}%",
+                  videoPlayerHeight: widget.videoPlayerHeight,
+                ),
+              if (_showSkipFeedback)
+                SkipFeedbackPositoned(
+                  text: _playPositonTips,
+                  videoPlayerHeight: widget.videoPlayerHeight,
+                ),
+              if (_isControllerVisible)
+                MenuContainer(
+                    videoId: videoId,
+                    videoTitle:
+                    "${widget
+                        .videoTitle} ${videoList[_currentIndex]['title']!}",
+                    controller: _controller,
+                    onSetState: setState,
+                    showSkipFeedback: showSkipFeedback,
+                    playPositonTips: playPositonTips,
+                    seekToPosition: _seekToPosition,
+                    isPlaying: _isPlaying,
+                    togglePlayPause: _togglePlayPause,
+                    playPreviousVideo: _playPreviousVideo,
+                    playNextVideo: _playNextVideo,
+                    toggleFullScreen: _toggleFullScreen,
+                    isFullScreen: _isFullScreen),
+              if (!_isPlaying && _controller.value.isInitialized)
+                Center(
+                  child: GestureDetector(
+                    onTap: _togglePlayPause,
+                    child: const Icon(
+                      Icons.play_arrow,
+                      size: 100,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ));
   }
 
   void _seekToPosition(Duration position) {
@@ -380,6 +419,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
             videoList[_currentIndex]['url']!, _controller.value.position);
         _currentIndex = index;
         _isLoadVideoPlayed = true;
+        await _controller.pause();
+        await _controller.dispose();
         _initializePlayer();
       });
     }

@@ -27,6 +27,8 @@ Future<void> main() async {
 }
 
 class ElectronicsStoreApp extends StatelessWidget {
+  const ElectronicsStoreApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -37,6 +39,8 @@ class ElectronicsStoreApp extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
