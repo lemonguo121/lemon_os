@@ -389,7 +389,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                     playPreviousVideo: _playPreviousVideo,
                     playNextVideo: _playNextVideo,
                     toggleFullScreen: _toggleFullScreen,
-                    isFullScreen: _isFullScreen),
+                    isFullScreen: _isFullScreen, goDownload: () {  },),
               if (!_isPlaying && _controller.value.isInitialized)
                 Center(
                   child: GestureDetector(
