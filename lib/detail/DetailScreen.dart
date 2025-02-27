@@ -76,6 +76,7 @@ class _DetailScreenState extends State<DetailScreen> {
     // 在离开页面时恢复状态栏和导航栏
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     _scrollController.dispose();
+    VideoPlayerScreen.of(context)?.dispose();
     super.dispose();
   }
 

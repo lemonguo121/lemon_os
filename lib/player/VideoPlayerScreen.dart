@@ -193,6 +193,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
             videoList[_currentIndex]['url']!, _controller.value.position);
         _currentIndex--;
         _isLoadVideoPlayed = true;
+        await _controller.pause();
+        await _controller.dispose();
         _initializePlayer();
         widget.onChangePlayPositon(_currentIndex);
         SPManager.saveHistory(widget.video);
@@ -207,6 +209,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
             videoList[_currentIndex]['url']!, _controller.value.position);
         _currentIndex++;
         _isLoadVideoPlayed = true;
+        await _controller.pause();
+        await _controller.dispose();
         _initializePlayer();
         widget.onChangePlayPositon(_currentIndex);
       });
@@ -414,7 +418,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
         _currentIndex = index;
         _isLoadVideoPlayed = true;
         await _controller.pause();
-        await _controller.dispose(); // 🔥 释放旧的控制器资源
+        await _controller.dispose();
         _initializePlayer();
       });
     }
