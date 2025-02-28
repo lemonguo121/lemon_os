@@ -36,8 +36,8 @@ class _HomecateforylistitemState extends State<Homecateforylistitem> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              height: 110.0, // 图片高度
-              width: 90.0, // 图片宽度
+              height: 160.0, // 图片高度
+              width: 110.0, // 图片宽度
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(4.0),
                 child: LoadingImage(

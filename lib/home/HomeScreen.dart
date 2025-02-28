@@ -5,13 +5,13 @@ import 'package:lemen_os/player/SPManager.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../category/CategoryFragment.dart';
+import '../category/HomeFragment.dart';
 import '../http/HttpService.dart';
 import '../http/data/CategoryBean.dart';
 import '../http/data/HomeCateforyData.dart';
 import '../http/data/RealVideo.dart';
 import '../http/data/Video.dart';
 import '../search/SearchScreen.dart';
-import '../category/HomeFragment.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -122,19 +122,31 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildCategorySelector() {
+    var isScrollable = categories.length > 5;
     return MediaQuery.removePadding(
       context: context,
       removeTop: true,
       child: Column(
         children: [
-          TabBar(
-            padding: EdgeInsets.zero,
-            controller: _tabController,
-            isScrollable: true,
-            tabs: categories
-                .map((alClass) => Tab(text: alClass.typeName))
-                .toList(),
-          ),
+          SizedBox(
+              height: 30,
+              child: TabBar(
+
+                padding: EdgeInsets.zero,
+                controller: _tabController,
+                dividerColor: Colors.transparent,
+                // 去除底部黑线
+                tabAlignment: isScrollable ? TabAlignment.start : null,
+                // 去除左边边距
+                isScrollable: true,
+                indicatorColor: Colors.transparent,
+                // indicatorPadding: EdgeInsets.zero,
+                labelStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold), // 选中项字体
+                unselectedLabelStyle: TextStyle(fontSize: 16), // 未选中项字体
+                tabs: categories
+                    .map((alClass) => Tab(text: alClass.typeName))
+                    .toList(),
+              )),
           Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -181,7 +193,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         children: [
           const SizedBox(height: 50.0),
           _buildSearch(),
-          // const SizedBox(height: 12.0),
+          const SizedBox(height: 12.0),
           // _buildBanner(),
           Expanded(child: _buildCategorySelector()),
         ],

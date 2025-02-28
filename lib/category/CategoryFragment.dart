@@ -206,7 +206,7 @@ class _CategoryState extends State<CategoryFragment>
         padding: EdgeInsets.zero,
         physics: const NeverScrollableScrollPhysics(), // 禁止网格单独滚动
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 5, // 每行显示3个标签
+          crossAxisCount: 5, // 每行显示5个标签
           mainAxisSpacing: 5.0, // 垂直间距
           crossAxisSpacing: 5.0, // 水平间距
           mainAxisExtent: 25, // 🔥 固定子项高度为50
