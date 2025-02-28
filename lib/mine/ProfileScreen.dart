@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../subscrip/SubscriptionPage.dart';
+
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -38,6 +40,16 @@ class ProfileScreen extends StatelessWidget {
             leading: Icon(Icons.login),
             title: Text("登录"),
             onTap: () {},
+          ),
+          ListTile(
+            leading: Icon(Icons.subscriptions),
+            title: Text("订阅管理"),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SubscriptionPage()),
+              );
+            },
           ),
         ],
       ),

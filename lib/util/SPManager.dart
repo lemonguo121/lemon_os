@@ -164,17 +164,20 @@ class SPManager {
     await prefs.setStringList(_subscriptionKey, subscriptions);
   }
 
-  static Future<void> getCurrentSubscription(String oldName, String newName, String newDomain) async {
+// 保存当前选中的站点
+  static Future<void> saveCurrentSubscription(String name, String domain) async {
     final prefs = await SharedPreferences.getInstance();
-    List<String> subscriptions = prefs.getStringList(_current_subscriptionKey) ?? [];
+    String currentSite = jsonEncode({"name": name, "domain": domain});
+    await prefs.setString(_current_subscriptionKey, currentSite);
+  }
 
-    for (int i = 0; i < subscriptions.length; i++) {
-      Map<String, String> site = Map<String, String>.from(jsonDecode(subscriptions[i]));
-      if (site['name'] == oldName) {
-        subscriptions[i] = jsonEncode({"name": newName, "domain": newDomain});
-        break;
-      }
+// 获取当前选中的站点
+  static Future<Map<String, String>?> getCurrentSubscription() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? currentSite = prefs.getString(_current_subscriptionKey);
+    if (currentSite != null) {
+      return Map<String, String>.from(jsonDecode(currentSite));
     }
-    await prefs.setStringList(_subscriptionKey, subscriptions);
+    return null; // 返回 null 如果没有选中的站点
   }
 }

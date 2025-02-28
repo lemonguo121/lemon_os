@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:lemen_os/player/SPManager.dart';
+import 'package:lemen_os/subscrip/SubscriptionPage.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../category/CategoryFragment.dart';
@@ -12,6 +12,8 @@ import '../http/data/HomeCateforyData.dart';
 import '../http/data/RealVideo.dart';
 import '../http/data/Video.dart';
 import '../search/SearchScreen.dart';
+import '../subscrip/AddSubscriptionPage.dart';
+import '../util/SPManager.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -41,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _loadData();
+    _getSubscripName();
   }
 
   Future<void> _loadData() async {
@@ -51,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
       Map<String, dynamic> jsonMap = await _httpService.get("");
       var responseString = ResponseData.fromJson(jsonMap);
-      _getSubscripName();
+      // _getSubscripName();
       setState(() {
         categories = responseString.alClass;
         categories.insert(
@@ -131,7 +134,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           SizedBox(
               height: 30,
               child: TabBar(
-
                 padding: EdgeInsets.zero,
                 controller: _tabController,
                 dividerColor: Colors.transparent,
@@ -141,8 +143,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 isScrollable: true,
                 indicatorColor: Colors.transparent,
                 // indicatorPadding: EdgeInsets.zero,
-                labelStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold), // 选中项字体
-                unselectedLabelStyle: TextStyle(fontSize: 16), // 未选中项字体
+                labelStyle:
+                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                // 选中项字体
+                unselectedLabelStyle: TextStyle(fontSize: 16),
+                // 未选中项字体
                 tabs: categories
                     .map((alClass) => Tab(text: alClass.typeName))
                     .toList(),
@@ -205,11 +210,32 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Row(
       children: [
         const SizedBox(width: 12.0),
-        Text(
-          scripName,
-          style: TextStyle(fontSize: 12, color: Colors.black87),
-          overflow: TextOverflow.ellipsis,
+        SizedBox(
+          width: 50,
+          child: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SubscriptionPage()),
+              );
+            },
+            child: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min, // 确保图标和文字最小化占用空间
+                children: [
+                  Icon(Icons.public, size: 16, color: Colors.blue), // 你可以选择适合的图标
+                  const SizedBox(width: 4), // 文字和图标之间的间距
+                  Text(
+                    scripName.isNotEmpty ? scripName : "",
+                    style: TextStyle(fontSize: 14, color: Colors.black87),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
+        const SizedBox(width: 8.0),
         Expanded(
           child: InkWell(
             onTap: () {
@@ -244,56 +270,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildBanner() {
-    return Stack(
-      children: [
-        SizedBox(
-          height: 200,
-          child: PageView(
-            controller: _pageController,
-            children: [
-              Image.network(
-                'https://img.btstu.cn/api/images/5e6b56d608fb6.jpg',
-                fit: BoxFit.cover,
-              ),
-              Image.network(
-                'https://img.btstu.cn/api/images/5a7017f071b4f.jpg',
-                fit: BoxFit.cover,
-              ),
-              Image.network(
-                'https://img.btstu.cn/api/images/5a0a500eeb71e.jpg',
-                fit: BoxFit.cover,
-              ),
-            ],
-          ),
-        ),
-        Positioned(
-          bottom: 10,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: SmoothPageIndicator(
-              controller: _pageController,
-              count: 3,
-              effect: WormEffect(
-                dotHeight: 12,
-                dotWidth: 12,
-                activeDotColor: Colors.white,
-                dotColor: Colors.grey,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Future<String> _getSubscripName() async {
-    List<Map<String, String>> subscriptions =
-        await SPManager.getSubscriptions();
-    subscriptions.
-    setState(() {
-      scripName = rwerer;
-    });
+  Future<void> _getSubscripName() async {
+    var _currentSubscription = await SPManager.getCurrentSubscription();
+    print("Current subscription: $_currentSubscription");
+    if (_currentSubscription != null) {
+      setState(() {
+        scripName = _currentSubscription['name'] ?? "未订阅";
+      });
+    } else {
+      setState(() {
+        scripName = "未订阅";
+      });
+    }
   }
 }
