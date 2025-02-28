@@ -154,7 +154,7 @@ class _HomeFragmentState extends State<HomeFragment>
         // padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.white, // 浅灰色背景
+          color: Colors.grey[100],
           borderRadius: BorderRadius.circular(12), // 圆角半径
         ),
         child: Column(
@@ -180,7 +180,6 @@ class _HomeFragmentState extends State<HomeFragment>
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: videos
                       .map((video) => SizedBox(
-                            width: 90,
                             child: Homecateforylistitem(video: video.video),
                           ))
                       .toList(),
