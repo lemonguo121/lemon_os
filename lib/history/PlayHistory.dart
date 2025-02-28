@@ -7,7 +7,7 @@ import '../util/CommonUtil.dart';
 import '../util/LoadingImage.dart';
 
 class PlayHistory extends StatefulWidget {
-   const PlayHistory({super.key});
+  const PlayHistory({super.key});
 
   @override
   State<PlayHistory> createState() => _PlayHistoryState();
@@ -27,10 +27,12 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
   Future<void> _loadHistoryList() async {
     try {
       final list = await _getHistoryList();
-      setState(() {
-        _historyList = list;
-        _isLoading = false;
-      });
+      if (list.isNotEmpty) {
+        setState(() {
+          _historyList = list;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -54,8 +56,7 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
       await _getIndex(video.vodId);
       var playList = CommonUtil.getPlayList(video);
 
-      if (_playIndex >= 0 &&
-          _playIndex < playList.length) {
+      if (_playIndex >= 0 && _playIndex < playList.length) {
         setState(() {
           _videoTitles[video.vodId] = playList[_playIndex]['title']!;
         });

@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:lemen_os/subscrip/SubscriptionPage.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -20,22 +19,22 @@ class HomeScreen extends StatefulWidget {
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
+
 }
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final PageController _pageController = PageController();
-  TabController? _tabController;
+  late TabController _tabController =TabController(length: 0, vsync: this);
   final HttpService _httpService = HttpService();
   List<CategoryBean> categories = [];
-  int selectedCategory = 0;
   bool isLoading = false;
-  String scripName = "";
+  String scripName = "未订阅";
 
   // 缓存 Fragment 实例
   final Map<String, CategoryFragment> _cachedFragments = {};
   final Map<String, HomeFragment> _cachehomeFragment = {};
 
-  // 缓存每个分类的数据
+  // 缓存数据
   final Map<String, RealResponseData> _cachedData = {};
   final Map<String, Map<int, List<HomeCategoryData>>> _cachedHomeData = {};
 
@@ -47,150 +46,92 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Future<void> _loadData() async {
+    setState(() => isLoading = true);
     try {
-      setState(() {
-        isLoading = true;
-      });
-
       Map<String, dynamic> jsonMap = await _httpService.get("");
       var responseString = ResponseData.fromJson(jsonMap);
-      // _getSubscripName();
+      List<CategoryBean> loadedCategories = [
+        CategoryBean(
+            typeId: -1, typePid: -1, typeName: "首页", categoryChildList: [])
+      ]..addAll(responseString.alClass);
+
       setState(() {
-        categories = responseString.alClass;
-        categories.insert(
-            0,
-            CategoryBean(
-                typeId: -1,
-                typePid: -1,
-                typeName: "首页",
-                categoryChildList: []));
-        _initializeTabController();
+        categories = loadedCategories;
+        _tabController = TabController(length: categories.length, vsync: this);
       });
     } catch (e) {
       print("Error: $e");
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     }
   }
 
-  void _initializeTabController() {
-    _tabController?.dispose();
-    _tabController = TabController(length: categories.length, vsync: this);
-  }
-
-  // 获取或创建 CategoryFragment
   Widget _getCategoryFragment(CategoryBean alClass) {
-    // 如果缓存中有对应的 Fragment，直接返回
     if (alClass.typeName == "首页") {
-      if (_cachehomeFragment.containsKey("首页")) {
-        return _cachehomeFragment[alClass.typeName]!;
-      }
-      final homeFragment = HomeFragment(
-        alClass: alClass,
-        cachedData: _cachedHomeData[alClass.typeName],
-        categories: categories,
-        onDataLoaded: (data) {
-          // 当数据加载完成后，更新缓存
-          _cachedHomeData[alClass.typeName] = data;
-        },
+      return _cachehomeFragment.putIfAbsent(
+        "首页",
+        () => HomeFragment(
+          alClass: alClass,
+          cachedData: _cachedHomeData[alClass.typeName],
+          categories: categories,
+          onDataLoaded: (data) => _cachedHomeData[alClass.typeName] = data,
+        ),
       );
-      _cachehomeFragment[alClass.typeName] = homeFragment;
-      return homeFragment;
     } else {
-      if (_cachedFragments.containsKey(alClass.typeName)) {
-        return _cachedFragments[alClass.typeName]!;
-      }
-
-      // 否则创建新实例并存入缓存
-      final fragment = CategoryFragment(
-        alClass: alClass,
-        cachedData: _cachedData[alClass.typeName],
-        onDataLoaded: (data) {
-          // 当数据加载完成后，更新缓存
-          _cachedData[alClass.typeName] = data;
-        },
+      return _cachedFragments.putIfAbsent(
+        alClass.typeName,
+        () => CategoryFragment(
+          alClass: alClass,
+          cachedData: _cachedData[alClass.typeName],
+          onDataLoaded: (data) => _cachedData[alClass.typeName] = data,
+        ),
       );
-      _cachedFragments[alClass.typeName] = fragment;
-      return fragment;
     }
   }
 
   @override
   void dispose() {
     _pageController.dispose();
-    _tabController?.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
   Widget _buildCategorySelector() {
-    var isScrollable = categories.length > 5;
-    return MediaQuery.removePadding(
-      context: context,
-      removeTop: true,
-      child: Column(
-        children: [
-          SizedBox(
-              height: 30,
-              child: TabBar(
-                padding: EdgeInsets.zero,
-                controller: _tabController,
-                dividerColor: Colors.transparent,
-                // 去除底部黑线
-                tabAlignment: isScrollable ? TabAlignment.start : null,
-                // 去除左边边距
-                isScrollable: true,
-                indicatorColor: Colors.transparent,
-                // indicatorPadding: EdgeInsets.zero,
-                labelStyle:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                // 选中项字体
-                unselectedLabelStyle: TextStyle(fontSize: 16),
-                // 未选中项字体
-                tabs: categories
-                    .map((alClass) => Tab(text: alClass.typeName))
-                    .toList(),
-              )),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              physics: const BouncingScrollPhysics(),
-              children: categories
-                  .map((alClass) => _getCategoryFragment(alClass))
-                  .toList(),
-            ),
+    return Column(
+      children: [
+        SizedBox(
+          height: 30,
+          child: TabBar(
+            controller: _tabController,
+            isScrollable: categories.length > 5,
+            indicatorColor: Colors.transparent,
+            labelStyle:
+                const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            unselectedLabelStyle: const TextStyle(fontSize: 16),
+            dividerColor: Colors.transparent,// 去除底部黑线
+            tabAlignment: TabAlignment.start,
+            tabs: categories
+                .map((alClass) => Tab(text: alClass.typeName))
+                .toList(),
           ),
-        ],
-      ),
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            physics: const BouncingScrollPhysics(),
+            children: categories
+                .map((alClass) => _getCategoryFragment(alClass))
+                .toList(),
+          ),
+        ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-
-    if (categories.isEmpty) {
-      return Center(
-        child: GestureDetector(
-          onTap: _loadData, // 点击时重新获取数据
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.refresh, size: 64, color: Colors.grey), // 可选的刷新图标
-              SizedBox(height: 16),
-              Text(
-                '暂无数据，点击刷新',
-                style: TextStyle(color: Colors.grey, fontSize: 16),
-              ),
-            ],
-          ),
-        ),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     return Scaffold(
@@ -199,8 +140,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           const SizedBox(height: 50.0),
           _buildSearch(),
           const SizedBox(height: 12.0),
-          // _buildBanner(),
-          Expanded(child: _buildCategorySelector()),
+          Expanded(
+              child: FutureBuilder(
+            future: SPManager.getSubscriptions(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return _buildNoSubscriptionView();
+              }
+              return categories.isEmpty
+                  ? _buildNoDataView()
+                  : _buildCategorySelector();
+            },
+          )),
         ],
       ),
     );
@@ -210,42 +161,30 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Row(
       children: [
         const SizedBox(width: 12.0),
-        SizedBox(
-          width: 50,
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SubscriptionPage()),
-              );
-            },
-            child: Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min, // 确保图标和文字最小化占用空间
-                children: [
-                  Icon(Icons.public, size: 16, color: Colors.blue), // 你可以选择适合的图标
-                  const SizedBox(width: 4), // 文字和图标之间的间距
-                  Text(
-                    scripName.isNotEmpty ? scripName : "",
-                    style: TextStyle(fontSize: 14, color: Colors.black87),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+        GestureDetector(
+          onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (context) => SubscriptionPage())),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.public, size: 16, color: Colors.blue),
+              const SizedBox(width: 4),
+              SizedBox(
+                width: 40,
+                child: Text(scripName,
+                    style: const TextStyle(fontSize: 12, color: Colors.black87),
+                    overflow: TextOverflow.ellipsis),
               ),
-            ),
+            ],
           ),
         ),
         const SizedBox(width: 8.0),
         Expanded(
           child: InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SearchScreen()),
-              );
-            },
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (context) => SearchScreen())),
             child: Container(
-              height: 40,
+              height: 35,
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -256,10 +195,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 children: [
                   const Icon(Icons.search, color: Colors.grey),
                   const SizedBox(width: 8.0),
-                  Text(
-                    "输入搜索内容",
-                    style: TextStyle(fontSize: 16.0, color: Colors.grey[600]),
-                  ),
+                  Text("输入搜索内容",
+                      style:
+                          TextStyle(fontSize: 16.0, color: Colors.grey[600])),
                 ],
               ),
             ),
@@ -270,6 +208,40 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildNoSubscriptionView() {
+    return Center(
+      child: GestureDetector(
+        onTap: () => Navigator.push(context,
+            MaterialPageRoute(builder: (context) => AddSubscriptionPage())),
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.add, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text('暂无数据，点击添加',
+                style: TextStyle(color: Colors.grey, fontSize: 16)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoDataView() {
+    return Center(
+      child: GestureDetector(
+        onTap: _loadData,
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.refresh, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text('暂无数据，点击刷新',
+                style: TextStyle(color: Colors.grey, fontSize: 16)),
+          ],
+        ),
+      ),
+    );
+  }
   Future<void> _getSubscripName() async {
     var _currentSubscription = await SPManager.getCurrentSubscription();
     print("Current subscription: $_currentSubscription");

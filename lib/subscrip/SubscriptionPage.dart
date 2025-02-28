@@ -22,14 +22,14 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   }
 
   Future<void> _loadSubscriptions() async {
-    // 获取订阅列表和当前选中的站点
-    List<Map<String, String>> subscriptions = await SPManager.getSubscriptions();
+    List<Map<String, String>> subscriptions =
+        await SPManager.getSubscriptions();
     _currentSubscription = await SPManager.getCurrentSubscription();
 
-    // 设置选中状态，如果有当前选中的站点
     if (_currentSubscription != null) {
       final selectedDomain = _currentSubscription!['domain'];
-      _selectedIndex = subscriptions.indexWhere((site) => site['domain'] == selectedDomain);
+      _selectedIndex =
+          subscriptions.indexWhere((site) => site['domain'] == selectedDomain);
     }
 
     setState(() {
@@ -53,8 +53,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   }
 
   void _saveCurrentSubscription(Map<String, String> site) async {
-    // 保存当前选中的站点
-    await SPManager.saveCurrentSubscription(site['name'] ?? '', site['domain'] ?? '');
+    await SPManager.saveCurrentSubscription(
+        site['name'] ?? '', site['domain'] ?? '');
   }
 
   void _onConfirm() async {
@@ -62,25 +62,72 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
       final selectedSite = _subscriptions[_selectedIndex!];
       final selectedDomain = selectedSite['domain'];
 
-      // 如果当前选中的域名和之前保存的域名不同，更新baseUrl并刷新页面
       if (_currentSubscription!['domain'] != selectedDomain) {
         await SPManager.saveCurrentSubscription(
             selectedSite['name'] ?? '', selectedSite['domain'] ?? '');
 
-        // 更新 HttpService 中的 baseUrl
         HttpService.updateBaseUrl(selectedDomain ?? '');
 
-        // 关闭所有页面并重新启动，回到 HomeScreen
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => HomePage()), // 替换成你的 HomePage 页面
-              (route) => false, // 这会移除所有页面，确保回到首页
+          MaterialPageRoute(builder: (context) => HomePage()),
+          (route) => false,
         );
       } else {
-        // 如果相同，则直接关闭当前页面
         Navigator.pop(context);
       }
     }
+  }
+
+  /// 显示编辑站点弹窗
+  void _editSubscription(Map<String, String> site) {
+    TextEditingController nameController =
+        TextEditingController(text: site['name']);
+    TextEditingController domainController =
+        TextEditingController(text: site['domain']);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("编辑订阅"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(labelText: "站点名称"),
+              ),
+              TextField(
+                controller: domainController,
+                decoration: InputDecoration(labelText: "站点域名"),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // 取消
+              child: Text("取消"),
+            ),
+            TextButton(
+              onPressed: () async {
+                String newName = nameController.text.trim();
+                String newDomain = domainController.text.trim();
+
+                if (newName.isNotEmpty && newDomain.isNotEmpty) {
+                  await SPManager.updateSubscription(
+                      site['name']!, newName, newDomain);
+                  await SPManager.updateCurrentSubscription(newName, newDomain);
+                  _loadSubscriptions(); // 重新加载数据
+                  Navigator.pop(context); // 关闭弹窗
+                }
+              },
+              child: Text("保存"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -95,7 +142,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
           ),
           IconButton(
             icon: Icon(Icons.check),
-            onPressed: _onConfirm, // 点击确认按钮
+            onPressed: _onConfirm,
           ),
         ],
       ),
@@ -105,12 +152,12 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
           final site = _subscriptions[index];
           return ListTile(
             leading: Radio<int>(
-              value: index, // 为每个条目分配一个唯一的值
-              groupValue: _selectedIndex, // 绑定到当前选中的索引
+              value: index,
+              groupValue: _selectedIndex,
               onChanged: (int? value) {
                 setState(() {
-                  _selectedIndex = value; // 设置选中的条目
-                  _saveCurrentSubscription(site); // 保存选中的站点
+                  _selectedIndex = value;
+                  _saveCurrentSubscription(site);
                 });
               },
             ),
@@ -122,9 +169,12 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
             ),
             onTap: () {
               setState(() {
-                _selectedIndex = index; // 点击条目时选择该条目
-                _saveCurrentSubscription(site); // 保存选中的站点
+                _selectedIndex = index;
+                _saveCurrentSubscription(site);
               });
+            },
+            onLongPress: () {
+              _editSubscription(site); // 长按编辑
             },
           );
         },
