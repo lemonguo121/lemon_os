@@ -46,19 +46,20 @@ class _HomecateforylistitemState extends State<Homecateforylistitem> {
               ),
             ),
             const SizedBox(height: 6.0), // 图片和文字的间距
-            Expanded(
+            SizedBox(
+                width: 110,
                 child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  video.vodName,
-                  style: const TextStyle(
-                      fontSize: 12,color: Colors.black87),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                )
-              ],
-            )),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      video.vodName,
+                      style:
+                          const TextStyle(fontSize: 12, color: Colors.black87),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  ],
+                )),
           ],
         ),
       ),

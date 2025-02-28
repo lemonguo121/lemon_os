@@ -13,7 +13,8 @@ class CategoryFragment extends StatefulWidget {
   final RealResponseData? cachedData; // 缓存数据
   final Function(RealResponseData)? onDataLoaded; // 数据加载完成回调
 
-  const CategoryFragment({super.key, 
+  const CategoryFragment({
+    super.key,
     required this.alClass,
     this.cachedData,
     this.onDataLoaded,
@@ -78,18 +79,26 @@ class _CategoryState extends State<CategoryFragment>
       });
 
       Map<String, dynamic> newJsonMap;
+      var typeId = "";
+      if (widget.alClass.categoryChildList.isNotEmpty) {
+         typeId = widget
+            .alClass.categoryChildList[selectedCategoryPosition].typeId
+            .toString();
+      } else {
+        typeId = widget
+            .alClass.typeId.toString();
+      }
 
-        var typeId = widget.alClass.categoryChildList[selectedCategoryPosition].typeId.toString();
-        print("typeId = $typeId");
-        newJsonMap = await _httpService.get(
-          "",
-          params: {
-            "ac": "detail",
-            "t": typeId,
-            "pg": currentPage.toString(),
-            "f": ""
-          },
-        );
+      print("typeId = $typeId");
+      newJsonMap = await _httpService.get(
+        "",
+        params: {
+          "ac": "detail",
+          "t": typeId,
+          "pg": currentPage.toString(),
+          "f": ""
+        },
+      );
 
       final newData = RealResponseData.fromJson(newJsonMap);
       setState(() {
@@ -130,7 +139,9 @@ class _CategoryState extends State<CategoryFragment>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           //二级分类
-          SizedBox(height: 10,),
+          SizedBox(
+            height: 10,
+          ),
           _buildSecendCategory(),
           // 视频列表
           _buildListView(),
@@ -204,7 +215,8 @@ class _CategoryState extends State<CategoryFragment>
       height: ((subCategories.length / 5).ceil() * 30).toDouble(), // 动态高度
       child: GridView.builder(
         padding: EdgeInsets.zero,
-        physics: const NeverScrollableScrollPhysics(), // 禁止网格单独滚动
+        physics: const NeverScrollableScrollPhysics(),
+        // 禁止网格单独滚动
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 5, // 每行显示5个标签
           mainAxisSpacing: 5.0, // 垂直间距
