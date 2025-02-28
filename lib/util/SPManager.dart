@@ -8,6 +8,8 @@ class SPManager {
   static const String _skipHeadKey = "skip_head_time";
   static const String _skipTailKey = "skip_tail_time";
   static const String _videoHistory = "video_history";
+  static const String _subscriptionKey = "subscriptions";
+  static const String _current_subscriptionKey = "current_subscriptions";
 
   // 保存播放进度
   static Future<void> saveProgress(String videoUrl, Duration position) async {
@@ -37,7 +39,8 @@ class SPManager {
   // 记录跳过片头
   static Future<void> saveSkipHeadTimes(int videoId, Duration headTime) async {
     final prefs = await SharedPreferences.getInstance();
-    print("dddddd saveSkipHeadTimes $_skipHeadKey-$videoId  headTime= ${headTime.inMilliseconds}");
+    print(
+        "dddddd saveSkipHeadTimes $_skipHeadKey-$videoId  headTime= ${headTime.inMilliseconds}");
     prefs.setInt("$_skipHeadKey-$videoId", headTime.inMilliseconds);
   }
 
@@ -52,7 +55,8 @@ class SPManager {
   static Future<Duration> getSkipHeadTimes(int videoId) async {
     final prefs = await SharedPreferences.getInstance();
     int? headTime = prefs.getInt("$_skipHeadKey-$videoId");
-    print("dddddd getSkipHeadTimes $_skipHeadKey-$videoId  headTime= $headTime");
+    print(
+        "dddddd getSkipHeadTimes $_skipHeadKey-$videoId  headTime= $headTime");
     return Duration(milliseconds: headTime ?? 0);
   }
 
@@ -112,5 +116,106 @@ class SPManager {
     final prefs = await SharedPreferences.getInstance();
     List<Map<String, dynamic>> history = [];
     await prefs.setString(_videoHistory, jsonEncode(history));
+  }
+
+  // 保存站点列表
+  static Future<void> saveSubscription(String name, String domain) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> subscriptions = prefs.getStringList(_subscriptionKey) ?? [];
+
+    // 确保不会重复添加相同站点
+    String newSite = jsonEncode({"name": name, "domain": domain});
+    if (!subscriptions.contains(newSite)) {
+      subscriptions.add(newSite);
+      await prefs.setStringList(_subscriptionKey, subscriptions);
+    }
+  }
+
+  // 获取站点列表
+  static Future<List<Map<String, String>>> getSubscriptions() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> subscriptions = prefs.getStringList(_subscriptionKey) ?? [];
+    return subscriptions
+        .map((item) => Map<String, String>.from(jsonDecode(item)))
+        .toList();
+  }
+
+  // 删除指定站点
+  static Future<void> removeSubscription(String name) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> subscriptions = prefs.getStringList(_subscriptionKey) ?? [];
+
+    subscriptions.removeWhere((item) {
+      Map<String, String> site = Map<String, String>.from(jsonDecode(item));
+      return site['name'] == name;
+    });
+
+    await prefs.setStringList(_subscriptionKey, subscriptions);
+  }
+
+  // 更新站点信息
+  static Future<bool> updateSubscription(
+      String oldName, String newName, String newDomain) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> subscriptions = prefs.getStringList(_subscriptionKey) ?? [];
+
+    var _currentSubscription = await getCurrentSubscription();
+    print("oldName = $oldName  newName = $newName newDomain = $newDomain");
+
+    bool updated = false;
+
+    for (int i = 0; i < subscriptions.length; i++) {
+      Map<String, String> site =
+          Map<String, String>.from(jsonDecode(subscriptions[i]));
+
+      if (site['name'] == oldName) {
+        subscriptions[i] = jsonEncode({"name": newName, "domain": newDomain});
+        updated = true;
+
+        // 如果当前选中的站点是旧站点，则更新当前订阅
+        if ((_currentSubscription?['name'] ?? "") == oldName) {
+          await saveCurrentSubscription(newName, newDomain);
+        }
+        break;
+      }
+    }
+    if (updated) {
+      await prefs.setStringList(_subscriptionKey, subscriptions);
+    }
+    return updated;
+  }
+
+// 保存当前选中的站点
+  static Future<void> saveCurrentSubscription(
+      String name, String domain) async {
+    final prefs = await SharedPreferences.getInstance();
+    String currentSite = jsonEncode({"name": name, "domain": domain});
+    await prefs.setString(_current_subscriptionKey, currentSite);
+  }
+
+// 更新当前选中的站点
+  static Future<void> updateCurrentSubscription(
+     String newName, String domain) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // 去除空格，避免存入不必要的空格字符
+    String trimmedName = newName.trim();
+    String trimmedDomain = domain.trim();
+
+    String currentSite =
+        jsonEncode({"name": trimmedName, "domain": trimmedDomain});
+
+    // 确保 key 名正确
+    await prefs.setString(_current_subscriptionKey, currentSite);
+  }
+
+// 获取当前选中的站点
+  static Future<Map<String, String>?> getCurrentSubscription() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? currentSite = prefs.getString(_current_subscriptionKey);
+    if (currentSite != null) {
+      return Map<String, String>.from(jsonDecode(currentSite));
+    }
+    return null; // 返回 null 如果没有选中的站点
   }
 }

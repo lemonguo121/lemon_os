@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../http/HttpService.dart';
 import '../http/data/RealVideo.dart';
-import '../player/SPManager.dart';
+import '../util/SPManager.dart';
 import '../player/VideoPlayerScreen.dart';
 import '../util/CommonUtil.dart';
 import 'CollapsibleText.dart';
