@@ -18,33 +18,74 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
     String domain = _domainController.text.trim();
 
     if (name.isNotEmpty && domain.isNotEmpty) {
-      // 获取当前所有已订阅的站点
       List<Map<String, String>> subscriptions = await SPManager.getSubscriptions();
 
-      // 检查该 domain 是否已经存在
       bool exists = subscriptions.any((sub) => sub['domain'] == domain);
-
       if (exists) {
-        // 显示提示
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("该站点已存在"),
-            duration: Duration(seconds: 2),
-          ),
+          SnackBar(content: Text("该站点已存在"), duration: Duration(seconds: 2)),
         );
-        return; // 终止后续逻辑
+        return;
       }
 
       await SPManager.saveSubscription(name, domain);
       await SPManager.saveCurrentSubscription(name, domain);
-      // 更新 HttpService 中的 baseUrl
-      HttpService.updateBaseUrl(domain ?? '');
+      HttpService.updateBaseUrl(domain);
 
-      // 关闭所有页面并重新启动，回到 HomeScreen
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => HomePage()), // 替换成你的 HomePage 页面
-            (route) => false, // 这会移除所有页面，确保回到首页
+        MaterialPageRoute(builder: (context) => HomePage()),
+            (route) => false,
+      );
+    }
+  }
+
+  /// **一键导入多个站点**
+  void _onekeyAdd() async {
+    List<Map<String, String>> defaultSubscriptions = [
+      {
+        "name": "黑木耳",
+        "domain": "https://json02.heimuer.xyz/api.php/provide/vod/"
+      },
+      {
+        "name": "爱看",
+        "domain": "https://ikunzyapi.com/api.php/provide/vod/from/ikm3u8/"
+      }
+    ];
+
+    // 获取当前存储的订阅列表
+    List<Map<String, String>> subscriptions = await SPManager.getSubscriptions();
+
+    int addedCount = 0;
+
+    for (var sub in defaultSubscriptions) {
+      bool exists = subscriptions.any((s) => s['domain'] == sub['domain']);
+      if (!exists) {
+        await SPManager.saveSubscription(sub['name']!, sub['domain']!);
+        addedCount++;
+      }
+    }
+
+    if (addedCount > 0) {
+      await SPManager.saveCurrentSubscription(
+        defaultSubscriptions[0]['name']!,
+        defaultSubscriptions[0]['domain']!,
+      );
+      HttpService.updateBaseUrl(defaultSubscriptions[0]['domain']!);
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(addedCount > 0 ? "成功导入 $addedCount 个站点" : "所有站点已存在"),
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    if (addedCount > 0) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => HomePage()),
+            (route) => false,
       );
     }
   }
@@ -69,6 +110,10 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
             ElevatedButton(
               onPressed: _saveSubscription,
               child: Text("保存"),
+            ),
+            ElevatedButton(
+              onPressed: _onekeyAdd,
+              child: Text("一键导入"),
             ),
           ],
         ),

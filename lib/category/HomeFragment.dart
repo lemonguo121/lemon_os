@@ -150,7 +150,7 @@ class _HomeFragmentState extends State<HomeFragment>
 
   Widget _buildCategorySection(int typePid, List<HomeCategoryData> videos) {
     return Container(
-        margin: EdgeInsets.only(top: 12.0, left: 8.0, right: 8.0),
+        margin: EdgeInsets.only(top: 12.0, left: 16.0, right: 16.0),
         // padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
         width: double.infinity,
         decoration: BoxDecoration(

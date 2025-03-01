@@ -134,14 +134,14 @@ class _CategoryState extends State<CategoryFragment>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
+    return Center(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           //二级分类
-          SizedBox(
-            height: 10,
-          ),
+          // SizedBox(
+          //   height: 6,
+          // ),
           _buildSecendCategory(),
           // 视频列表
           _buildListView(),
@@ -211,8 +211,8 @@ class _CategoryState extends State<CategoryFragment>
     }
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.0),
-      height: ((subCategories.length / 5).ceil() * 30).toDouble(), // 动态高度
+      padding: EdgeInsets.symmetric(horizontal: 12.0),
+      height: ((subCategories.length / 5).ceil() * 35).toDouble(), // 动态高度
       child: GridView.builder(
         padding: EdgeInsets.zero,
         physics: const NeverScrollableScrollPhysics(),
@@ -221,7 +221,7 @@ class _CategoryState extends State<CategoryFragment>
           crossAxisCount: 5, // 每行显示5个标签
           mainAxisSpacing: 5.0, // 垂直间距
           crossAxisSpacing: 5.0, // 水平间距
-          mainAxisExtent: 25, // 🔥 固定子项高度为50
+          mainAxisExtent: 30, // 🔥 固定子项高度为50
         ),
         itemCount: subCategories.length,
         itemBuilder: (context, index) {

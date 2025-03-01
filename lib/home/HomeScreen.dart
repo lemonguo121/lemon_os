@@ -100,29 +100,28 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildCategorySelector() {
     return Column(
       children: [
-        SizedBox(
-          height: 30,
+        /// 使用 `PreferredSize` 让 `TabBar` 更稳定
+        PreferredSize(
+          preferredSize: const Size.fromHeight(30), // TabBar 高度
           child: TabBar(
             controller: _tabController,
             isScrollable: categories.length > 5,
             indicatorColor: Colors.transparent,
-            labelStyle:
-                const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            indicatorSize: TabBarIndicatorSize.tab,
+            dividerHeight: 0,
+            indicatorPadding: EdgeInsets.zero,
+            labelStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             unselectedLabelStyle: const TextStyle(fontSize: 16),
-            dividerColor: Colors.transparent,// 去除底部黑线
+            dividerColor: Colors.transparent, // 去除底部黑线
             tabAlignment: TabAlignment.start,
-            tabs: categories
-                .map((alClass) => Tab(text: alClass.typeName))
-                .toList(),
+            tabs: categories.map((alClass) => Tab(text: alClass.typeName)).toList(),
           ),
         ),
         Expanded(
           child: TabBarView(
             controller: _tabController,
             physics: const BouncingScrollPhysics(),
-            children: categories
-                .map((alClass) => _getCategoryFragment(alClass))
-                .toList(),
+            children: categories.map(_getCategoryFragment).toList(),
           ),
         ),
       ],
