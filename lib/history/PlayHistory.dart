@@ -27,12 +27,10 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
   Future<void> _loadHistoryList() async {
     try {
       final list = await _getHistoryList();
-      if (list.isNotEmpty) {
-        setState(() {
-          _historyList = list;
-          _isLoading = false;
-        });
-      }
+      setState(() {
+        _historyList = list;
+        _isLoading = false;
+      });
     } catch (e) {
       setState(() {
         _isLoading = false;
