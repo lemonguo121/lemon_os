@@ -21,9 +21,15 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadHistoryList();
   }
-
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshHistoryList(); // 应用恢复时刷新数据
+    }
+  }
   Future<void> _loadHistoryList() async {
     try {
       final list = await _getHistoryList();
@@ -207,5 +213,11 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
         ],
       ),
     );
+  }
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+
   }
 }
