@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lemen_os/http/data/HomeCateforyData.dart';
 import 'package:lemen_os/http/data/Video.dart';
+import 'package:lemen_os/util/SPManager.dart';
 
 import '../home/HomeCateforyListItem.dart';
 import '../http/HttpService.dart';
@@ -86,7 +87,13 @@ class _HomeFragmentState extends State<HomeFragment>
         params: {"ac": "detail", "ids": idsString},
       );
       homeCategoryList.clear();
-      final newData = RealResponseData.fromJson(newJsonMap);
+      var subscriptionDomain =  '';
+      var _currentSubscription  = await SPManager.getCurrentSubscription();
+      if (_currentSubscription!=null) {
+         subscriptionDomain = _currentSubscription['domain']??"";
+      }
+
+      final newData = RealResponseData.fromJson(newJsonMap,subscriptionDomain);
       setState(() {
         if (newData.videos.isEmpty) {
         } else {

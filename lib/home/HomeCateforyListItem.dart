@@ -28,7 +28,7 @@ class _HomecateforylistitemState extends State<Homecateforylistitem> {
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  DetailScreen(vodId: video.vodId), // 动态传递vodId
+                  DetailScreen(vodId: video.vodId,subscription: video.subscriptionDomain,), // 动态传递vodId
             ),
           );
         },

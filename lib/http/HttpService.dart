@@ -39,6 +39,18 @@ class HttpService {
     }
   }
 
+  Future<dynamic> getBySubscription(String subscription,String path,
+      {Map<String, dynamic>? params}) async {
+    try {
+      final uri = Uri.parse(subscription??baseUrl + path)
+          .replace(queryParameters: params); // 使用 replace 添加查询参数
+      final response = await http.get(uri, headers: _getHeaders());
+      return _handleResponse(response);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // POST 请求
   Future<dynamic> post(String path, {Map<String, dynamic>? data}) async {
     try {

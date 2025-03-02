@@ -131,6 +131,7 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
 
   Widget _buildGridItem(int index) {
     var realVideo = _historyList![index];
+    // print("_buildGridItem   title = ${realVideo.typeName}  domain = ${realVideo.subscriptionDomain} ");
     // 确保每个视频的标题加载完成
     if (!_videoTitles.containsKey(realVideo.vodId)) {
       getVideoRec(realVideo);
@@ -140,8 +141,10 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
         Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  DetailScreen(vodId: realVideo.vodId), // 动态传递vodId
+              builder: (context) => DetailScreen(
+                vodId: realVideo.vodId,
+                subscription: realVideo.subscriptionDomain,
+              ), // 动态传递vodId
             )).then((value) => _refreshHistoryList());
       },
       onLongPress: () {

@@ -7,6 +7,7 @@ import '../home/HomeListItem.dart';
 import '../http/HttpService.dart';
 import '../http/data/CategoryChildBean.dart';
 import '../http/data/RealVideo.dart';
+import '../util/SPManager.dart';
 
 class CategoryFragment extends StatefulWidget {
   final CategoryBean alClass;
@@ -99,8 +100,13 @@ class _CategoryState extends State<CategoryFragment>
           "f": ""
         },
       );
+      var subscriptionDomain =  '';
+      var _currentSubscription  = await SPManager.getCurrentSubscription();
+      if (_currentSubscription!=null) {
+        subscriptionDomain = _currentSubscription['domain']??"";
+      }
 
-      final newData = RealResponseData.fromJson(newJsonMap);
+      final newData = RealResponseData.fromJson(newJsonMap,subscriptionDomain);
       setState(() {
         if (newData.videos.isEmpty) {
           hasMore = false;

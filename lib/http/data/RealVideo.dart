@@ -1,3 +1,4 @@
+
 class RealVideo {
   final int vodId;
   final String vodName;
@@ -12,7 +13,7 @@ class RealVideo {
   final String typeName;
   final String vodPlayUrl;
   final int typePid;
-
+  final String subscriptionDomain;
 
   // 构造函数名称应与类名一致
   RealVideo({
@@ -29,14 +30,13 @@ class RealVideo {
     required this.vodYear,
     required this.vodPlayUrl,
     required this.typePid,
+    required this.subscriptionDomain,
   });
 
-
-
   // 从JSON解析
-  factory RealVideo.fromJson(Map<String, dynamic> json) {
+  factory RealVideo.fromJson(Map<String, dynamic> json, subscriptionDomain) {
     return RealVideo(
-      vodId: json['vod_id']??0,
+      vodId: json['vod_id'] ?? 0,
       vodName: json['vod_name'] ?? '',
       vodSub: json['vod_sub'] ?? '',
       vodPic: json['vod_pic'] ?? '',
@@ -46,9 +46,10 @@ class RealVideo {
       vodPubdate: json['vod_pubdate'] ?? '',
       vodArea: json['vod_area'] ?? '',
       typeName: json['type_name'] ?? '',
-      vodYear: json['vod_year']??'未知年份',
+      vodYear: json['vod_year'] ?? '未知年份',
       vodPlayUrl: json['vod_play_url'] ?? '',
       typePid: json['type_id_1'] ?? '',
+      subscriptionDomain: subscriptionDomain,
     );
   }
 
@@ -69,6 +70,7 @@ class RealVideo {
       'typeName': typeName,
       'vodPlayUrl': vodPlayUrl,
       'typePid': typePid,
+      'subscriptionDomain': subscriptionDomain,
     };
   }
 
@@ -87,6 +89,7 @@ class RealVideo {
       typeName: json['typeName'],
       vodPlayUrl: json['vodPlayUrl'],
       typePid: json['typePid'],
+      subscriptionDomain: json['subscriptionDomain'],
     );
   }
 }
@@ -103,10 +106,11 @@ class RealResponseData {
   });
 
   // 从JSON解析
-  factory RealResponseData.fromJson(Map<String, dynamic> json) {
+  factory RealResponseData.fromJson(
+      Map<String, dynamic> json, subscriptionDomain) {
     var list = json['list'] as List;
     List<RealVideo> videosList =
-        list.map((i) => RealVideo.fromJson(i)).toList();
+        list.map((i) => RealVideo.fromJson(i, subscriptionDomain)).toList();
 
     return RealResponseData(
       code: json['code'],

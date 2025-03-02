@@ -5,6 +5,8 @@ import '../detail/DetailScreen.dart';
 import '../util/LoadingImage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../util/SPManager.dart';
+
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
@@ -74,15 +76,21 @@ class _SearchScreenState extends State<SearchScreen> {
     await _saveSearchHistory(query); // 触发搜索后保存历史记录
 
     try {
-      Map<String, dynamic> newJsonMap  = await _httpService.get(
+      Map<String, dynamic> newJsonMap = await _httpService.get(
         "",
         params: {
           "ac": "detail",
           "wd": query,
         },
       );
+      var subscriptionDomain = '';
+      var _currentSubscription = await SPManager.getCurrentSubscription();
+      if (_currentSubscription != null) {
+        subscriptionDomain = _currentSubscription['domain'] ?? "";
+      }
       setState(() {
-        responseData = RealResponseData.fromJson(newJsonMap);
+        responseData =
+            RealResponseData.fromJson(newJsonMap, subscriptionDomain);
       });
     } catch (e) {
       print("Error: $e");
@@ -201,7 +209,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            DetailScreen(vodId: video.vodId)));
+                                            DetailScreen(vodId: video.vodId,subscription: video.subscriptionDomain,)));
                               },
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,7 +219,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                     width: 60,
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(4.0),
-                                      child: LoadingImage(pic:video.vodPic),
+                                      child: LoadingImage(pic: video.vodPic),
                                     ),
                                   ),
                                   const SizedBox(
