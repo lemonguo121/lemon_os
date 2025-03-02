@@ -244,7 +244,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
   Future<void> _getSubscripName() async {
     var _currentSubscription = await SPManager.getCurrentSubscription();
-    print("Current subscription: $_currentSubscription");
     if (_currentSubscription != null) {
       setState(() {
         scripName = _currentSubscription['name'] ?? "未订阅";

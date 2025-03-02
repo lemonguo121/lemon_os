@@ -10,6 +10,7 @@ class SPManager {
   static const String _videoHistory = "video_history";
   static const String _subscriptionKey = "subscriptions";
   static const String _current_subscriptionKey = "current_subscriptions";
+  static const String _current_volume = "_current_volume";
 
   // 保存播放进度
   static Future<void> saveProgress(String videoUrl, Duration position) async {
@@ -36,11 +37,19 @@ class SPManager {
     return prefs.getInt("$_progressKey$videoId");
   }
 
+  // 获取保存的音量
+  static Future<double> getCurrentVolume() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getDouble("$_current_volume")??0.1;
+  }
+  // 保存音量
+  static Future<void> saveVolume(double volume) async {
+    final prefs = await SharedPreferences.getInstance();
+     prefs.setDouble("$_current_volume",volume);
+  }
   // 记录跳过片头
   static Future<void> saveSkipHeadTimes(int videoId, Duration headTime) async {
     final prefs = await SharedPreferences.getInstance();
-    print(
-        "dddddd saveSkipHeadTimes $_skipHeadKey-$videoId  headTime= ${headTime.inMilliseconds}");
     prefs.setInt("$_skipHeadKey-$videoId", headTime.inMilliseconds);
   }
 
@@ -55,8 +64,6 @@ class SPManager {
   static Future<Duration> getSkipHeadTimes(int videoId) async {
     final prefs = await SharedPreferences.getInstance();
     int? headTime = prefs.getInt("$_skipHeadKey-$videoId");
-    print(
-        "dddddd getSkipHeadTimes $_skipHeadKey-$videoId  headTime= $headTime");
     return Duration(milliseconds: headTime ?? 0);
   }
 

@@ -36,9 +36,8 @@ dependencies:
   shared_preferences: ^2.0.15
   auto_size_text: ^3.0.0
   http: ^1.2.0
-  screen_brightness: ^1.0.1
+  screen_brightness: ^2.1.1
   fluttertoast: ^8.2.0
-#  volume_control: ^0.1.5
 #  audio_manager: ^0.8.2
 
   # The following adds the Cupertino Icons font to your application.
