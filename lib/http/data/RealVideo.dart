@@ -1,4 +1,3 @@
-
 class RealVideo {
   final int vodId;
   final String vodName;
@@ -104,6 +103,14 @@ class RealResponseData {
     required this.msg,
     required this.videos,
   });
+
+  static RealResponseData empty() {
+    return RealResponseData(
+      code: 0,
+      msg: '',
+      videos: [], // 空的搜索结果列表
+    );
+  }
 
   // 从JSON解析
   factory RealResponseData.fromJson(

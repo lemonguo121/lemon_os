@@ -1,4 +1,4 @@
-package com.example.lemen_os
+package com.example.lemon_os
 
 import io.flutter.embedding.android.FlutterActivity
 

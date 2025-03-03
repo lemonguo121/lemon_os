@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:lemen_os/subscrip/SubscriptionPage.dart';
+import 'package:lemon_os/subscrip/SubscriptionPage.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../category/CategoryFragment.dart';

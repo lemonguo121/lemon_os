@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:lemen_os/http/data/CategoryBean.dart';
+import 'package:lemon_os/http/data/CategoryBean.dart';
 
 import '../home/HomeListItem.dart';
 import '../http/HttpService.dart';

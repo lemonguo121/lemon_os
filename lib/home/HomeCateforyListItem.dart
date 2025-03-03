@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lemen_os/http/data/RealVideo.dart';
+import 'package:lemon_os/http/data/RealVideo.dart';
 
 import '../detail/DetailScreen.dart';
 import '../util/LoadingImage.dart';

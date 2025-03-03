@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lemen_os/http/data/HomeCateforyData.dart';
-import 'package:lemen_os/http/data/Video.dart';
-import 'package:lemen_os/util/SPManager.dart';
+import 'package:lemon_os/http/data/HomeCateforyData.dart';
+import 'package:lemon_os/http/data/Video.dart';
+import 'package:lemon_os/util/SPManager.dart';
 
 import '../home/HomeCateforyListItem.dart';
 import '../http/HttpService.dart';

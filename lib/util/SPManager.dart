@@ -11,6 +11,7 @@ class SPManager {
   static const String _subscriptionKey = "subscriptions";
   static const String _current_subscriptionKey = "current_subscriptions";
   static const String _current_volume = "_current_volume";
+  static const String _search_key = "_current_volume";
 
   // 保存播放进度
   static Future<void> saveProgress(String videoUrl, Duration position) async {
@@ -40,13 +41,15 @@ class SPManager {
   // 获取保存的音量
   static Future<double> getCurrentVolume() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getDouble("$_current_volume")??0.1;
+    return prefs.getDouble("$_current_volume") ?? 0.1;
   }
+
   // 保存音量
   static Future<void> saveVolume(double volume) async {
     final prefs = await SharedPreferences.getInstance();
-     prefs.setDouble("$_current_volume",volume);
+    prefs.setDouble("$_current_volume", volume);
   }
+
   // 记录跳过片头
   static Future<void> saveSkipHeadTimes(int videoId, Duration headTime) async {
     final prefs = await SharedPreferences.getInstance();
@@ -202,7 +205,7 @@ class SPManager {
 
 // 更新当前选中的站点
   static Future<void> updateCurrentSubscription(
-     String newName, String domain) async {
+      String newName, String domain) async {
     final prefs = await SharedPreferences.getInstance();
 
     // 去除空格，避免存入不必要的空格字符
@@ -224,5 +227,17 @@ class SPManager {
       return Map<String, String>.from(jsonDecode(currentSite));
     }
     return null; // 返回 null 如果没有选中的站点
+  }
+
+  // 获取搜索历史
+  static Future<List<String>> getSearchHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList(_search_key) ?? [];
+  }
+
+  // 更新搜索历史
+  static Future<void> freshSearchHistory(List<String> _searchHistory) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_search_key, _searchHistory);
   }
 }
