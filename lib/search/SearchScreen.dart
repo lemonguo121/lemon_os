@@ -22,6 +22,7 @@ class _SearchScreenState extends State<SearchScreen>
   List<Map<String, String>> _subscriptions = [];
   late RealResponseData selectResponseData;
   String selectSite = ""; // 当前选择的站点名
+  bool _hasSearch = false;
 
   @override
   void initState() {
@@ -64,6 +65,7 @@ class _SearchScreenState extends State<SearchScreen>
 
     setState(() {
       _isLoading = true;
+      _hasSearch = true;
       _searchResults.clear();
     });
 
@@ -241,7 +243,7 @@ class _SearchScreenState extends State<SearchScreen>
             flex: 6,
             child: selectResponseData.videos.isEmpty
                 ? Center(
-                    child: Text("没有找到相关视频"),
+                    child: Text(_hasSearch?"没有找到相关视频":""),
                   )
                 : ListView.builder(
                     padding: EdgeInsets.zero,
