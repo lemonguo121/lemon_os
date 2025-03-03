@@ -57,8 +57,7 @@ class _HomeFragmentState extends State<HomeFragment>
   }
 
   void _scrollListener() {
-    if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent - 100 &&
+    if (_scrollController.position.pixels <50 &&
         !isLoading ) {
       _getData();
     }
@@ -127,12 +126,18 @@ class _HomeFragmentState extends State<HomeFragment>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        key: _pageStorageKey,
-        controller: _scrollController,
-        slivers: [
-          SliverToBoxAdapter(child: _buildRefreshWrapper()),
-        ],
+      body: RefreshIndicator(
+        onRefresh: _refreshData, // 仅允许下拉刷新
+        child: CustomScrollView(
+          key: _pageStorageKey,
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(), // 允许下拉刷新
+          slivers: [
+            SliverToBoxAdapter(child: homeCategoryList.isEmpty && !isLoading
+                ? _buildPlaceholder()
+                : _buildCategoryListView()),
+          ],
+        ),
       ),
     );
   }
