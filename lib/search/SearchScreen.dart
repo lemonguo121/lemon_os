@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:lemon_os/search/SearchHistoryList.dart';
+import 'package:lemon_os/search/SearchResultList.dart';
+
 import '../http/HttpService.dart';
 import '../http/data/RealVideo.dart';
-import '../detail/DetailScreen.dart';
-import '../util/LoadingImage.dart';
 import '../util/SPManager.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -128,6 +129,7 @@ class _SearchScreenState extends State<SearchScreen>
   Future<void> _loadSearchResults(String siteName) async {
     if (_searchResults.containsKey(siteName)) {
       setState(() {
+        selectSite = siteName;
         selectResponseData = _searchResults[siteName]!;
       });
     } else {
@@ -135,6 +137,11 @@ class _SearchScreenState extends State<SearchScreen>
         selectResponseData = RealResponseData.empty();
       });
     }
+  }
+
+  void _changeEditControll(String historyContent) {
+    _searchController.text = historyContent;
+    _searchVideos();
   }
 
   @override
@@ -148,13 +155,25 @@ class _SearchScreenState extends State<SearchScreen>
             // 搜索框
             _buildSearchInput(),
             // 搜索历史
-            if (_searchHistory.isNotEmpty) _buildSearchHistory(),
+            if (_searchHistory.isNotEmpty)
+              SearchHistoryList(
+                  searchHistory: _searchHistory,
+                  changeEditingController: _changeEditControll,
+                  deleteSearchHistory: _deleteSearchHistory,
+                  clearSearchHistory: _clearSearchHistory),
             SizedBox(
               height: 10,
             ),
 
             //搜索结果
-            if (_subscriptions.isNotEmpty) _buildSearchResult(),
+            if (_subscriptions.isNotEmpty)
+              SearchResultList(
+                  isLoading: _isLoading,
+                  hasResultSite: hasResultSite,
+                  selectSite: selectSite,
+                  loadSearchResults: _loadSearchResults,
+                  selectResponseData: selectResponseData,
+                  hasSearch: _hasSearch),
           ],
         ),
       ),
@@ -206,144 +225,6 @@ class _SearchScreenState extends State<SearchScreen>
         ),
       ],
     );
-  }
-  Widget _buildLoadingIndicator() {
-    if (!_isLoading) return const SizedBox.shrink();
-    return const Expanded(
-        child: Center(
-          child: CircularProgressIndicator(),
-        ));
-  }
-  Widget _buildSearchResult() {
-    if (_isLoading) {
-      return _buildLoadingIndicator();
-    } else {
-      return Expanded(
-          child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: hasResultSite.length,
-              itemBuilder: (context, index) {
-                var siteName = hasResultSite[index];
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectSite = siteName ?? "";
-                      _loadSearchResults(selectSite);
-                    });
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                      siteName ?? "",
-                      style: TextStyle(
-                          fontSize: 13.0,
-                          color: (siteName == selectSite)
-                              ? Colors.red
-                              : Colors.black,
-                          fontWeight: (siteName == selectSite)
-                              ? FontWeight.bold
-                              : FontWeight.normal),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          Expanded(
-            flex: 6,
-            child: selectResponseData.videos.isEmpty
-                ? Center(
-                    child: Text(_hasSearch ? "没有找到相关视频" : ""),
-                  )
-                : ListView.builder(
-                    padding: EdgeInsets.zero,
-                    itemCount: selectResponseData.videos.length,
-                    itemBuilder: (context, index) {
-                      var video = selectResponseData.videos[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5.0),
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DetailScreen(
-                                  vodId: video.vodId,
-                                  subscription: video.subscriptionDomain,
-                                ),
-                              ),
-                            );
-                          },
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                height: 80,
-                                width: 60,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(4.0),
-                                  child: LoadingImage(pic: video.vodPic),
-                                ),
-                              ),
-                              const SizedBox(width: 10.0),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      video.vodName,
-                                      style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 2.0),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          video.vodRemarks,
-                                          style: const TextStyle(
-                                              fontSize: 12, color: Colors.grey),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(width: 8.0),
-                                        Text(
-                                          video.vodPubdate,
-                                          style: const TextStyle(
-                                              fontSize: 12, color: Colors.grey),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 2.0),
-                                    Text(
-                                      video.vodArea,
-                                      style: const TextStyle(
-                                          fontSize: 12, color: Colors.grey),
-                                    ),
-                                    const SizedBox(height: 2.0),
-                                    Text(
-                                      video.typeName,
-                                      style: const TextStyle(
-                                          fontSize: 12, color: Colors.grey),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
-      ));
-    }
   }
 
   Widget _buildSearchInput() {
