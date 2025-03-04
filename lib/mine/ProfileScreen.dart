@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lemen_os/download/DownloadManagerScreen.dart';
 
 import '../download/DownloadManagerScreen.dart';
 import '../subscrip/SubscriptionPage.dart';
