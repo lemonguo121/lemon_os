@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     HomeScreen(),
-    PlayHistory(),
+    PlayHistory(key: UniqueKey()),
     ProfileScreen(),
   ];
 
@@ -53,7 +53,11 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex, // 当前选中的页面
-        children: _pages,
+        children: [
+          HomeScreen(),
+          PlayHistory(key: UniqueKey()),
+          ProfileScreen(),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,

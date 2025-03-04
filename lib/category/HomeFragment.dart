@@ -128,7 +128,7 @@ class _HomeFragmentState extends State<HomeFragment>
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: _refreshData, // 仅允许下拉刷新
-        child: isLoading&& homeCategoryList.isNotEmpty
+        child: isLoading
             ? _buildLoadingIndicator()
             : CustomScrollView(
                 key: _pageStorageKey,
