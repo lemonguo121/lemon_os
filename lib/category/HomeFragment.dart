@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lemen_os/http/data/HomeCateforyData.dart';
-import 'package:lemen_os/http/data/Video.dart';
+import 'package:lemon_os/http/data/HomeCateforyData.dart';
+import 'package:lemon_os/http/data/Video.dart';
+import 'package:lemon_os/util/SPManager.dart';
 
 import '../home/HomeCateforyListItem.dart';
 import '../http/HttpService.dart';
@@ -14,7 +15,8 @@ class HomeFragment extends StatefulWidget {
   final Function(Map<int, List<HomeCategoryData>> homeCategoryList)?
       onDataLoaded;
 
-  const HomeFragment({super.key, 
+  const HomeFragment({
+    super.key,
     required this.alClass,
     this.cachedData,
     this.categories,
@@ -35,12 +37,6 @@ class _HomeFragmentState extends State<HomeFragment>
   @override
   bool get wantKeepAlive => true;
 
-  // RealResponseData responseData = RealResponseData(
-  //   code: 0,
-  //   msg: '',
-  //   videos: [],
-  // );
-
   Map<int, List<HomeCategoryData>> homeCategoryList = {};
   bool isLoading = false;
 
@@ -56,17 +52,14 @@ class _HomeFragmentState extends State<HomeFragment>
   }
 
   void _scrollListener() {
-    if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent - 100 &&
-        !isLoading ) {
+    if (_scrollController.position.pixels < 50 && !isLoading) {
       _getData();
     }
   }
 
   Future<void> _refreshData() async {
     setState(() {
-      homeCategoryList.clear();
-      isLoading = true; // 确保设置加载中状态
+      // homeCategoryList.clear();
     });
     await _getData();
   }
@@ -86,7 +79,13 @@ class _HomeFragmentState extends State<HomeFragment>
         params: {"ac": "detail", "ids": idsString},
       );
       homeCategoryList.clear();
-      final newData = RealResponseData.fromJson(newJsonMap);
+      var subscriptionDomain = '';
+      var _currentSubscription = await SPManager.getCurrentSubscription();
+      if (_currentSubscription != null) {
+        subscriptionDomain = _currentSubscription['domain'] ?? "";
+      }
+
+      final newData = RealResponseData.fromJson(newJsonMap, subscriptionDomain);
       setState(() {
         if (newData.videos.isEmpty) {
         } else {
@@ -96,7 +95,6 @@ class _HomeFragmentState extends State<HomeFragment>
                 HomeCategoryData(type_pid: typePid, video: realVideo);
             homeCategoryList.putIfAbsent(typePid, () => []).add(categoryData);
           }
-          // responseData.videos.addAll(newData.videos);
         }
       });
 
@@ -117,15 +115,32 @@ class _HomeFragmentState extends State<HomeFragment>
     super.dispose();
   }
 
+  Widget _buildLoadingIndicator() {
+    if (!isLoading) return const SizedBox.shrink();
+    return const Expanded(
+        child: Center(
+      child: CircularProgressIndicator(),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        key: _pageStorageKey,
-        controller: _scrollController,
-        slivers: [
-          SliverToBoxAdapter(child: _buildRefreshWrapper()),
-        ],
+      body: RefreshIndicator(
+        onRefresh: _refreshData, // 仅允许下拉刷新
+        child: isLoading
+            ? _buildLoadingIndicator()
+            : CustomScrollView(
+                key: _pageStorageKey,
+                controller: _scrollController,
+                physics: const AlwaysScrollableScrollPhysics(), // 允许下拉刷新
+                slivers: [
+                  SliverToBoxAdapter(
+                      child: homeCategoryList.isEmpty && !isLoading
+                          ? _buildPlaceholder()
+                          : _buildCategoryListView()),
+                ],
+              ),
       ),
     );
   }
@@ -150,11 +165,11 @@ class _HomeFragmentState extends State<HomeFragment>
 
   Widget _buildCategorySection(int typePid, List<HomeCategoryData> videos) {
     return Container(
-        margin: EdgeInsets.only(top: 12.0, left: 8.0, right: 8.0),
+        margin: EdgeInsets.only(top: 12.0, left: 16.0, right: 16.0),
         // padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.white, // 浅灰色背景
+          color: Colors.grey[100],
           borderRadius: BorderRadius.circular(12), // 圆角半径
         ),
         child: Column(
@@ -180,7 +195,6 @@ class _HomeFragmentState extends State<HomeFragment>
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: videos
                       .map((video) => SizedBox(
-                            width: 90,
                             child: Homecateforylistitem(video: video.video),
                           ))
                       .toList(),

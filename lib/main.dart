@@ -31,8 +31,16 @@ class ElectronicsStoreApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var color = Colors.white;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        scaffoldBackgroundColor: color, // 统一设置整个 App 的背景颜色
+          appBarTheme: AppBarTheme(
+            backgroundColor: color, // 设置 AppBar 颜色
+            elevation: 0, // 去除阴影
+          )
+      ),
       home: HomePage(),
     );
   }
@@ -50,7 +58,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     HomeScreen(),
-    PlayHistory(),
+    PlayHistory(key: UniqueKey()),
     ProfileScreen(),
   ];
 
@@ -59,7 +67,11 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex, // 当前选中的页面
-        children: _pages,
+        children: [
+          HomeScreen(),
+          PlayHistory(key: UniqueKey()),
+          ProfileScreen(),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,

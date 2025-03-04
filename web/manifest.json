@@ -1,6 +1,6 @@
 {
-    "name": "lemen_os",
-    "short_name": "lemen_os",
+    "name": "lemon_os",
+    "short_name": "lemon_os",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lemen_os/download/DownloadManagerScreen.dart';
 
+import '../subscrip/SubscriptionPage.dart';
+
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -48,6 +50,16 @@ class ProfileScreen extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => DownloadManagerScreen(),
                   ));
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.subscriptions),
+            title: Text("订阅管理"),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SubscriptionPage()),
+              );
             },
           ),
         ],

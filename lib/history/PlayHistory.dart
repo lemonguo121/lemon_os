@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../detail/DetailScreen.dart';
 import '../http/data/RealVideo.dart';
-import '../player/SPManager.dart';
+import '../util/SPManager.dart';
 import '../util/CommonUtil.dart';
 import '../util/LoadingImage.dart';
 
 class PlayHistory extends StatefulWidget {
-   const PlayHistory({super.key});
+  const PlayHistory({super.key});
 
   @override
   State<PlayHistory> createState() => _PlayHistoryState();
@@ -21,9 +21,15 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadHistoryList();
   }
-
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshHistoryList(); // 应用恢复时刷新数据
+    }
+  }
   Future<void> _loadHistoryList() async {
     try {
       final list = await _getHistoryList();
@@ -54,8 +60,7 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
       await _getIndex(video.vodId);
       var playList = CommonUtil.getPlayList(video);
 
-      if (_playIndex >= 0 &&
-          _playIndex < playList.length) {
+      if (_playIndex >= 0 && _playIndex < playList.length) {
         setState(() {
           _videoTitles[video.vodId] = playList[_playIndex]['title']!;
         });
@@ -132,6 +137,7 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
 
   Widget _buildGridItem(int index) {
     var realVideo = _historyList![index];
+    // print("_buildGridItem   title = ${realVideo.typeName}  domain = ${realVideo.subscriptionDomain} ");
     // 确保每个视频的标题加载完成
     if (!_videoTitles.containsKey(realVideo.vodId)) {
       getVideoRec(realVideo);
@@ -141,8 +147,10 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
         Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  DetailScreen(vodId: realVideo.vodId), // 动态传递vodId
+              builder: (context) => DetailScreen(
+                vodId: realVideo.vodId,
+                subscription: realVideo.subscriptionDomain,
+              ), // 动态传递vodId
             )).then((value) => _refreshHistoryList());
       },
       onLongPress: () {
@@ -205,5 +213,11 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
         ],
       ),
     );
+  }
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+
   }
 }

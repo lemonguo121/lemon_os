@@ -28,7 +28,7 @@ class _HomeListItemState extends State<HomeListItem> {
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  DetailScreen(vodId: video.vodId), // 动态传递vodId
+                  DetailScreen(vodId: video.vodId,subscription:video.subscriptionDomain), // 动态传递vodId
             ),
           );
         },
@@ -36,7 +36,7 @@ class _HomeListItemState extends State<HomeListItem> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              height: 110.0, // 图片高度
+              height: 120.0, // 图片高度
               width: 90.0, // 图片宽度
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(4.0),
@@ -48,13 +48,15 @@ class _HomeListItemState extends State<HomeListItem> {
                 child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                SizedBox(height: 2,),
                 Text(
                   video.vodName,
                   style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.bold),
+                      fontSize: 16, fontWeight: FontWeight.bold),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+                SizedBox(height: 5,),
                 Row(
                   children: [
                     const Text(

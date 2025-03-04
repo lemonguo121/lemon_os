@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lemen_os/http/data/RealVideo.dart';
+import 'package:lemon_os/http/data/RealVideo.dart';
 
 import '../detail/DetailScreen.dart';
 import '../util/LoadingImage.dart';
@@ -28,7 +28,7 @@ class _HomecateforylistitemState extends State<Homecateforylistitem> {
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  DetailScreen(vodId: video.vodId), // 动态传递vodId
+                  DetailScreen(vodId: video.vodId,subscription: video.subscriptionDomain,), // 动态传递vodId
             ),
           );
         },
@@ -36,8 +36,8 @@ class _HomecateforylistitemState extends State<Homecateforylistitem> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              height: 110.0, // 图片高度
-              width: 90.0, // 图片宽度
+              height: 160.0, // 图片高度
+              width: 110.0, // 图片宽度
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(4.0),
                 child: LoadingImage(
@@ -46,19 +46,20 @@ class _HomecateforylistitemState extends State<Homecateforylistitem> {
               ),
             ),
             const SizedBox(height: 6.0), // 图片和文字的间距
-            Expanded(
+            SizedBox(
+                width: 110,
                 child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  video.vodName,
-                  style: const TextStyle(
-                      fontSize: 12,color: Colors.black87),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                )
-              ],
-            )),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      video.vodName,
+                      style:
+                          const TextStyle(fontSize: 12, color: Colors.black87),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  ],
+                )),
           ],
         ),
       ),
