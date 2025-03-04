@@ -4,13 +4,13 @@ import 'dart:ui';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:lemen_os/util/CommonUtil.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../http/data/DownloadTaskBean.dart';
+import '../util/CommonUtil.dart';
 
 class DownloadManager {
   // 单例
