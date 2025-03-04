@@ -82,12 +82,11 @@ class _CategoryState extends State<CategoryFragment>
       Map<String, dynamic> newJsonMap;
       var typeId = "";
       if (widget.alClass.categoryChildList.isNotEmpty) {
-         typeId = widget
+        typeId = widget
             .alClass.categoryChildList[selectedCategoryPosition].typeId
             .toString();
       } else {
-        typeId = widget
-            .alClass.typeId.toString();
+        typeId = widget.alClass.typeId.toString();
       }
 
       print("typeId = $typeId");
@@ -100,13 +99,13 @@ class _CategoryState extends State<CategoryFragment>
           "f": ""
         },
       );
-      var subscriptionDomain =  '';
-      var _currentSubscription  = await SPManager.getCurrentSubscription();
-      if (_currentSubscription!=null) {
-        subscriptionDomain = _currentSubscription['domain']??"";
+      var subscriptionDomain = '';
+      var _currentSubscription = await SPManager.getCurrentSubscription();
+      if (_currentSubscription != null) {
+        subscriptionDomain = _currentSubscription['domain'] ?? "";
       }
 
-      final newData = RealResponseData.fromJson(newJsonMap,subscriptionDomain);
+      final newData = RealResponseData.fromJson(newJsonMap, subscriptionDomain);
       setState(() {
         if (newData.videos.isEmpty) {
           hasMore = false;
@@ -161,25 +160,27 @@ class _CategoryState extends State<CategoryFragment>
       return Expanded(child: _buildPlaceholder());
     }
 
-    return Expanded(
-      child: RefreshIndicator(
-        onRefresh: _refreshData,
-        child: ListView.builder(
-          key: _pageStorageKey,
-          // 使用 PageStorageKey
-          padding: EdgeInsets.zero,
-          controller: _scrollController,
-          itemCount: responseData.videos.length + 1,
-          itemBuilder: (context, index) {
-            if (index < responseData.videos.length) {
-              return HomeListItem(video: responseData.videos[index]);
-            } else {
+    return isLoading
+        ? _buildLoadingIndicator()
+        : Expanded(
+            child: RefreshIndicator(
+              onRefresh: _refreshData,
+              child: ListView.builder(
+                key: _pageStorageKey,
+                // 使用 PageStorageKey
+                padding: EdgeInsets.zero,
+                controller: _scrollController,
+                itemCount: responseData.videos.length + 1,
+                itemBuilder: (context, index) {
+                  if (index < responseData.videos.length) {
+                    return HomeListItem(video: responseData.videos[index]);
+                  } /*else {
               return _buildLoadingIndicator();
-            }
-          },
-        ),
-      ),
-    );
+            }*/
+                },
+              ),
+            ),
+          );
   }
 
   Widget _buildPlaceholder() {
@@ -200,12 +201,10 @@ class _CategoryState extends State<CategoryFragment>
 
   Widget _buildLoadingIndicator() {
     if (!isLoading) return const SizedBox.shrink();
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 16.0),
-      child: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
+    return const Expanded(
+        child: Center(
+      child: CircularProgressIndicator(),
+    ));
   }
 
   Widget _buildSecendCategory() {

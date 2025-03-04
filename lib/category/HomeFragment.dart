@@ -15,7 +15,8 @@ class HomeFragment extends StatefulWidget {
   final Function(Map<int, List<HomeCategoryData>> homeCategoryList)?
       onDataLoaded;
 
-  const HomeFragment({super.key, 
+  const HomeFragment({
+    super.key,
     required this.alClass,
     this.cachedData,
     this.categories,
@@ -36,12 +37,6 @@ class _HomeFragmentState extends State<HomeFragment>
   @override
   bool get wantKeepAlive => true;
 
-  // RealResponseData responseData = RealResponseData(
-  //   code: 0,
-  //   msg: '',
-  //   videos: [],
-  // );
-
   Map<int, List<HomeCategoryData>> homeCategoryList = {};
   bool isLoading = false;
 
@@ -57,16 +52,14 @@ class _HomeFragmentState extends State<HomeFragment>
   }
 
   void _scrollListener() {
-    if (_scrollController.position.pixels <50 &&
-        !isLoading ) {
+    if (_scrollController.position.pixels < 50 && !isLoading) {
       _getData();
     }
   }
 
   Future<void> _refreshData() async {
     setState(() {
-      homeCategoryList.clear();
-      isLoading = true; // 确保设置加载中状态
+      // homeCategoryList.clear();
     });
     await _getData();
   }
@@ -86,13 +79,13 @@ class _HomeFragmentState extends State<HomeFragment>
         params: {"ac": "detail", "ids": idsString},
       );
       homeCategoryList.clear();
-      var subscriptionDomain =  '';
-      var _currentSubscription  = await SPManager.getCurrentSubscription();
-      if (_currentSubscription!=null) {
-         subscriptionDomain = _currentSubscription['domain']??"";
+      var subscriptionDomain = '';
+      var _currentSubscription = await SPManager.getCurrentSubscription();
+      if (_currentSubscription != null) {
+        subscriptionDomain = _currentSubscription['domain'] ?? "";
       }
 
-      final newData = RealResponseData.fromJson(newJsonMap,subscriptionDomain);
+      final newData = RealResponseData.fromJson(newJsonMap, subscriptionDomain);
       setState(() {
         if (newData.videos.isEmpty) {
         } else {
@@ -102,7 +95,6 @@ class _HomeFragmentState extends State<HomeFragment>
                 HomeCategoryData(type_pid: typePid, video: realVideo);
             homeCategoryList.putIfAbsent(typePid, () => []).add(categoryData);
           }
-          // responseData.videos.addAll(newData.videos);
         }
       });
 
@@ -123,21 +115,32 @@ class _HomeFragmentState extends State<HomeFragment>
     super.dispose();
   }
 
+  Widget _buildLoadingIndicator() {
+    if (!isLoading) return const SizedBox.shrink();
+    return const Expanded(
+        child: Center(
+      child: CircularProgressIndicator(),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: _refreshData, // 仅允许下拉刷新
-        child: CustomScrollView(
-          key: _pageStorageKey,
-          controller: _scrollController,
-          physics: const AlwaysScrollableScrollPhysics(), // 允许下拉刷新
-          slivers: [
-            SliverToBoxAdapter(child: homeCategoryList.isEmpty && !isLoading
-                ? _buildPlaceholder()
-                : _buildCategoryListView()),
-          ],
-        ),
+        child: isLoading&& homeCategoryList.isNotEmpty
+            ? _buildLoadingIndicator()
+            : CustomScrollView(
+                key: _pageStorageKey,
+                controller: _scrollController,
+                physics: const AlwaysScrollableScrollPhysics(), // 允许下拉刷新
+                slivers: [
+                  SliverToBoxAdapter(
+                      child: homeCategoryList.isEmpty && !isLoading
+                          ? _buildPlaceholder()
+                          : _buildCategoryListView()),
+                ],
+              ),
       ),
     );
   }

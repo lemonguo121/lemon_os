@@ -23,6 +23,7 @@ class _SearchScreenState extends State<SearchScreen>
   late RealResponseData selectResponseData;
   String selectSite = ""; // 当前选择的站点名
   bool _hasSearch = false;
+  List<String> hasResultSite = [];
 
   @override
   void initState() {
@@ -67,6 +68,7 @@ class _SearchScreenState extends State<SearchScreen>
       _isLoading = true;
       _hasSearch = true;
       _searchResults.clear();
+      hasResultSite.clear();
     });
 
     await _saveSearchHistory(query);
@@ -86,9 +88,15 @@ class _SearchScreenState extends State<SearchScreen>
         );
 
         setState(() {
-          _searchResults[subscriptionName] =
+          var response =
               RealResponseData.fromJson(newJsonMap, subscriptionDomain);
-          _loadSearchResults(selectSite);
+          _searchResults[subscriptionName] = response;
+          if (response != null && response.videos.isNotEmpty) {
+            hasResultSite.add(subscriptionName);
+            selectSite = subscriptionName;
+            _loadSearchResults(selectSite);
+            _isLoading = false;
+          }
         });
       }
     } catch (e) {
@@ -199,10 +207,16 @@ class _SearchScreenState extends State<SearchScreen>
       ],
     );
   }
-
+  Widget _buildLoadingIndicator() {
+    if (!_isLoading) return const SizedBox.shrink();
+    return const Expanded(
+        child: Center(
+          child: CircularProgressIndicator(),
+        ));
+  }
   Widget _buildSearchResult() {
     if (_isLoading) {
-      return CircularProgressIndicator();
+      return _buildLoadingIndicator();
     } else {
       return Expanded(
           child: Row(
@@ -211,26 +225,26 @@ class _SearchScreenState extends State<SearchScreen>
             flex: 2,
             child: ListView.builder(
               padding: EdgeInsets.zero,
-              itemCount: _subscriptions.length,
+              itemCount: hasResultSite.length,
               itemBuilder: (context, index) {
-                var site = _subscriptions[index];
+                var siteName = hasResultSite[index];
                 return GestureDetector(
                   onTap: () {
                     setState(() {
-                      selectSite = site['name'] ?? "";
+                      selectSite = siteName ?? "";
                       _loadSearchResults(selectSite);
                     });
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Text(
-                      site['name'] ?? "",
+                      siteName ?? "",
                       style: TextStyle(
                           fontSize: 13.0,
-                          color: (site['name'] == selectSite)
+                          color: (siteName == selectSite)
                               ? Colors.red
                               : Colors.black,
-                          fontWeight: (site['name'] == selectSite)
+                          fontWeight: (siteName == selectSite)
                               ? FontWeight.bold
                               : FontWeight.normal),
                     ),
@@ -243,7 +257,7 @@ class _SearchScreenState extends State<SearchScreen>
             flex: 6,
             child: selectResponseData.videos.isEmpty
                 ? Center(
-                    child: Text(_hasSearch?"没有找到相关视频":""),
+                    child: Text(_hasSearch ? "没有找到相关视频" : ""),
                   )
                 : ListView.builder(
                     padding: EdgeInsets.zero,
