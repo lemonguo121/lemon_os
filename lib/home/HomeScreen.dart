@@ -78,7 +78,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
       );
     } else {
-      print("alClass = $alClass");
       return _cachedFragments.putIfAbsent(
         alClass.typeName,
         () => CategoryFragment(

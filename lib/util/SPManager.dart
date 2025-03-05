@@ -170,8 +170,6 @@ class SPManager {
     List<String> subscriptions = prefs.getStringList(_subscriptionKey) ?? [];
 
     var _currentSubscription = await getCurrentSubscription();
-    print("oldName = $oldName  newName = $newName newDomain = $newDomain");
-
     bool updated = false;
 
     for (int i = 0; i < subscriptions.length; i++) {

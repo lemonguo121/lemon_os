@@ -96,7 +96,7 @@ class RealVideo {
 class RealResponseData {
   final int code;
   final String msg;
-  final List<RealVideo> videos;
+  List<RealVideo> videos;
 
   RealResponseData({
     required this.code,

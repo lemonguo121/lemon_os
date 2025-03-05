@@ -49,19 +49,9 @@ class _HomeFragmentState extends State<HomeFragment>
     } else {
       _getData();
     }
-    _scrollController.addListener(_scrollListener);
-  }
-
-  void _scrollListener() {
-    if (_scrollController.position.pixels < 50 && !isLoading) {
-      _getData();
-    }
   }
 
   Future<void> _refreshData() async {
-    setState(() {
-      // homeCategoryList.clear();
-    });
     await _getData();
   }
 
@@ -116,42 +106,26 @@ class _HomeFragmentState extends State<HomeFragment>
     super.dispose();
   }
 
-  // Widget _buildLoadingIndicator() {
-  //   if (!isLoading) return const SizedBox.shrink();
-  //   return const Expanded(
-  //       child: Center(
-  //     child: CircularProgressIndicator(),
-  //   ));
-  // }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: _refreshData, // 仅允许下拉刷新
-        child: isLoading
-            ? MyLoadingIndicator(isLoading: isLoading)
-            : CustomScrollView(
-                key: _pageStorageKey,
-                controller: _scrollController,
-                physics: const AlwaysScrollableScrollPhysics(), // 允许下拉刷新
-                slivers: [
-                  SliverToBoxAdapter(
-                      child: homeCategoryList.isEmpty && !isLoading
-                          ? _buildPlaceholder()
-                          : _buildCategoryListView()),
-                ],
-              ),
-      ),
-    );
-  }
-
-  Widget _buildRefreshWrapper() {
-    return RefreshIndicator(
-      onRefresh: _refreshData,
-      child: homeCategoryList.isEmpty && !isLoading
-          ? _buildPlaceholder()
-          : _buildCategoryListView(),
+    return Stack(
+      children: [
+        RefreshIndicator(
+          onRefresh: _refreshData, // 仅允许下拉刷新
+          child: CustomScrollView(
+            key: _pageStorageKey,
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(), // 允许下拉刷新
+            slivers: [
+              SliverToBoxAdapter(
+                  child: homeCategoryList.isEmpty && !isLoading
+                      ? _buildPlaceholder()
+                      : _buildCategoryListView()),
+            ],
+          ),
+        ),
+        MyLoadingIndicator(isLoading: isLoading && homeCategoryList.isEmpty)
+      ],
     );
   }
 

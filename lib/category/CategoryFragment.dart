@@ -59,6 +59,7 @@ class _CategoryState extends State<CategoryFragment>
               _scrollController.position.maxScrollExtent - 100 &&
           !isLoading &&
           hasMore) {
+        currentPage++;
         _getData();
       }
     });
@@ -66,7 +67,6 @@ class _CategoryState extends State<CategoryFragment>
 
   Future<void> _refreshData() async {
     setState(() {
-      responseData.videos.clear();
       currentPage = 1;
       hasMore = true;
     });
@@ -90,7 +90,6 @@ class _CategoryState extends State<CategoryFragment>
         typeId = widget.alClass.typeId.toString();
       }
 
-      print("typeId = $typeId");
       newJsonMap = await _httpService.get(
         "",
         params: {
@@ -108,13 +107,17 @@ class _CategoryState extends State<CategoryFragment>
 
       final newData = RealResponseData.fromJson(newJsonMap, subscriptionDomain);
       setState(() {
-        if (newData.videos.isEmpty) {
-          hasMore = false;
-        } else {
-          responseData.videos.addAll(newData.videos);
-          currentPage++;
-        }
+        hasMore = newData.videos.isNotEmpty;
       });
+
+      if (currentPage == 1) {
+        responseData.videos.clear();
+        responseData.videos.addAll(newData.videos);
+      } else {
+        responseData.videos.addAll(newData.videos);
+      }
+
+      setState(() {});
 
       // 通知父组件数据已加载
       if (widget.onDataLoaded != null) {
@@ -162,7 +165,8 @@ class _CategoryState extends State<CategoryFragment>
     }
 
     return isLoading
-        ? MyLoadingIndicator(isLoading: isLoading)
+        ? MyLoadingIndicator(
+            isLoading: isLoading && responseData.videos.isEmpty)
         : Expanded(
             child: RefreshIndicator(
               onRefresh: _refreshData,
