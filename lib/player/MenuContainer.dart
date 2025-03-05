@@ -133,8 +133,9 @@ class _MenuContainerState extends State<MenuContainer> {
                               widget.controller,
                               allowScrubbing: true,
                               colors: const VideoProgressColors(
-                                playedColor: Colors.red,
-                                backgroundColor: Colors.grey,
+                                playedColor: Colors.blue,
+                                bufferedColor: Colors.grey,
+                                backgroundColor: Colors.white,
                               ),
                             ),
                           ),

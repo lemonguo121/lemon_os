@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:lemon_os/http/data/CategoryBean.dart';
+import 'package:lemon_os/mywidget/MyLoadingIndicator.dart';
 
 import '../home/HomeListItem.dart';
 import '../http/HttpService.dart';
@@ -161,7 +162,7 @@ class _CategoryState extends State<CategoryFragment>
     }
 
     return isLoading
-        ? _buildLoadingIndicator()
+        ? MyLoadingIndicator(isLoading: isLoading)
         : Expanded(
             child: RefreshIndicator(
               onRefresh: _refreshData,
@@ -197,14 +198,6 @@ class _CategoryState extends State<CategoryFragment>
         ],
       ),
     );
-  }
-
-  Widget _buildLoadingIndicator() {
-    if (!isLoading) return const SizedBox.shrink();
-    return const Expanded(
-        child: Center(
-      child: CircularProgressIndicator(),
-    ));
   }
 
   Widget _buildSecendCategory() {

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:lemon_os/mywidget/MyLoadingIndicator.dart';
 import 'package:lemon_os/subscrip/SubscriptionPage.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -19,12 +20,11 @@ class HomeScreen extends StatefulWidget {
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
-
 }
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final PageController _pageController = PageController();
-  late TabController _tabController =TabController(length: 0, vsync: this);
+  late TabController _tabController = TabController(length: 0, vsync: this);
   final HttpService _httpService = HttpService();
   List<CategoryBean> categories = [];
   bool isLoading = false;
@@ -110,11 +110,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             indicatorSize: TabBarIndicatorSize.tab,
             dividerHeight: 0,
             indicatorPadding: EdgeInsets.zero,
-            labelStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            labelStyle:
+                const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             unselectedLabelStyle: const TextStyle(fontSize: 16),
-            dividerColor: Colors.transparent, // 去除底部黑线
+            dividerColor: Colors.transparent,
+            // 去除底部黑线
             tabAlignment: TabAlignment.start,
-            tabs: categories.map((alClass) => Tab(text: alClass.typeName)).toList(),
+            tabs: categories
+                .map((alClass) => Tab(text: alClass.typeName))
+                .toList(),
           ),
         ),
         Expanded(
@@ -131,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Column(children: [MyLoadingIndicator(isLoading: isLoading)]);
     }
 
     return Scaffold(
@@ -242,6 +246,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
     );
   }
+
   Future<void> _getSubscripName() async {
     var _currentSubscription = await SPManager.getCurrentSubscription();
     if (_currentSubscription != null) {

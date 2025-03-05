@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lemon_os/http/data/HomeCateforyData.dart';
 import 'package:lemon_os/http/data/Video.dart';
+import 'package:lemon_os/mywidget/MyLoadingIndicator.dart';
 import 'package:lemon_os/util/SPManager.dart';
 
 import '../home/HomeCateforyListItem.dart';
@@ -115,13 +116,13 @@ class _HomeFragmentState extends State<HomeFragment>
     super.dispose();
   }
 
-  Widget _buildLoadingIndicator() {
-    if (!isLoading) return const SizedBox.shrink();
-    return const Expanded(
-        child: Center(
-      child: CircularProgressIndicator(),
-    ));
-  }
+  // Widget _buildLoadingIndicator() {
+  //   if (!isLoading) return const SizedBox.shrink();
+  //   return const Expanded(
+  //       child: Center(
+  //     child: CircularProgressIndicator(),
+  //   ));
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +130,7 @@ class _HomeFragmentState extends State<HomeFragment>
       body: RefreshIndicator(
         onRefresh: _refreshData, // 仅允许下拉刷新
         child: isLoading
-            ? _buildLoadingIndicator()
+            ? MyLoadingIndicator(isLoading: isLoading)
             : CustomScrollView(
                 key: _pageStorageKey,
                 controller: _scrollController,

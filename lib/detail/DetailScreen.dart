@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lemon_os/mywidget/MyLoadingIndicator.dart';
 
 import '../http/HttpService.dart';
 import '../http/data/RealVideo.dart';
@@ -51,7 +52,8 @@ class _DetailScreenState extends State<DetailScreen> {
 
   Future<void> _fetchDetail() async {
     try {
-      Map<String, dynamic> jsonMap = await _httpService.getBySubscription(widget.subscription,
+      Map<String, dynamic> jsonMap = await _httpService.getBySubscription(
+        widget.subscription,
         "",
         params: {
           "ac": "detail",
@@ -59,7 +61,8 @@ class _DetailScreenState extends State<DetailScreen> {
         },
       );
       setState(() {
-        responseData = RealResponseData.fromJson(jsonMap,widget.subscription); // 更新状态
+        responseData =
+            RealResponseData.fromJson(jsonMap, widget.subscription); // 更新状态
         var videos = responseData.videos;
         video = videos[0];
         isLoading = false; // 数据加载完成
@@ -135,7 +138,8 @@ class _DetailScreenState extends State<DetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: isLoading
-          ? const Center(child: CircularProgressIndicator()) // 加载中显示
+          ? Column(
+              children: [MyLoadingIndicator(isLoading: isLoading)]) // 加载中显示
           : (responseData.videos.isEmpty)
               ? const Center(child: Text("无法加载详情")) // 数据加载失败显示
               : _buildCustomScrollView(),
