@@ -397,10 +397,17 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                 Center(
                   child: GestureDetector(
                     onTap: _togglePlayPause,
-                    child: const Icon(
-                      Icons.play_arrow,
-                      size: 100,
-                      color: Colors.white,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.4), // 半透明黑色背景
+                        shape: BoxShape.circle, // 圆形
+                      ),
+                      padding: const EdgeInsets.all(10), // 控制圆的大小
+                      child: const Icon(
+                        Icons.play_arrow,
+                        size: 50,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
