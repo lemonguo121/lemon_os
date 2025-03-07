@@ -1,5 +1,6 @@
 import 'dart:convert'; // 用于 json 编码和解码
 import 'package:http/http.dart' as http;
+import 'package:xml/xml.dart';
 import '../util/SPManager.dart'; // 导入 SPManager 用于获取当前站点
 
 class HttpService {
@@ -13,6 +14,7 @@ class HttpService {
   // // final String baseUrl = "https://lbapi9.com/api.php/provide/vod/";
 
   static String baseUrl = ""; // 将 baseUrl 设置为静态变量
+  static String paresType = "1"; //解析类型
 
   HttpService._internal();
 
@@ -29,6 +31,7 @@ class HttpService {
       // 设置选中状态，如果有当前选中的站点
       if (_currentSubscription != null) {
         baseUrl = _currentSubscription['domain'] ?? "";
+        paresType = _currentSubscription['paresType'] ?? "1";
       }
       final uri = Uri.parse(baseUrl + path)
           .replace(queryParameters: params); // 使用 replace 添加查询参数
@@ -39,10 +42,10 @@ class HttpService {
     }
   }
 
-  Future<dynamic> getBySubscription(String subscription,String path,
+  Future<dynamic> getBySubscription(String subscription, String path,
       {Map<String, dynamic>? params}) async {
     try {
-      final uri = Uri.parse(subscription??baseUrl + path)
+      final uri = Uri.parse(subscription ?? baseUrl + path)
           .replace(queryParameters: params); // 使用 replace 添加查询参数
       final response = await http.get(uri, headers: _getHeaders());
       return _handleResponse(response);
@@ -105,12 +108,20 @@ class HttpService {
     };
   }
 
-  // 处理响应
   dynamic _handleResponse(http.Response response) {
     if (response.statusCode == 200) {
       // 使用 UTF-8 解码，避免中文乱码
       String decodedBody = utf8.decode(response.bodyBytes);
-      return json.decode(decodedBody);
+
+      // **方法 1：根据 Content-Type 头部判断**
+
+      if (paresType == "1") {
+        return json.decode(decodedBody);
+      } else if (paresType == "2") {
+        return XmlDocument.parse(decodedBody);
+      } else {
+        throw Exception("Unknown response format");
+      }
     } else {
       throw Exception("Server Error: ${response.statusCode}");
     }

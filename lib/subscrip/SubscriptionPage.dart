@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../home/HomeScreen.dart';
+
+import '../http/HttpService.dart';
 import '../main.dart';
 import '../util/SPManager.dart';
 import 'AddSubscriptionPage.dart';
-import '../http/HttpService.dart';
 
 class SubscriptionPage extends StatefulWidget {
   @override
@@ -54,7 +54,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
   void _saveCurrentSubscription(Map<String, String> site) async {
     await SPManager.saveCurrentSubscription(
-        site['name'] ?? '', site['domain'] ?? '');
+        site['name'] ?? '', site['domain'] ?? '', site['paresType'] ?? "");
   }
 
   void _onConfirm() async {
@@ -64,7 +64,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
       if (_currentSubscription!['domain'] != selectedDomain) {
         await SPManager.saveCurrentSubscription(
-            selectedSite['name'] ?? '', selectedSite['domain'] ?? '');
+            selectedSite['name'] ?? '', selectedSite['domain'] ?? '',selectedSite['paresType'] ?? '');
 
         HttpService.updateBaseUrl(selectedDomain ?? '');
 
@@ -85,6 +85,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
         TextEditingController(text: site['name']);
     TextEditingController domainController =
         TextEditingController(text: site['domain']);
+    TextEditingController paresTypeController =
+        TextEditingController(text: site['paresType']);
 
     showDialog(
       context: context,
@@ -113,10 +115,10 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
               onPressed: () async {
                 String newName = nameController.text.trim();
                 String newDomain = domainController.text.trim();
-
+                String newParesType = paresTypeController.text.trim();
                 if (newName.isNotEmpty && newDomain.isNotEmpty) {
                   await SPManager.updateSubscription(
-                      site['name']!, newName, newDomain);
+                      site['name']!, newName, newDomain, newParesType);
                   await SPManager.updateCurrentSubscription(newName, newDomain);
                   _loadSubscriptions(); // 重新加载数据
                   Navigator.pop(context); // 关闭弹窗

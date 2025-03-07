@@ -38,6 +38,7 @@ dependencies:
   http: ^1.2.0
   screen_brightness: ^2.1.1
   fluttertoast: ^8.2.0
+  xml: ^6.3.0
 #  audio_manager: ^0.8.2
 
   # The following adds the Cupertino Icons font to your application.

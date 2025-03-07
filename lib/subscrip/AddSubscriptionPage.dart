@@ -12,13 +12,16 @@ class AddSubscriptionPage extends StatefulWidget {
 class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _domainController = TextEditingController();
+  final TextEditingController _paresController = TextEditingController();
 
   void _saveSubscription() async {
     String name = _nameController.text.trim();
     String domain = _domainController.text.trim();
+    String paresType = _paresController.text.trim();
 
     if (name.isNotEmpty && domain.isNotEmpty) {
-      List<Map<String, String>> subscriptions = await SPManager.getSubscriptions();
+      List<Map<String, String>> subscriptions =
+          await SPManager.getSubscriptions();
 
       bool exists = subscriptions.any((sub) => sub['domain'] == domain);
       if (exists) {
@@ -28,14 +31,14 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
         return;
       }
 
-      await SPManager.saveSubscription(name, domain);
-      await SPManager.saveCurrentSubscription(name, domain);
+      await SPManager.saveSubscription(name, domain,paresType);
+      await SPManager.saveCurrentSubscription(name, domain,paresType);
       HttpService.updateBaseUrl(domain);
 
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => HomePage()),
-            (route) => false,
+        (route) => false,
       );
     }
   }
@@ -45,11 +48,18 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
     List<Map<String, String>> defaultSubscriptions = [
       {
         "name": "黑木耳",
-        "domain": "https://json02.heimuer.xyz/api.php/provide/vod/"
+        "domain": "https://json02.heimuer.xyz/api.php/provide/vod/",
+        "paresType": "1"
       },
       {
         "name": "爱看",
-        "domain": "https://ikunzyapi.com/api.php/provide/vod/from/ikm3u8/"
+        "domain": "https://ikunzyapi.com/api.php/provide/vod/from/ikm3u8/",
+        "paresType": "1"
+      },
+      {
+        "name": "最大",
+        "domain": "https://zuida001.com/api.php/provide/vod/at/xml/",
+        "paresType": "2"
       }
     ];
 
@@ -61,7 +71,7 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
     for (var sub in defaultSubscriptions) {
       bool exists = subscriptions.any((s) => s['domain'] == sub['domain']);
       if (!exists) {
-        await SPManager.saveSubscription(sub['name']!, sub['domain']!);
+        await SPManager.saveSubscription(sub['name']!, sub['domain']!, sub['paresType']!);
         addedCount++;
       }
     }
@@ -70,23 +80,27 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
       await SPManager.saveCurrentSubscription(
         defaultSubscriptions[0]['name']!,
         defaultSubscriptions[0]['domain']!,
+        defaultSubscriptions[0]['paresType']!,
       );
       HttpService.updateBaseUrl(defaultSubscriptions[0]['domain']!);
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(addedCount > 0 ? "成功导入 $addedCount 个站点" : "所有站点已存在"),
-        duration: Duration(seconds: 2),
-      ),
-    );
-
-    if (addedCount > 0) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => HomePage()),
-            (route) => false,
+    // 检查是否仍然挂载，避免错误
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(addedCount > 0 ? "成功导入 $addedCount 个站点" : "所有站点已存在"),
+          duration: Duration(seconds: 2),
+        ),
       );
+
+      if (addedCount > 0) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+              (route) => false,
+        );
+      }
     }
   }
 
@@ -105,6 +119,10 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
             TextField(
               controller: _domainController,
               decoration: InputDecoration(labelText: "站点域名"),
+            ),
+            TextField(
+              controller: _domainController,
+              decoration: InputDecoration(labelText: "解析类型"),
             ),
             SizedBox(height: 20),
             ElevatedButton(

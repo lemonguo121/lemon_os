@@ -129,12 +129,12 @@ class SPManager {
   }
 
   // 保存站点列表
-  static Future<void> saveSubscription(String name, String domain) async {
+  static Future<void> saveSubscription(String name, String domain,String paresType) async {
     final prefs = await SharedPreferences.getInstance();
     List<String> subscriptions = prefs.getStringList(_subscriptionKey) ?? [];
 
     // 确保不会重复添加相同站点
-    String newSite = jsonEncode({"name": name, "domain": domain});
+    String newSite = jsonEncode({"name": name, "domain": domain,"paresType":paresType});
     if (!subscriptions.contains(newSite)) {
       subscriptions.add(newSite);
       await prefs.setStringList(_subscriptionKey, subscriptions);
@@ -165,7 +165,7 @@ class SPManager {
 
   // 更新站点信息
   static Future<bool> updateSubscription(
-      String oldName, String newName, String newDomain) async {
+      String oldName, String newName, String newDomain,String newParesType) async {
     final prefs = await SharedPreferences.getInstance();
     List<String> subscriptions = prefs.getStringList(_subscriptionKey) ?? [];
 
@@ -177,12 +177,12 @@ class SPManager {
           Map<String, String>.from(jsonDecode(subscriptions[i]));
 
       if (site['name'] == oldName) {
-        subscriptions[i] = jsonEncode({"name": newName, "domain": newDomain});
+        subscriptions[i] = jsonEncode({"name": newName, "domain": newDomain,"paresType":newParesType});
         updated = true;
 
         // 如果当前选中的站点是旧站点，则更新当前订阅
         if ((_currentSubscription?['name'] ?? "") == oldName) {
-          await saveCurrentSubscription(newName, newDomain);
+          await saveCurrentSubscription(newName, newDomain,newParesType);
         }
         break;
       }
@@ -195,9 +195,9 @@ class SPManager {
 
 // 保存当前选中的站点
   static Future<void> saveCurrentSubscription(
-      String name, String domain) async {
+      String name, String domain,String paresType) async {
     final prefs = await SharedPreferences.getInstance();
-    String currentSite = jsonEncode({"name": name, "domain": domain});
+    String currentSite = jsonEncode({"name": name, "domain": domain,"paresType":paresType});
     await prefs.setString(_current_subscriptionKey, currentSite);
   }
 

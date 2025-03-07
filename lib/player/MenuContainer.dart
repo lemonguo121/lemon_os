@@ -61,18 +61,14 @@ class _MenuContainerState extends State<MenuContainer> {
 
   @override
   Widget build(BuildContext context) {
-    double bottomBarHeight = widget.isFullScreen ? 70.0 : 65.0;
+    double bottomBarHeight = widget.isFullScreen ? 80.0 : 70.0;
     return Column(
       children: [
         // 顶部控制栏
         Container(
           height: 70.0,
           color: Colors.black.withOpacity(0.7),
-          padding: EdgeInsets.only(
-              left: 16,
-              top:  35,
-              right: 16,
-              bottom: 0),
+          padding: EdgeInsets.only(left: 16, top: 35, right: 16, bottom: 0),
           child: Row(
             children: [
               Center(
@@ -87,13 +83,13 @@ class _MenuContainerState extends State<MenuContainer> {
                   }
                 },
               )),
-              Flexible(child:  Text(
+              Flexible(
+                  child: Text(
                 widget.videoTitle,
                 style: const TextStyle(color: Colors.white, fontSize: 14),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-              ))
-             ,
+              )),
             ],
           ),
         ),
@@ -106,7 +102,7 @@ class _MenuContainerState extends State<MenuContainer> {
               SizedBox(
                 height: 30,
                 child: Row(
-                  // crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(
                       child: IconButton(
@@ -122,22 +118,16 @@ class _MenuContainerState extends State<MenuContainer> {
                           widget.controller.value.position)),
                     ),
                     Expanded(
-                      child: Padding(
-                        padding:
-                            const EdgeInsets.only(left: 12, right: 12, top: 7),
-                        child: Align(
-                          alignment: Alignment.topCenter,
-                          child: Padding(
-                            padding: EdgeInsets.zero,
-                            child: VideoProgressIndicator(
-                              widget.controller,
-                              allowScrubbing: true,
-                              colors: const VideoProgressColors(
-                                playedColor: Colors.blue,
-                                bufferedColor: Colors.grey,
-                                backgroundColor: Colors.white,
-                              ),
-                            ),
+                      child: SizedBox(
+                        child: VideoProgressIndicator(
+                          padding: const EdgeInsets.only(
+                              left: 6, right: 6, bottom: 0),
+                          widget.controller,
+                          allowScrubbing: true,
+                          colors: const VideoProgressColors(
+                            playedColor: Colors.blue,
+                            bufferedColor: Colors.grey,
+                            backgroundColor: Colors.white,
                           ),
                         ),
                       ),
@@ -261,8 +251,8 @@ class _MenuContainerState extends State<MenuContainer> {
                               widget.onSetState;
                             },
                             child: FutureBuilder<Duration>(
-                              future: SPManager.getSkipHeadTimes(
-                                  widget.videoId),
+                              future:
+                                  SPManager.getSkipHeadTimes(widget.videoId),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData && snapshot.data != null) {
                                   final headTime = snapshot.data!;
@@ -296,8 +286,8 @@ class _MenuContainerState extends State<MenuContainer> {
                               widget.onSetState;
                             },
                             child: FutureBuilder<Duration>(
-                              future: SPManager.getSkipTailTimes(
-                                  widget.videoId),
+                              future:
+                                  SPManager.getSkipTailTimes(widget.videoId),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData && snapshot.data != null) {
                                   final headTime = snapshot.data!;

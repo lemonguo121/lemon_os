@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lemon_os/mywidget/MyLoadingIndicator.dart';
 import 'package:lemon_os/subscrip/SubscriptionPage.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:xml/xml.dart';
 
 import '../category/CategoryFragment.dart';
 import '../category/HomeFragment.dart';
@@ -29,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   List<CategoryBean> categories = [];
   bool isLoading = false;
   String scripName = "未订阅";
+  String paresType = "1";
 
   // 缓存 Fragment 实例
   final Map<String, CategoryFragment> _cachedFragments = {};
@@ -42,23 +44,30 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _loadData();
-    _getSubscripName();
   }
 
   Future<void> _loadData() async {
     setState(() => isLoading = true);
     try {
+    await _getSubscripName();
+    var responseString;
+    if (paresType == "1") {
       Map<String, dynamic> jsonMap = await _httpService.get("");
-      var responseString = ResponseData.fromJson(jsonMap);
-      List<CategoryBean> loadedCategories = [
-        CategoryBean(
-            typeId: -1, typePid: -1, typeName: "首页", categoryChildList: [])
-      ]..addAll(responseString.alClass);
+      responseString = ResponseData.fromJson(jsonMap);
+    } else {
+      XmlDocument xmlDoc = await _httpService.get("");
+      responseString = ResponseData.fromXml(xmlDoc);
+    }
 
-      setState(() {
-        categories = loadedCategories;
-        _tabController = TabController(length: categories.length, vsync: this);
-      });
+    List<CategoryBean> loadedCategories = [
+      CategoryBean(
+          typeId: -1, typePid: -1, typeName: "首页", categoryChildList: [])
+    ]..addAll(responseString.alClass);
+
+    setState(() {
+      categories = loadedCategories;
+      _tabController = TabController(length: categories.length, vsync: this);
+    });
     } catch (e) {
       print("Error lemon: $e");
     } finally {
@@ -251,10 +260,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     if (_currentSubscription != null) {
       setState(() {
         scripName = _currentSubscription['name'] ?? "未订阅";
+        paresType = _currentSubscription['paresType'] ?? "1";
       });
     } else {
       setState(() {
         scripName = "未订阅";
+        paresType = "0";
       });
     }
   }
