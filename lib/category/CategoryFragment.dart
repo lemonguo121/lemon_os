@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:lemon_os/http/data/CategoryBean.dart';
+import 'package:lemon_os/mywidget/MyEmptyDataView.dart';
 import 'package:lemon_os/mywidget/MyLoadingIndicator.dart';
+import 'package:xml/xml.dart';
 
 import '../home/HomeListItem.dart';
 import '../http/HttpService.dart';
@@ -79,8 +81,14 @@ class _CategoryState extends State<CategoryFragment>
       setState(() {
         isLoading = true;
       });
+      var _currentSubscription = await SPManager.getCurrentSubscription();
+      if (_currentSubscription == null) {
+        return;
+      }
+      var subscriptionDomain = '';
+      var paresType = _currentSubscription['paresType'] ?? "1";
+      subscriptionDomain = _currentSubscription['domain'] ?? "";
 
-      Map<String, dynamic> newJsonMap;
       var typeId = "";
       if (widget.alClass.categoryChildList.isNotEmpty) {
         typeId = widget
@@ -89,23 +97,31 @@ class _CategoryState extends State<CategoryFragment>
       } else {
         typeId = widget.alClass.typeId.toString();
       }
-
-      newJsonMap = await _httpService.get(
-        "",
-        params: {
-          "ac": "detail",
-          "t": typeId,
-          "pg": currentPage.toString(),
-          "f": ""
-        },
-      );
-      var subscriptionDomain = '';
-      var _currentSubscription = await SPManager.getCurrentSubscription();
-      if (_currentSubscription != null) {
-        subscriptionDomain = _currentSubscription['domain'] ?? "";
+      var newData;
+      if (paresType == "1") {
+        Map<String, dynamic> newJsonMap = await _httpService.get(
+          "",
+          params: {
+            "ac": "detail",
+            "t": typeId,
+            "pg": currentPage.toString(),
+            "f": ""
+          },
+        );
+        newData = RealResponseData.fromJson(newJsonMap, subscriptionDomain);
+      } else {
+        XmlDocument newJsonMap = await _httpService.get(
+          "",
+          params: {
+            "ac": "videolist",
+            "t": typeId,
+            "pg": currentPage.toString(),
+            "f": ""
+          },
+        );
+        newData = RealResponseData.fromXml(newJsonMap, subscriptionDomain);
       }
 
-      final newData = RealResponseData.fromJson(newJsonMap, subscriptionDomain);
       setState(() {
         hasMore = newData.videos.isNotEmpty;
       });
@@ -161,7 +177,7 @@ class _CategoryState extends State<CategoryFragment>
 
   Widget _buildListView() {
     if (responseData.videos.isEmpty && !isLoading) {
-      return Expanded(child: _buildPlaceholder());
+      return Expanded(child: MyEmptyDataView(retry: _refreshData));
     }
 
     return isLoading
@@ -186,22 +202,6 @@ class _CategoryState extends State<CategoryFragment>
               ),
             ),
           );
-  }
-
-  Widget _buildPlaceholder() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.videocam_off, size: 64, color: Colors.grey),
-          SizedBox(height: 16),
-          Text(
-            '暂无视频内容',
-            style: TextStyle(color: Colors.grey, fontSize: 16),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildSecendCategory() {

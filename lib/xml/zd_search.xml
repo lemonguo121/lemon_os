@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="5.1">
+    <list
+        page="1"
+        pagecount="1"
+        pagesize="20"
+        recordcount="11">
+        <video>
+            <last>2025-03-08 22:10:07</last>
+            <id>35053</id>
+            <tid>29</tid>
+            <name><![CDATA[斗破苍穹年番]]></name>
+            <type>国产动漫</type>
+            <dt>zuidam3u8</dt>
+            <note><![CDATA[更新第137集]]></note>
+        </video>
+        <video>
+            <last>2024-05-02 12:42:52</last>
+            <id>72701</id>
+            <tid>11</tid>
+            <name><![CDATA[斗破苍穹3：除恶]]></name>
+            <type>剧情片</type>
+            <dt>zuidam3u8</dt>
+            <note><![CDATA[更新HD]]></note>
+        </video>
+        <video>
+            <last>2024-01-06 10:52:45</last>
+            <id>60242</id>
+            <tid>29</tid>
+            <name><![CDATA[斗破苍穹缘起]]></name>
+            <type>国产动漫</type>
+            <dt>zuidam3u8</dt>
+            <note><![CDATA[完结]]></note>
+        </video>
+        <video>
+            <last>2023-12-30 20:56:25</last>
+            <id>57346</id>
+            <tid>13</tid>
+            <name><![CDATA[斗破苍穹之少年归来]]></name>
+            <type>国产剧</type>
+            <dt>zuidam3u8</dt>
+            <note><![CDATA[全34集]]></note>
+        </video>
+        <video>
+            <last>2023-12-21 17:50:44</last>
+            <id>58541</id>
+            <tid>6</tid>
+            <name><![CDATA[斗破苍穹·止戈]]></name>
+            <type>动作片</type>
+            <dt>zuidam3u8</dt>
+            <note><![CDATA[HD]]></note>
+        </video>
+        <video>
+            <last>2023-11-17 11:17:10</last>
+            <id>55244</id>
+            <tid>6</tid>
+            <name><![CDATA[斗破苍穹·觉醒]]></name>
+            <type>动作片</type>
+            <dt>zuidam3u8</dt>
+            <note><![CDATA[HD]]></note>
+        </video>
+        <video>
+            <last>2023-09-11 15:29:51</last>
+            <id>35029</id>
+            <tid>29</tid>
+            <name><![CDATA[斗破苍穹第一季]]></name>
+            <type>国产动漫</type>
+            <dt>zuidam3u8</dt>
+            <note><![CDATA[更新至第12集]]></note>
+        </video>
+        <video>
+            <last>2023-09-11 15:29:02</last>
+            <id>34928</id>
+            <tid>29</tid>
+            <name><![CDATA[斗破苍穹第二季]]></name>
+            <type>国产动漫</type>
+            <dt>zuidam3u8</dt>
+            <note><![CDATA[更新至第12集]]></note>
+        </video>
+        <video>
+            <last>2023-09-11 15:26:42</last>
+            <id>34649</id>
+            <tid>29</tid>
+            <name><![CDATA[斗破苍穹之大主宰第三季]]></name>
+            <type>国产动漫</type>
+            <dt>zuidam3u8</dt>
+            <note><![CDATA[更新至第30集]]></note>
+        </video>
+        <video>
+            <last>2023-09-11 15:26:02</last>
+            <id>34579</id>
+            <tid>29</tid>
+            <name><![CDATA[斗破苍穹 动态漫第二季]]></name>
+            <type>国产动漫</type>
+            <dt>zuidam3u8</dt>
+            <note><![CDATA[更新至第52集]]></note>
+        </video>
+        <video>
+            <last>2023-09-11 15:24:03</last>
+            <id>34348</id>
+            <tid>29</tid>
+            <name><![CDATA[斗破苍穹三年之约]]></name>
+            <type>国产动漫</type>
+            <dt>zuidam3u8</dt>
+            <note><![CDATA[更新至第13集]]></note>
+        </video>
+    </list>
+    <class>
+        <ty id="1">电影</ty>
+        <ty id="2">电视剧</ty>
+        <ty id="3">综艺</ty>
+        <ty id="4">动漫</ty>
+        <ty id="6">动作片</ty>
+        <ty id="7">喜剧片</ty>
+        <ty id="8">爱情片</ty>
+        <ty id="9">科幻片</ty>
+        <ty id="10">恐怖片</ty>
+        <ty id="11">剧情片</ty>
+        <ty id="12">战争片</ty>
+        <ty id="13">国产剧</ty>
+        <ty id="14">欧美剧</ty>
+        <ty id="15">韩剧</ty>
+        <ty id="16">日剧</ty>
+        <ty id="17">港剧</ty>
+        <ty id="18">台剧</ty>
+        <ty id="19">泰剧</ty>
+        <ty id="20">纪录片</ty>
+        <ty id="23">海外剧</ty>
+        <ty id="25">大陆综艺</ty>
+        <ty id="26">日韩综艺</ty>
+        <ty id="27">港台综艺</ty>
+        <ty id="28">欧美综艺</ty>
+        <ty id="29">国产动漫</ty>
+        <ty id="30">日韩动漫</ty>
+        <ty id="31">欧美动漫</ty>
+        <ty id="39">动画片</ty>
+        <ty id="44">港台动漫</ty>
+        <ty id="45">海外动漫</ty>
+        <ty id="47">演唱会</ty>
+        <ty id="48">体育赛事</ty>
+        <ty id="49">篮球</ty>
+        <ty id="50">足球</ty>
+        <ty id="51">预告片</ty>
+        <ty id="52">斯诺克</ty>
+        <ty id="53">影视解说</ty>
+        <ty id="54">爽文短剧</ty>
+        <ty id="55">伦理</ty>
+        <ty id="56">港台三级</ty>
+        <ty id="57">韩国伦理</ty>
+        <ty id="58">西方伦理</ty>
+        <ty id="59">日本伦理</ty>
+        <ty id="60">两性课堂</ty>
+        <ty id="61">写真热舞</ty>
+        <ty id="62">4K电影</ty>
+        <ty id="63">有声动漫</ty>
+        <ty id="64">女频恋爱</ty>
+        <ty id="65">反转爽剧</ty>
+        <ty id="66">古装仙侠</ty>
+        <ty id="67">年代穿越</ty>
+        <ty id="68">脑洞悬疑</ty>
+        <ty id="69">现代都市</ty>
+        <ty id="70">邵氏电影</ty>
+    </class>
+</rss>

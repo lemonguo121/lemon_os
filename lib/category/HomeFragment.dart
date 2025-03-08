@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lemon_os/http/data/HomeCateforyData.dart';
 import 'package:lemon_os/http/data/Video.dart';
+import 'package:lemon_os/mywidget/MyEmptyDataView.dart';
 import 'package:lemon_os/mywidget/MyLoadingIndicator.dart';
 import 'package:lemon_os/util/SPManager.dart';
+import 'package:xml/xml.dart';
 
 import '../home/HomeCateforyListItem.dart';
 import '../http/HttpService.dart';
@@ -59,24 +61,45 @@ class _HomeFragmentState extends State<HomeFragment>
     try {
       if (isLoading) return;
       setState(() => isLoading = true);
-
-      Map<String, dynamic> jsonMap = await _httpService.get("");
-      var responseString = ResponseData.fromJson(jsonMap);
-      List<int> ids = responseString.videos.map((e) => e.vodId).toList();
+      var _currentSubscription = await SPManager.getCurrentSubscription();
+      if (_currentSubscription == null) {
+        return;
+      }
+      var subscriptionDomain = '';
+      var paresType = _currentSubscription['paresType'] ?? "1";
+      subscriptionDomain = _currentSubscription['domain'] ?? "";
+      var responseString;
+      if (paresType == "1") {
+        Map<String, dynamic> jsonMap = await _httpService.get("");
+        responseString = ResponseData.fromJson(jsonMap);
+      } else {
+        XmlDocument xmlDoc = await _httpService.get("");
+        responseString = ResponseData.fromXml(xmlDoc);
+      }
+      List<int> ids = (responseString.videos as List<Video>)
+          .where((e) => e.vodId != null)
+          .map((e) => e.vodId!)
+          .toList();
       String idsString = ids.join(',');
 
-      Map<String, dynamic> newJsonMap = await _httpService.get(
-        "",
-        params: {"ac": "detail", "ids": idsString},
-      );
+
+      var newData;
       homeCategoryList.clear();
-      var subscriptionDomain = '';
-      var _currentSubscription = await SPManager.getCurrentSubscription();
-      if (_currentSubscription != null) {
-        subscriptionDomain = _currentSubscription['domain'] ?? "";
+      if (paresType == "1") {
+        Map<String, dynamic> newJsonMap = await _httpService.get(
+          "",
+          params: {"ac": "detail", "ids": idsString},
+        );
+        newData = RealResponseData.fromJson(newJsonMap, subscriptionDomain);
+      } else {
+        XmlDocument xmlDoc = await _httpService.get(
+          "",
+          params: {"ac": "videolist", "ids": idsString},
+        );
+
+        newData = RealResponseData.fromXml(xmlDoc, subscriptionDomain);
       }
 
-      final newData = RealResponseData.fromJson(newJsonMap, subscriptionDomain);
       setState(() {
         if (newData.videos.isEmpty) {
         } else {
@@ -117,14 +140,18 @@ class _HomeFragmentState extends State<HomeFragment>
             controller: _scrollController,
             physics: const AlwaysScrollableScrollPhysics(), // 允许下拉刷新
             slivers: [
-              SliverToBoxAdapter(
-                  child: homeCategoryList.isEmpty && !isLoading
-                      ? _buildPlaceholder()
-                      : _buildCategoryListView()),
+              SliverToBoxAdapter(child: _buildCategoryListView()),
+              // 当数据为空且不是加载状态时显示占位符
+              if (homeCategoryList.isEmpty && !isLoading)
+                SliverFillRemaining(
+                  child: SizedBox.expand(
+                    child: MyEmptyDataView(retry: _refreshData),
+                  ),
+                ),
             ],
           ),
         ),
-        MyLoadingIndicator(isLoading: isLoading && homeCategoryList.isEmpty)
+        MyLoadingIndicator(isLoading: isLoading && homeCategoryList.isEmpty),
       ],
     );
   }
@@ -178,22 +205,6 @@ class _HomeFragmentState extends State<HomeFragment>
             ),
           ],
         ));
-  }
-
-  Widget _buildPlaceholder() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.videocam_off, size: 64, color: Colors.grey),
-          SizedBox(height: 16),
-          Text(
-            '暂无视频内容',
-            style: TextStyle(color: Colors.grey, fontSize: 16),
-          ),
-        ],
-      ),
-    );
   }
 
   String _getTypeContent(int typePid) {

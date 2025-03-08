@@ -35,27 +35,30 @@ class HttpService {
       }
       final uri = Uri.parse(baseUrl + path)
           .replace(queryParameters: params); // 使用 replace 添加查询参数
+      print("uri = $uri");
       final response = await http.get(uri, headers: _getHeaders());
-      return _handleResponse(response);
+      return _handleResponse(response, paresType);
     } catch (e) {
       throw _handleError(e);
     }
   }
 
-  Future<dynamic> getBySubscription(String subscription, String path,
+  Future<dynamic> getBySubscription(
+      String subscription, String paresType, String path,
       {Map<String, dynamic>? params}) async {
     try {
       final uri = Uri.parse(subscription ?? baseUrl + path)
           .replace(queryParameters: params); // 使用 replace 添加查询参数
       final response = await http.get(uri, headers: _getHeaders());
-      return _handleResponse(response);
+      return _handleResponse(response, paresType);
     } catch (e) {
       throw _handleError(e);
     }
   }
 
   // POST 请求
-  Future<dynamic> post(String path, {Map<String, dynamic>? data}) async {
+  Future<dynamic> post(String subscription, String path,
+      {Map<String, dynamic>? data}) async {
     try {
       final uri = Uri.parse(baseUrl + path);
       final response = await http.post(
@@ -63,14 +66,15 @@ class HttpService {
         headers: _getHeaders(),
         body: json.encode(data), // 将数据编码为 JSON 字符串
       );
-      return _handleResponse(response);
+      return _handleResponse(response, subscription);
     } catch (e) {
       throw _handleError(e);
     }
   }
 
   // PUT 请求
-  Future<dynamic> put(String path, {Map<String, dynamic>? data}) async {
+  Future<dynamic> put(String subscription, String path,
+      {Map<String, dynamic>? data}) async {
     try {
       final uri = Uri.parse(baseUrl + path);
       final response = await http.put(
@@ -78,14 +82,15 @@ class HttpService {
         headers: _getHeaders(),
         body: json.encode(data), // 将数据编码为 JSON 字符串
       );
-      return _handleResponse(response);
+      return _handleResponse(response, subscription);
     } catch (e) {
       throw _handleError(e);
     }
   }
 
   // DELETE 请求
-  Future<dynamic> delete(String path, {Map<String, dynamic>? data}) async {
+  Future<dynamic> delete(String subscription, String path,
+      {Map<String, dynamic>? data}) async {
     try {
       final uri = Uri.parse(baseUrl + path);
       final response = await http.delete(
@@ -93,7 +98,7 @@ class HttpService {
         headers: _getHeaders(),
         body: json.encode(data), // 将数据编码为 JSON 字符串
       );
-      return _handleResponse(response);
+      return _handleResponse(response, subscription);
     } catch (e) {
       throw _handleError(e);
     }
@@ -108,7 +113,7 @@ class HttpService {
     };
   }
 
-  dynamic _handleResponse(http.Response response) {
+  dynamic _handleResponse(http.Response response, String paresType) {
     if (response.statusCode == 200) {
       // 使用 UTF-8 解码，避免中文乱码
       String decodedBody = utf8.decode(response.bodyBytes);
@@ -117,7 +122,7 @@ class HttpService {
 
       if (paresType == "1") {
         return json.decode(decodedBody);
-      } else if (paresType == "2") {
+      } else if (paresType == "0") {
         return XmlDocument.parse(decodedBody);
       } else {
         throw Exception("Unknown response format");

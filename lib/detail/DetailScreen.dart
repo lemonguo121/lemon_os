@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lemon_os/mywidget/MyLoadingIndicator.dart';
+import 'package:xml/xml.dart';
 
 import '../http/HttpService.dart';
 import '../http/data/RealVideo.dart';
@@ -52,17 +53,46 @@ class _DetailScreenState extends State<DetailScreen> {
 
   Future<void> _fetchDetail() async {
     try {
-      Map<String, dynamic> jsonMap = await _httpService.getBySubscription(
-        widget.subscription,
-        "",
-        params: {
-          "ac": "detail",
-          "ids": widget.vodId.toString(), // 使用传递的 vodId
-        },
-      );
-      setState(() {
+      List<Map<String, String>> _subscriptions =
+          await SPManager.getSubscriptions();
+      if (_subscriptions.isEmpty) {
+        return;
+      }
+      var paresType = "1";
+      for (var value in _subscriptions) {
+        if (value['domain'] == widget.subscription) {
+          paresType = value['paresType']??"1";
+        }
+      }
+
+      if (paresType == "1") {
+        await SPManager.getCurrentSubscription();
+        Map<String, dynamic> jsonMap = await _httpService.getBySubscription(
+          widget.subscription,
+          paresType,
+          "",
+          params: {
+            "ac": "detail",
+            "ids": widget.vodId.toString(), // 使用传递的 vodId
+          },
+        );
         responseData =
             RealResponseData.fromJson(jsonMap, widget.subscription); // 更新状态
+      } else {
+        XmlDocument jsonMap = await _httpService.getBySubscription(
+          widget.subscription,
+          paresType,
+          "",
+          params: {
+            "ac": "videolist",
+            "ids": widget.vodId.toString(), // 使用传递的 vodId
+          },
+        );
+        responseData =
+            RealResponseData.fromXml(jsonMap, widget.subscription); // 更新状态
+      }
+
+      setState(() {
         var videos = responseData.videos;
         video = videos[0];
         isLoading = false; // 数据加载完成

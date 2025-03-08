@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
 
-class MyLoadingIndicator extends StatelessWidget {
+class MyLoadingIndicator extends StatefulWidget {
   final bool isLoading;
 
   const MyLoadingIndicator({super.key, required this.isLoading});
 
   @override
+  State<MyLoadingIndicator> createState() => _MyLoadingIndicatorState();
+}
+
+class _MyLoadingIndicatorState extends State<MyLoadingIndicator> {
+  @override
   Widget build(BuildContext context) {
-    return Visibility(
-      visible: isLoading, // 当 isLoading 为 false 时，整个组件会被移除
-      child: Container(
-        color: Colors.black.withOpacity(0.3), // 遮罩层，防止点击穿透
-        alignment: Alignment.center,
-        child: const CircularProgressIndicator(),
-      ),
-    );
+    return _buildLoadingIndicator();
+  }
+
+  Widget _buildLoadingIndicator() {
+    if (!widget.isLoading) return const SizedBox.shrink();
+    return const Expanded(
+        child: Center(
+          child: CircularProgressIndicator(),
+        ));
   }
 }

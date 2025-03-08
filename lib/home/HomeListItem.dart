@@ -69,16 +69,6 @@ class _HomeListItemState extends State<HomeListItem> {
                       video.vodPubdate,
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                     )),
-                    const SizedBox(
-                      width: 4.0,
-                    ),
-                    Flexible(
-                        child: Text(
-                      video.vodRemarks,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    )),
                   ],
                 ),
                 Row(

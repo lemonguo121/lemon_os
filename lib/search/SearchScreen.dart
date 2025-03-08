@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lemon_os/search/SearchHistoryList.dart';
 import 'package:lemon_os/search/SearchResultList.dart';
+import 'package:xml/xml.dart';
 
 import '../http/HttpService.dart';
 import '../http/data/RealVideo.dart';
@@ -78,19 +79,34 @@ class _SearchScreenState extends State<SearchScreen>
       for (var subscription in _subscriptions) {
         String subscriptionName = subscription['name'] ?? '未知站点';
         String subscriptionDomain = subscription['domain'] ?? '';
-
-        Map<String, dynamic> newJsonMap = await _httpService.getBySubscription(
-          subscriptionDomain,
-          "",
-          params: {
-            "ac": "detail",
-            "wd": query,
-          },
-        );
+        String paresType = subscription['paresType'] ?? "1";
+        var response;
+        if (paresType == "1") {
+          Map<String, dynamic> newJsonMap =
+              await _httpService.getBySubscription(
+            subscriptionDomain,
+            paresType,
+            "",
+            params: {
+              "ac": "detail",
+              "wd": query,
+            },
+          );
+          response = RealResponseData.fromJson(newJsonMap, subscriptionDomain);
+        } else {
+          XmlDocument newJsonMap = await _httpService.getBySubscription(
+            subscriptionDomain,
+            paresType,
+            "",
+            params: {
+              "ac": "videolist",
+              "wd": query,
+            },
+          );
+          response = RealResponseData.fromXml(newJsonMap, subscriptionDomain);
+        }
 
         setState(() {
-          var response =
-              RealResponseData.fromJson(newJsonMap, subscriptionDomain);
           _searchResults[subscriptionName] = response;
           if (response != null && response.videos.isNotEmpty) {
             hasResultSite.add(subscriptionName);
