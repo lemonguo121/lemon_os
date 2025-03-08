@@ -60,12 +60,13 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
         "name": "最大",
         "domain": "https://zuida001.com/api.php/provide/vod/at/xml/",
         "paresType": "0"
-      },
-      {
-        "name": "乐播",
-        "domain": "https://lbapi9.com/api.php/provide/vod/at/xml/",
-        "paresType": "0"
       }
+      // ,
+      // {
+      //   "name": "乐播",
+      //   "domain": "https://lbapi9.com/api.php/provide/vod/at/xml/",
+      //   "paresType": "0"
+      // }
     ];
 
     // 获取当前存储的订阅列表
