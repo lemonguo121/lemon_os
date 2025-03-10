@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../detail/DetailScreen.dart';
 import '../http/data/RealVideo.dart';
+import '../mywidget/VodForamTag.dart';
 import '../util/SPManager.dart';
 import '../util/CommonUtil.dart';
 import '../util/LoadingImage.dart';
@@ -24,12 +25,14 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _loadHistoryList();
   }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _refreshHistoryList(); // 应用恢复时刷新数据
     }
   }
+
   Future<void> _loadHistoryList() async {
     try {
       final list = await _getHistoryList();
@@ -39,6 +42,7 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
       });
     } catch (e) {
       setState(() {
+        print("lemon Error = ${e.toString()}");
         _isLoading = false;
         CommonUtil.showToast("加载失败");
       });
@@ -78,6 +82,7 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    var isVertical = CommonUtil.isVertical(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text("历史记录"),
@@ -92,7 +97,7 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
           ),
         ],
       ),
-      body: _buildBody(),
+      body: _buildBody(isVertical),
     );
   }
 
@@ -105,7 +110,7 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
     return SPManager.getHistoryList();
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(bool isVertical) {
     if (_isLoading) {
       return const Center(
         child: CircularProgressIndicator(),
@@ -115,15 +120,15 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
         child: Text('暂无历史记录'),
       );
     } else {
-      return _buildGrid();
+      return _buildGrid(isVertical);
     }
   }
 
-  Widget _buildGrid() {
+  Widget _buildGrid(bool isVertical) {
     return GridView.builder(
       padding: const EdgeInsets.all(8.0),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3, // 一行三个
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: isVertical ? 3 : 6, // 一行三个
         crossAxisSpacing: 8.0, // 水平方向间距
         mainAxisSpacing: 8.0, // 垂直方向间距
         childAspectRatio: 0.75, // 调整宽高比
@@ -149,7 +154,7 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
             MaterialPageRoute(
               builder: (context) => DetailScreen(
                 vodId: realVideo.vodId,
-                subscription: realVideo.subscriptionDomain,
+                site: realVideo.site,
               ), // 动态传递vodId
             )).then((value) => _refreshHistoryList());
       },
@@ -175,6 +180,13 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topCenter, // 渐变起点（顶部）
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.0), // 顶部完全透明
+                        Colors.black.withOpacity(0.7), // 底部半透明黑色
+                      ]),
                   color: Colors.black.withOpacity(0.7),
                   borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(8.0),
@@ -198,10 +210,19 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    _videoTitles[realVideo.vodId] ?? "", // 视频标题
+                    realVideo.vodArea, // 视频标题
                     style: const TextStyle(
                       fontSize: 10,
-                      color: Colors.white70,
+                      color: Colors.white,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    _videoTitles[realVideo.vodId] ?? "",
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: Colors.white,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -210,14 +231,15 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
               ),
             ),
           ),
+          VodForamTag(realVideo: realVideo)
         ],
       ),
     );
   }
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
-
   }
 }

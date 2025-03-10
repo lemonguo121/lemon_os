@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lemon_os/http/data/CategoryBean.dart';
 import 'package:lemon_os/mywidget/MyEmptyDataView.dart';
 import 'package:lemon_os/mywidget/MyLoadingIndicator.dart';
+import 'package:lemon_os/util/CommonUtil.dart';
 import 'package:xml/xml.dart';
 
 import '../home/HomeListItem.dart';
@@ -11,6 +12,7 @@ import '../http/HttpService.dart';
 import '../http/data/CategoryChildBean.dart';
 import '../http/data/RealVideo.dart';
 import '../util/SPManager.dart';
+import 'CategoryListItem.dart';
 
 class CategoryFragment extends StatefulWidget {
   final CategoryBean alClass;
@@ -85,9 +87,7 @@ class _CategoryState extends State<CategoryFragment>
       if (_currentSubscription == null) {
         return;
       }
-      var subscriptionDomain = '';
       var paresType = _currentSubscription['paresType'] ?? "1";
-      subscriptionDomain = _currentSubscription['domain'] ?? "";
 
       var typeId = "";
       if (widget.alClass.categoryChildList.isNotEmpty) {
@@ -108,7 +108,7 @@ class _CategoryState extends State<CategoryFragment>
             "f": ""
           },
         );
-        newData = RealResponseData.fromJson(newJsonMap, subscriptionDomain);
+        newData = RealResponseData.fromJson(newJsonMap, _currentSubscription);
       } else {
         XmlDocument newJsonMap = await _httpService.get(
           "",
@@ -119,7 +119,7 @@ class _CategoryState extends State<CategoryFragment>
             "f": ""
           },
         );
-        newData = RealResponseData.fromXml(newJsonMap, subscriptionDomain);
+        newData = RealResponseData.fromXml(newJsonMap, _currentSubscription);
       }
 
       setState(() {
@@ -159,6 +159,7 @@ class _CategoryState extends State<CategoryFragment>
 
   @override
   Widget build(BuildContext context) {
+    var isVertical = CommonUtil.isVertical(context);
     return Center(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,13 +170,13 @@ class _CategoryState extends State<CategoryFragment>
           // ),
           _buildSecendCategory(),
           // 视频列表
-          _buildListView(),
+          _buildListView(isVertical),
         ],
       ),
     );
   }
 
-  Widget _buildListView() {
+  Widget _buildListView(bool isVertical) {
     if (responseData.videos.isEmpty && !isLoading) {
       return Expanded(child: MyEmptyDataView(retry: _refreshData));
     }
@@ -186,15 +187,22 @@ class _CategoryState extends State<CategoryFragment>
         : Expanded(
             child: RefreshIndicator(
               onRefresh: _refreshData,
-              child: ListView.builder(
+              child: GridView.builder(
+                padding: const EdgeInsets.all(8.0),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: isVertical ? 2 : 4, //
+                  crossAxisSpacing: 8.0, // 水平方向间距
+                  mainAxisSpacing: 8.0, // 垂直方向间距
+                  childAspectRatio: 1.3, // 调整宽高比
+                ),
                 key: _pageStorageKey,
                 // 使用 PageStorageKey
-                padding: EdgeInsets.zero,
                 controller: _scrollController,
                 itemCount: responseData.videos.length + 1,
                 itemBuilder: (context, index) {
                   if (index < responseData.videos.length) {
-                    return HomeListItem(video: responseData.videos[index]);
+                    return CategoryListItem(
+                        realVideo: responseData.videos[index]);
                   } /*else {
               return _buildLoadingIndicator();
             }*/
@@ -214,7 +222,7 @@ class _CategoryState extends State<CategoryFragment>
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.0),
-      height: ((subCategories.length / 5).ceil() * 35).toDouble(), // 动态高度
+      height: ((subCategories.length / 5).ceil() * 30).toDouble(), // 动态高度
       child: GridView.builder(
         padding: EdgeInsets.zero,
         physics: const NeverScrollableScrollPhysics(),
@@ -223,7 +231,7 @@ class _CategoryState extends State<CategoryFragment>
           crossAxisCount: 5, // 每行显示5个标签
           mainAxisSpacing: 5.0, // 垂直间距
           crossAxisSpacing: 5.0, // 水平间距
-          mainAxisExtent: 30, // 🔥 固定子项高度为50
+          mainAxisExtent: 25, // 🔥 固定子项高度为50
         ),
         itemCount: subCategories.length,
         itemBuilder: (context, index) {

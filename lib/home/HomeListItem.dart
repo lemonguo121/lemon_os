@@ -28,7 +28,7 @@ class _HomeListItemState extends State<HomeListItem> {
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  DetailScreen(vodId: video.vodId,subscription:video.subscriptionDomain), // 动态传递vodId
+                  DetailScreen(vodId: video.vodId,site:video.site), // 动态传递vodId
             ),
           );
         },

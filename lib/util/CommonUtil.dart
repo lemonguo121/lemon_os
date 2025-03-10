@@ -44,4 +44,11 @@ class CommonUtil {
       }
     }).toList();
   }
+
+  static bool isVertical(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
+    var screenHeight = screenSize.height;
+    var screenWidth = screenSize.width;
+    return screenHeight > screenWidth ? true : false;
+  }
 }

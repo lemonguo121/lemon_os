@@ -103,7 +103,7 @@ class _SearchResultListState extends State<SearchResultList> {
                 MaterialPageRoute(
                   builder: (context) => DetailScreen(
                     vodId: video.vodId,
-                    subscription: video.subscriptionDomain,
+                    site: video.site,
                   ),
                 ),
               );

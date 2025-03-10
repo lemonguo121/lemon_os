@@ -23,7 +23,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _updateCacheSize() async {
     double size = await CacheUtil.getCacheSize();
     setState(() {
-      print("size $size");
       _cacheSize = size;
     });
   }

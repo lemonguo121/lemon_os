@@ -90,14 +90,14 @@ class _HomeFragmentState extends State<HomeFragment>
           "",
           params: {"ac": "detail", "ids": idsString},
         );
-        newData = RealResponseData.fromJson(newJsonMap, subscriptionDomain);
+        newData = RealResponseData.fromJson(newJsonMap, _currentSubscription);
       } else {
         XmlDocument xmlDoc = await _httpService.get(
           "",
           params: {"ac": "videolist", "ids": idsString},
         );
 
-        newData = RealResponseData.fromXml(xmlDoc, subscriptionDomain);
+        newData = RealResponseData.fromXml(xmlDoc, _currentSubscription);
       }
 
       setState(() {

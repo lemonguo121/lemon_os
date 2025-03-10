@@ -12,10 +12,9 @@ import 'CollapsibleText.dart';
 
 class DetailScreen extends StatefulWidget {
   final int vodId;
-  final String subscription;
+  final Map<String, String> site;
 
-  const DetailScreen(
-      {super.key, required this.vodId, required this.subscription});
+  const DetailScreen({super.key, required this.vodId, required this.site});
 
   @override
   _DetailScreenState createState() => _DetailScreenState();
@@ -53,22 +52,12 @@ class _DetailScreenState extends State<DetailScreen> {
 
   Future<void> _fetchDetail() async {
     try {
-      List<Map<String, String>> _subscriptions =
-          await SPManager.getSubscriptions();
-      if (_subscriptions.isEmpty) {
-        return;
-      }
-      var paresType = "1";
-      for (var value in _subscriptions) {
-        if (value['domain'] == widget.subscription) {
-          paresType = value['paresType']??"1";
-        }
-      }
-
+      var paresType = widget.site['paresType'] ?? "1";
+      var subscription = widget.site['domain'] ?? "";
       if (paresType == "1") {
         await SPManager.getCurrentSubscription();
         Map<String, dynamic> jsonMap = await _httpService.getBySubscription(
-          widget.subscription,
+          widget.site['domain'] ?? "",
           paresType,
           "",
           params: {
@@ -76,11 +65,10 @@ class _DetailScreenState extends State<DetailScreen> {
             "ids": widget.vodId.toString(), // 使用传递的 vodId
           },
         );
-        responseData =
-            RealResponseData.fromJson(jsonMap, widget.subscription); // 更新状态
+        responseData = RealResponseData.fromJson(jsonMap, widget.site); // 更新状态
       } else {
         XmlDocument jsonMap = await _httpService.getBySubscription(
-          widget.subscription,
+          subscription,
           paresType,
           "",
           params: {
@@ -89,7 +77,7 @@ class _DetailScreenState extends State<DetailScreen> {
           },
         );
         responseData =
-            RealResponseData.fromXml(jsonMap, widget.subscription); // 更新状态
+            RealResponseData.fromXml(jsonMap, widget.site); // 更新状态
       }
 
       setState(() {

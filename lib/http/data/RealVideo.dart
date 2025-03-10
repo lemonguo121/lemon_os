@@ -16,7 +16,8 @@ class RealVideo {
   final String typeName;
   final String vodPlayUrl;
   final int typePid;
-  final String subscriptionDomain;
+  final Map<String,String> site;
+  final String vodFrom;
 
   // 构造函数名称应与类名一致
   RealVideo({
@@ -33,7 +34,8 @@ class RealVideo {
     required this.vodYear,
     required this.vodPlayUrl,
     required this.typePid,
-    required this.subscriptionDomain,
+    required this.site,
+    required this.vodFrom,
   });
 
   // <video>
@@ -60,14 +62,18 @@ class RealVideo {
   // <des>
   // <![CDATA[<p><span style="color: rgb(17, 17, 17); font-family: Helvetica, Arial, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);">　该剧讲述了飒爽的神外医生刘梓懿（辛芷蕾 饰）在与男友准备结婚之际，发现男友因特殊原因被送到自己工作的医院，备受打击却要体面地结束这段关系；乐观的心外医生秦文彬（白客 饰）看似玩世不恭，实则心里有数，工作上一帆风顺，婚姻却亮起红灯，不知何去何从。</span></p>]]></des>
   // </video>
-  factory RealVideo.fromXml(XmlElement element, subscriptionDomain) {
+  factory RealVideo.fromXml(XmlElement element, Map<String,String> site) {
     final ddElements = element.findAllElements('dd');
     final vodPlayUrl = ddElements.isNotEmpty
         ? ddElements.first.text
         : ''; // 处理找不到 `dd` 的情况，防止异常
-
+    var vodFlag;
+    for (var value in ddElements) {
+      vodFlag = value.getAttribute('flag').toString();
+    }
     final rawDescription = element.findElements('des').single.text;
-    final parsedDescription = html_parser.parse(rawDescription).body?.text ?? '';
+    final parsedDescription =
+        html_parser.parse(rawDescription).body?.text ?? '';
     return RealVideo(
         vodId: int.parse(element.findElements('id').single.text),
         vodName: element.findElements('name').single.text,
@@ -82,27 +88,28 @@ class RealVideo {
         vodYear: element.findElements('year').single.text,
         vodPlayUrl: vodPlayUrl,
         typePid: int.parse(element.findElements('tid').single.text),
-        subscriptionDomain: subscriptionDomain);
+        site: site,
+        vodFrom: vodFlag);
   }
 
   // 从JSON解析
-  factory RealVideo.fromJson(Map<String, dynamic> json, subscriptionDomain) {
+  factory RealVideo.fromJson(Map<String, dynamic> json, Map<String, String> site) {
     return RealVideo(
-      vodId: json['vod_id'] ?? 0,
-      vodName: json['vod_name'] ?? '',
-      vodSub: json['vod_sub'] ?? '',
-      vodPic: json['vod_pic'] ?? '',
-      vodActor: json['vod_actor'] ?? '',
-      vodBlurb: json['vod_blurb'] ?? '',
-      vodRemarks: json['vod_remarks'] ?? '',
-      vodPubdate: json['vod_pubdate'] ?? '',
-      vodArea: json['vod_area'] ?? '',
-      typeName: json['type_name'] ?? '',
-      vodYear: json['vod_year'] ?? '未知年份',
-      vodPlayUrl: json['vod_play_url'] ?? '',
-      typePid: json['type_id_1'] ?? '',
-      subscriptionDomain: subscriptionDomain,
-    );
+        vodId: json['vod_id'] ?? 0,
+        vodName: json['vod_name'] ?? '',
+        vodSub: json['vod_sub'] ?? '',
+        vodPic: json['vod_pic'] ?? '',
+        vodActor: json['vod_actor'] ?? '',
+        vodBlurb: json['vod_blurb'] ?? '',
+        vodRemarks: json['vod_remarks'] ?? '',
+        vodPubdate: json['vod_pubdate'] ?? '',
+        vodArea: json['vod_area'] ?? '',
+        typeName: json['type_name'] ?? '',
+        vodYear: json['vod_year'] ?? '未知年份',
+        vodPlayUrl: json['vod_play_url'] ?? '',
+        typePid: json['type_id_1'] ?? '',
+        site: site,
+        vodFrom: json['vod_play_from']);
   }
 
   // 将 RealVideo 对象转换为 JSON 字符串
@@ -122,27 +129,29 @@ class RealVideo {
       'typeName': typeName,
       'vodPlayUrl': vodPlayUrl,
       'typePid': typePid,
-      'subscriptionDomain': subscriptionDomain,
+      'site': site,
+      'vodFrom': vodFrom,
     };
   }
 
   factory RealVideo.fromJson2(Map<String, dynamic> json) {
     return RealVideo(
-      vodId: json['vodId'],
-      vodName: json['vodName'],
-      vodSub: json['vodSub'],
-      vodPic: json['vodPic'],
-      vodActor: json['vodActor'],
-      vodBlurb: json['vodBlurb'],
-      vodRemarks: json['vodRemarks'],
-      vodPubdate: json['vodPubdate'],
-      vodArea: json['vodArea'],
-      vodYear: json['vodYear'],
-      typeName: json['typeName'],
-      vodPlayUrl: json['vodPlayUrl'],
-      typePid: json['typePid'],
-      subscriptionDomain: json['subscriptionDomain'],
-    );
+        vodId: json['vodId'],
+        vodName: json['vodName'],
+        vodSub: json['vodSub'],
+        vodPic: json['vodPic'],
+        vodActor: json['vodActor'],
+        vodBlurb: json['vodBlurb'],
+        vodRemarks: json['vodRemarks'],
+        vodPubdate: json['vodPubdate'],
+        vodArea: json['vodArea'],
+        vodYear: json['vodYear'],
+        typeName: json['typeName'],
+        vodPlayUrl: json['vodPlayUrl'],
+        typePid: json['typePid'],
+        site: (json['site'] as Map<String, dynamic>?)
+            ?.map((key, value) => MapEntry(key, value.toString())) ?? {},
+        vodFrom: json['vodFrom']);
   }
 }
 
@@ -167,10 +176,10 @@ class RealResponseData {
 
   // 从JSON解析
   factory RealResponseData.fromJson(
-      Map<String, dynamic> json, subscriptionDomain) {
+      Map<String, dynamic> json, Map<String,String> site) {
     var list = json['list'] as List;
     List<RealVideo> videosList =
-        list.map((i) => RealVideo.fromJson(i, subscriptionDomain)).toList();
+        list.map((i) => RealVideo.fromJson(i, site)).toList();
 
     return RealResponseData(
       code: json['code'],
@@ -180,9 +189,9 @@ class RealResponseData {
   }
 
   factory RealResponseData.fromXml(
-      XmlDocument document, String subscriptionDomain) {
+      XmlDocument document, Map<String,String> site) {
     final videoList = document.findAllElements('video').map((element) {
-      return RealVideo.fromXml(element, subscriptionDomain);
+      return RealVideo.fromXml(element, site);
     }).toList();
 
     return RealResponseData(

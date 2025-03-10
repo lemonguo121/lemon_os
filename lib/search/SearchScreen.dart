@@ -76,6 +76,7 @@ class _SearchScreenState extends State<SearchScreen>
     await _saveSearchHistory(query);
 
     try {
+      var isResearch = false;
       for (var subscription in _subscriptions) {
         String subscriptionName = subscription['name'] ?? '未知站点';
         String subscriptionDomain = subscription['domain'] ?? '';
@@ -92,7 +93,7 @@ class _SearchScreenState extends State<SearchScreen>
               "wd": query,
             },
           );
-          response = RealResponseData.fromJson(newJsonMap, subscriptionDomain);
+          response = RealResponseData.fromJson(newJsonMap, subscription);
         } else {
           XmlDocument newJsonMap = await _httpService.getBySubscription(
             subscriptionDomain,
@@ -103,15 +104,19 @@ class _SearchScreenState extends State<SearchScreen>
               "wd": query,
             },
           );
-          response = RealResponseData.fromXml(newJsonMap, subscriptionDomain);
+          response = RealResponseData.fromXml(newJsonMap, subscription);
         }
 
         setState(() {
           _searchResults[subscriptionName] = response;
           if (response != null && response.videos.isNotEmpty) {
             hasResultSite.add(subscriptionName);
-            selectSite = subscriptionName;
-            _loadSearchResults(selectSite);
+            if (!isResearch) {
+              selectSite = subscriptionName;
+              isResearch = true;
+              _loadSearchResults(selectSite);
+            }
+
             _isLoading = false;
           }
         });
