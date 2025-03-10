@@ -66,7 +66,7 @@ class _HomeListItemState extends State<HomeListItem> {
                     ),
                     Flexible(
                         child: Text(
-                      video.vodPubdate,
+                      video.vodRemarks,
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                     )),
                   ],
@@ -96,13 +96,13 @@ class _HomeListItemState extends State<HomeListItem> {
                 Row(
                   children: [
                     const Text(
-                      "演员:",
+                      "年份:",
                       style:
                           TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                     Flexible(
                         child: Text(
-                      video.vodActor,
+                      video.vodYear,
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
