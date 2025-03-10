@@ -45,7 +45,7 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     HomeScreen(),
     PlayHistory(key: UniqueKey()),
-    ProfileScreen(),
+    ProfileScreen(key: UniqueKey()),
   ];
 
   @override

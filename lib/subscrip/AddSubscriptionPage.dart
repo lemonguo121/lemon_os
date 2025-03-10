@@ -127,8 +127,8 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
               decoration: InputDecoration(labelText: "站点域名"),
             ),
             TextField(
-              controller: _domainController,
-              decoration: InputDecoration(labelText: "解析类型"),
+              controller: _paresController,
+              decoration: InputDecoration(labelText: "解析类型",hintText: "json类型为1，xml类型为0",hintStyle: TextStyle(color: Colors.black.withAlpha(70))),
             ),
             SizedBox(height: 20),
             ElevatedButton(

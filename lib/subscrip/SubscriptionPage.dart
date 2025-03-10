@@ -104,6 +104,10 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                 controller: domainController,
                 decoration: InputDecoration(labelText: "站点域名"),
               ),
+              TextField(
+                controller: paresTypeController,
+                decoration: InputDecoration(labelText: "解析类型"),
+              ),
             ],
           ),
           actions: [
