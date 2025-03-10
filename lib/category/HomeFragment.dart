@@ -151,7 +151,7 @@ class _HomeFragmentState extends State<HomeFragment>
             ],
           ),
         ),
-        MyLoadingIndicator(isLoading: isLoading && homeCategoryList.isEmpty),
+        Column(children: [ MyLoadingIndicator(isLoading: isLoading && homeCategoryList.isEmpty)],)
       ],
     );
   }

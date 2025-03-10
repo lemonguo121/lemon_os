@@ -52,6 +52,12 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
         "paresType": "1"
       },
       {
+        "name": "黑木耳(海外)",
+        "domain": "https://json.heimuer.xyz/api.php/provide/vod/",
+        "paresType": "1"
+      },
+
+      {
         "name": "爱看",
         "domain": "https://ikunzyapi.com/api.php/provide/vod/from/ikm3u8/",
         "paresType": "1"
