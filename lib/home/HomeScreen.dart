@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lemon_os/mywidget/MyLoadingIndicator.dart';
 import 'package:lemon_os/subscrip/SubscriptionPage.dart';
+import 'package:lemon_os/util/CommonUtil.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:xml/xml.dart';
 
@@ -28,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late TabController _tabController = TabController(length: 0, vsync: this);
   final HttpService _httpService = HttpService();
   List<CategoryBean> categories = [];
-  bool isLoading = false;
+  bool isLoading = true;
   String scripName = "未订阅";
   String paresType = "1";
 
@@ -49,25 +50,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Future<void> _loadData() async {
     setState(() => isLoading = true);
     try {
-    await _getSubscripName();
-    var responseString;
-    if (paresType == "1") {
-      Map<String, dynamic> jsonMap = await _httpService.get("");
-      responseString = ResponseData.fromJson(jsonMap);
-    } else {
-      XmlDocument xmlDoc = await _httpService.get("");
-      responseString = ResponseData.fromXml(xmlDoc);
-    }
+      await _getSubscripName();
+      var responseString;
+      if (paresType == "1") {
+        Map<String, dynamic> jsonMap = await _httpService.get("");
+        responseString = ResponseData.fromJson(jsonMap);
+      } else {
+        XmlDocument xmlDoc = await _httpService.get("");
+        responseString = ResponseData.fromXml(xmlDoc);
+      }
 
-    List<CategoryBean> loadedCategories = [
-      CategoryBean(
-          typeId: -1, typePid: -1, typeName: "首页", categoryChildList: [])
-    ]..addAll(responseString.alClass);
+      List<CategoryBean> loadedCategories = [
+        CategoryBean(
+            typeId: -1, typePid: -1, typeName: "首页", categoryChildList: [])
+      ]..addAll(responseString.alClass);
 
-    setState(() {
-      categories = loadedCategories;
-      _tabController = TabController(length: categories.length, vsync: this);
-    });
+      setState(() {
+        categories = loadedCategories;
+        _tabController = TabController(length: categories.length, vsync: this);
+      });
     } catch (e) {
       print("Error lemon: $e");
     } finally {
@@ -145,13 +146,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     if (isLoading) {
       return Column(children: [MyLoadingIndicator(isLoading: isLoading)]);
     }
-
+    var isVertical = CommonUtil.isVertical(context);
     return Scaffold(
       body: Column(
         children: [
-          const SizedBox(height: 50.0),
+          SizedBox(height: isVertical ? 55.0 : 40),
           _buildSearch(),
-          const SizedBox(height: 12.0),
           Expanded(
               child: FutureBuilder(
             future: SPManager.getSubscriptions(),

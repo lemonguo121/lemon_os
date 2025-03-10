@@ -158,10 +158,6 @@ class _CategoryState extends State<CategoryFragment>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          //二级分类
-          // SizedBox(
-          //   height: 6,
-          // ),
           _buildSecendCategory(),
           // 视频列表
           _buildListView(isVertical),
@@ -195,8 +191,7 @@ class _CategoryState extends State<CategoryFragment>
                 itemCount: responseData.videos.length,
                 itemBuilder: (context, index) {
                   return CategoryListItem(
-                      realVideo: responseData.videos[
-                          index]);
+                      realVideo: responseData.videos[index]);
                 },
               ),
             ),
@@ -206,20 +201,20 @@ class _CategoryState extends State<CategoryFragment>
   Widget _buildSecendCategory() {
     // 获取二级分类列表
     List<CategoryChildBean> subCategories = widget.alClass.categoryChildList;
-
+    var isVertical = CommonUtil.isVertical(context);
     if (subCategories.isEmpty) {
       return SizedBox.shrink(); // 如果没有二级分类，返回空视图
     }
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.0),
-      height: ((subCategories.length / 5).ceil() * 30).toDouble(), // 动态高度
+      height: ((subCategories.length /( isVertical ? 5 : 10)).ceil() * 30).toDouble(), // 动态高度
       child: GridView.builder(
         padding: EdgeInsets.zero,
         physics: const NeverScrollableScrollPhysics(),
         // 禁止网格单独滚动
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 5, // 每行显示5个标签
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: isVertical ? 5 : 10, // 每行显示5个标签
           mainAxisSpacing: 5.0, // 垂直间距
           crossAxisSpacing: 5.0, // 水平间距
           mainAxisExtent: 25, // 🔥 固定子项高度为50
