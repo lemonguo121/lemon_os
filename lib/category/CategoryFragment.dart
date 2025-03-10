@@ -43,7 +43,7 @@ class _CategoryState extends State<CategoryFragment>
     msg: '',
     videos: [],
   );
-  bool isLoading = false;
+  bool isLoading = true;
   bool hasMore = true;
   int currentPage = 1;
   int selectedCategoryPosition = 0; // 默认没有选中的分类
@@ -73,16 +73,13 @@ class _CategoryState extends State<CategoryFragment>
     setState(() {
       currentPage = 1;
       hasMore = true;
+      // isLoading = true;
     });
     await _getData();
   }
 
   Future<void> _getData() async {
     try {
-      if (isLoading) return;
-      setState(() {
-        isLoading = true;
-      });
       var _currentSubscription = await SPManager.getCurrentSubscription();
       if (_currentSubscription == null) {
         return;
@@ -124,16 +121,13 @@ class _CategoryState extends State<CategoryFragment>
 
       setState(() {
         hasMore = newData.videos.isNotEmpty;
+        if (currentPage == 1) {
+          responseData.videos.clear();
+          responseData.videos.addAll(newData.videos);
+        } else {
+          responseData.videos.addAll(newData.videos);
+        }
       });
-
-      if (currentPage == 1) {
-        responseData.videos.clear();
-        responseData.videos.addAll(newData.videos);
-      } else {
-        responseData.videos.addAll(newData.videos);
-      }
-
-      setState(() {});
 
       // 通知父组件数据已加载
       if (widget.onDataLoaded != null) {
@@ -198,14 +192,11 @@ class _CategoryState extends State<CategoryFragment>
                 key: _pageStorageKey,
                 // 使用 PageStorageKey
                 controller: _scrollController,
-                itemCount: responseData.videos.length + 1,
+                itemCount: responseData.videos.length,
                 itemBuilder: (context, index) {
-                  if (index < responseData.videos.length) {
-                    return CategoryListItem(
-                        realVideo: responseData.videos[index]);
-                  } /*else {
-              return _buildLoadingIndicator();
-            }*/
+                  return CategoryListItem(
+                      realVideo: responseData.videos[
+                          index]);
                 },
               ),
             ),
