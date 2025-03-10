@@ -184,8 +184,8 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
                       begin: Alignment.topCenter, // 渐变起点（顶部）
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.black.withOpacity(0.0), // 顶部完全透明
-                        Colors.black.withOpacity(0.7), // 底部半透明黑色
+                        Colors.black.withOpacity(0.05), // 顶部完全透明
+                        Colors.black.withOpacity(0.9), // 底部半透明黑色
                       ]),
                   color: Colors.black.withOpacity(0.7),
                   borderRadius: const BorderRadius.only(
@@ -199,16 +199,6 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    realVideo.vodName,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
                   Text(
                     realVideo.vodArea, // 视频标题
                     style: const TextStyle(
@@ -227,6 +217,16 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  Text(
+                    realVideo.vodName,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  )
                 ],
               ),
             ),

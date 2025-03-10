@@ -69,11 +69,10 @@ class _CategoryListItemState extends State<CategoryListItem> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.realVideo.vodName,
+                    widget.realVideo.vodRemarks,
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 10,
                       color: Colors.white,
-                      fontWeight: FontWeight.bold,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -88,10 +87,11 @@ class _CategoryListItemState extends State<CategoryListItem> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    widget.realVideo.vodRemarks,
+                    widget.realVideo.vodName,
                     style: const TextStyle(
-                      fontSize: 10,
+                      fontSize: 13,
                       color: Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
