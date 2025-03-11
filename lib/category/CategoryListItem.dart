@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lemon_os/mywidget/VodForamTag.dart';
+import 'package:lemon_os/search/SearchScreen.dart';
 
 import '../detail/DetailScreen.dart';
 import '../http/data/RealVideo.dart';
@@ -33,7 +34,13 @@ class _CategoryListItemState extends State<CategoryListItem> {
             ));
       },
       onLongPress: () {
-        setState(() {});
+        setState(() {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      SearchScreen(query: widget.realVideo.vodName)));
+        });
       },
       child: Stack(
         children: [

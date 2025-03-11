@@ -194,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         Expanded(
           child: InkWell(
             onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => SearchScreen())),
+                MaterialPageRoute(builder: (context) => SearchScreen(query: "",))),
             child: Container(
               height: 35,
               padding: const EdgeInsets.symmetric(horizontal: 12.0),

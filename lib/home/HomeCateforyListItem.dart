@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lemon_os/http/data/RealVideo.dart';
+import 'package:lemon_os/search/SearchScreen.dart';
 import 'package:lemon_os/util/CommonUtil.dart';
 
 import '../detail/DetailScreen.dart';
@@ -45,7 +46,16 @@ class _HomecateforylistitemState extends State<Homecateforylistitem> {
               ),
             );
           },
-          onLongPress: () {},
+          onLongPress: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SearchScreen(
+                  query: video.vodName,
+                ), // 动态传递vodId
+              ),
+            );
+          },
           child: Stack(
             children: [
               ClipRRect(

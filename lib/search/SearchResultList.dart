@@ -109,61 +109,58 @@ class _SearchResultListState extends State<SearchResultList> {
               );
             },
             child: Row(
+           crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  height: 80,
-                  width: 60,
+                  height: 120,
+                  width: 90,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(4.0),
                     child: LoadingImage(pic: video.vodPic),
                   ),
                 ),
                 const SizedBox(width: 10.0),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        video.vodName,
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2.0),
-                      Row(
-                        children: [
-                          Text(
-                            video.vodRemarks,
-                            style: const TextStyle(
-                                fontSize: 12, color: Colors.grey),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(width: 8.0),
-                          Expanded(
-                              child: Text(
-                            video.vodPubdate,
-                            maxLines: 1,
-                            style: const TextStyle(
-                                fontSize: 12, color: Colors.grey),
-                          )),
-                        ],
-                      ),
-                      const SizedBox(height: 2.0),
-                      Text(
-                        video.vodArea,
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                      const SizedBox(height: 2.0),
-                      Text(
-                        video.typeName,
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                    ],
-                  ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 4.0),
+                    Text(
+                      video.vodName,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4.0),
+                    Text(
+                      video.vodRemarks,
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2.0),
+                    Text(
+                      video.vodArea,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 2.0),
+                    Text(
+                      video.typeName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 2.0),
+                    Text(
+                      video.vodPubdate,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    )
+                  ],
                 ),
               ],
             ),

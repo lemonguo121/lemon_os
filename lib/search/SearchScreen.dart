@@ -8,7 +8,9 @@ import '../http/data/RealVideo.dart';
 import '../util/SPManager.dart';
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  final String query;
+
+  const SearchScreen({super.key, required this.query});
 
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -30,8 +32,12 @@ class _SearchScreenState extends State<SearchScreen>
   @override
   void initState() {
     super.initState();
-    _loadSearchHistory();
-    _loadSubscriptions();
+    _initializeData();
+  }
+
+  void _initializeData() async {
+    await Future.wait([_loadSearchHistory(), _loadSubscriptions()]);
+    _startQucikSearch();
   }
 
   // 加载已订阅站点
@@ -228,5 +234,12 @@ class _SearchScreenState extends State<SearchScreen>
         ),
       ],
     );
+  }
+
+  void _startQucikSearch() {
+    if (widget.query.isNotEmpty) {
+      _searchController.text = widget.query;
+      _searchVideos();
+    }
   }
 }

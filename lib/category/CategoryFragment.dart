@@ -234,6 +234,7 @@ class _CategoryState extends State<CategoryFragment>
                 hasMore = true;
                 widget.alClass.typeId = category.typeId;
               });
+              isLoading = true;
               _getData();
             },
             child: Container(
