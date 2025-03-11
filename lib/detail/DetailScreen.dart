@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lemon_os/mywidget/MyLoadingIndicator.dart';
@@ -32,6 +34,7 @@ class _DetailScreenState extends State<DetailScreen> {
   int _selectedIndex = 0; // 用于跟踪当前选中的播放项
   bool _isFullScreen = false; // 存储全屏状态
   final ScrollController _scrollController = ScrollController();
+
 
   @override
   void initState() {
@@ -76,8 +79,7 @@ class _DetailScreenState extends State<DetailScreen> {
             "ids": widget.vodId.toString(), // 使用传递的 vodId
           },
         );
-        responseData =
-            RealResponseData.fromXml(jsonMap, widget.site); // 更新状态
+        responseData = RealResponseData.fromXml(jsonMap, widget.site); // 更新状态
       }
 
       setState(() {
@@ -165,6 +167,14 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   Widget _buildCustomScrollView() {
+    var isVertical = CommonUtil.isVertical(context);
+
+    return isVertical || _isFullScreen
+        ? _buildVerContent()
+        : _buildHorContent();
+  }
+
+  Widget _buildVerContent() {
     var playerHeight = MediaQuery.of(context).size.height / 9 * 4;
     return Column(
       children: [
@@ -186,16 +196,47 @@ class _DetailScreenState extends State<DetailScreen> {
         ),
 
         // 视频信息和播放列表部分，使用 CustomScrollView 滑动
-        Expanded(child: _buildVideoInfo()),
+        Expanded(child: _buildVideoInfo(false)),
       ],
     );
   }
 
-  Widget _buildVideoInfo() {
+  Widget _buildHorContent() {
+    double screenWidth = CommonUtil.getScreenWidth(context);
+    double screenHeight = CommonUtil.getScreenHeight(context);
+    var playerWidth = screenWidth / 2;
+    var playerHeight = playerWidth / 16 * 9;
+    return Row(
+      children: [
+        // 播放器部分，固定在顶部
+        SizedBox(
+          width: playerWidth,
+          height: _isFullScreen
+              ? MediaQuery.of(context).size.height
+              : screenHeight, // 非全屏时固定高度
+          child: VideoPlayerScreen(
+            initialIndex: _selectedIndex,
+            videoTitle: video.vodName,
+            video: video,
+            onFullScreenChanged: _onFullScreenChanged,
+            onChangePlayPositon: _onChangePlayPositon,
+            videoPlayerHeight: _isFullScreen
+                ? MediaQuery.of(context).size.height
+                : playerHeight,
+          ),
+        ),
+
+        // 视频信息和播放列表部分，使用 CustomScrollView 滑动
+        Expanded(child: _buildVideoInfo(false)),
+      ],
+    );
+  }
+
+  Widget _buildVideoInfo(bool isVertical) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 8.0),
+        SizedBox(height: isVertical ? 10.0 : 50.0),
         // 视频简介
         _buildVideoDetial(),
         const SizedBox(height: 8.0),

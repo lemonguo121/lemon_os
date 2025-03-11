@@ -18,7 +18,7 @@ class VideoPlayerScreen extends StatefulWidget {
   final ValueChanged<int> onChangePlayPositon;
   final double videoPlayerHeight;
   static final GlobalKey<_VideoPlayerScreenState> _globalKey =
-  GlobalKey<_VideoPlayerScreenState>();
+      GlobalKey<_VideoPlayerScreenState>();
 
   static _VideoPlayerScreenState? of(BuildContext context) {
     return _globalKey.currentState;
@@ -53,8 +53,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   bool _showFeedback = false; //音量、亮度调节反馈开关
   bool _showSkipFeedback = false; //跳过、回退调节反馈开关
   String _playPositonTips = ""; //调节进度时候的文案
-  bool _isBuffering = false;//是否在缓冲
-
+  bool _isBuffering = false; //是否在缓冲
+  bool lastIsVer = true; //进入全屏前记录手机是否是竖直的
   @override
   void initState() {
     super.initState();
@@ -79,7 +79,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     _isLoadVideoPlayed = false; // 确保每次初始化时复位
     var isSkipTail = false;
     final savedPosition =
-    await SPManager.getProgress(videoList[_currentIndex]['url']!);
+        await SPManager.getProgress(videoList[_currentIndex]['url']!);
     videoId = widget.video.vodId;
     SPManager.saveIndex(videoId, _currentIndex);
     // 获取跳过时间
@@ -132,8 +132,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
         videoList[_currentIndex]['url']!, _controller.value.position);
     SPManager.saveIndex(videoId, _currentIndex);
     SPManager.saveHistory(widget.video);
-    SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    SystemChrome.setPreferredOrientations([]);
     _controller.dispose();
     super.dispose();
   }
@@ -166,13 +165,22 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
       _isFullScreen = !_isFullScreen;
       if (!isVerticalVideo()) {
         if (_isFullScreen) {
+          lastIsVer = CommonUtil.isVertical(context);
           SystemChrome.setPreferredOrientations([
             DeviceOrientation.landscapeRight,
             DeviceOrientation.landscapeLeft
           ]);
         } else {
-          SystemChrome.setPreferredOrientations(
-              [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+          if (lastIsVer) {
+            SystemChrome.setPreferredOrientations(
+                [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+          } else {
+            SystemChrome.setPreferredOrientations([
+              DeviceOrientation.landscapeRight,
+              DeviceOrientation.landscapeLeft
+            ]);
+          }
+          SystemChrome.setPreferredOrientations([]);
         }
       }
     });
@@ -234,17 +242,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     }
     return Center(
         child: AspectRatio(
-          aspectRatio: _controller.value.aspectRatio,
-          child: VideoPlayer(_controller),
-        ));
+      aspectRatio: _controller.value.aspectRatio,
+      child: VideoPlayer(_controller),
+    ));
   }
 
   void _handleVerticalDrag(DragUpdateDetails details) {
     double delta = details.primaryDelta ?? 0;
-    if (details.localPosition.dx < MediaQuery
-        .of(context)
-        .size
-        .width / 2) {
+    if (details.localPosition.dx < MediaQuery.of(context).size.width / 2) {
       // 左侧滑动 - 调节亮度
       if (delta.abs() > 1) {
         _adjustBrightness(delta / 2);
@@ -268,8 +273,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     Duration newPosition =
         _controller.value.position + Duration(seconds: delta);
     _playPositonTips =
-    "${CommonUtil.formatDuration(newPosition)}/${CommonUtil.formatDuration(
-        _controller.value.duration)}";
+        "${CommonUtil.formatDuration(newPosition)}/${CommonUtil.formatDuration(_controller.value.duration)}";
     _seekToPosition(newPosition);
     _showSkipFeedback = true;
   }
@@ -322,8 +326,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   @override
   Widget build(BuildContext context) {
     return RawKeyboardListener(
-        focusNode: FocusNode()
-          ..requestFocus(), // 自动获取焦点以监听按键
+        focusNode: FocusNode()..requestFocus(), // 自动获取焦点以监听按键
         autofocus: true,
         onKey: (RawKeyEvent event) {
           if (event is RawKeyDownEvent) {
@@ -366,9 +369,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                 VoiceAndLightFeedbackPositoned(
                   isAdjustingBrightness: _isAdjustingBrightness,
                   text:
-                  "${((_isAdjustingBrightness
-                      ? _currentBrightness
-                      : _currentVolume) * 100).toInt()}%",
+                      "${((_isAdjustingBrightness ? _currentBrightness : _currentVolume) * 100).toInt()}%",
                   videoPlayerHeight: widget.videoPlayerHeight,
                 ),
               if (_showSkipFeedback)
@@ -380,8 +381,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                 MenuContainer(
                     videoId: videoId,
                     videoTitle:
-                    "${widget
-                        .videoTitle} ${videoList[_currentIndex]['title']!}",
+                        "${widget.videoTitle} ${videoList[_currentIndex]['title']!}",
                     controller: _controller,
                     onSetState: setState,
                     showSkipFeedback: showSkipFeedback,

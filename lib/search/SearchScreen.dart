@@ -172,7 +172,7 @@ class _SearchScreenState extends State<SearchScreen>
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
         child: Column(
           children: [
-            const SizedBox(height: 30.0),
+            const SizedBox(height: 40.0),
             // 搜索框
             _buildSearchInput(),
             // 搜索历史

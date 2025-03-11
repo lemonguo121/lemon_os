@@ -63,8 +63,8 @@ class _HomecateforylistitemState extends State<Homecateforylistitem> {
                           begin: Alignment.topCenter, // 渐变起点（顶部）
                           end: Alignment.bottomCenter,
                           colors: [
-                            Colors.black.withOpacity(0.1), // 顶部完全透明
-                            Colors.black.withOpacity(0.7), // 底部半透明黑色
+                            Colors.black.withOpacity(0.0), // 顶部完全透明
+                            Colors.black.withOpacity(0.9), // 底部半透明黑色
                           ]),
                       borderRadius: const BorderRadius.only(
                           bottomLeft: Radius.circular(8.0),
