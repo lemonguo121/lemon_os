@@ -207,8 +207,10 @@ class _DetailScreenState extends State<DetailScreen> {
     var playerWidth = screenWidth / 2;
     var playerHeight = playerWidth / 16 * 9;
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 播放器部分，固定在顶部
+
         SizedBox(
           width: playerWidth,
           height: _isFullScreen
@@ -233,17 +235,20 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   Widget _buildVideoInfo(bool isVertical) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: isVertical ? 10.0 : 50.0),
-        // 视频简介
-        _buildVideoDetial(),
-        const SizedBox(height: 8.0),
-        // 播放列表网格
-        _buildGrid(), // 调用修改后的播放列表网格
-        const SizedBox(height: 16.0),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: isVertical ? 10.0 : 50.0),
+          // 视频简介
+          _buildVideoDetial(),
+          const SizedBox(height: 8.0),
+          // 播放列表网格
+          _buildGrid(), // 调用修改后的播放列表网格
+          const SizedBox(height: 16.0),
+        ],
+      ),
     );
   }
 
@@ -319,7 +324,7 @@ class _DetailScreenState extends State<DetailScreen> {
             ),
           ),
           Text(
-            video.vodRemarks,
+            video.vodRemarks.isNotEmpty ? video.vodRemarks : "暂无更新",
             style: const TextStyle(
               fontSize: 12.0,
             ),
@@ -337,21 +342,22 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   Widget _buildGrid() {
-    return Expanded(
-      child: GridView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 12.0),
-        controller: _scrollController,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3, // 每行显示 3 个
-          mainAxisSpacing: 8.0,
-          crossAxisSpacing: 8.0,
-          mainAxisExtent: 30,
-        ),
-        itemCount: CommonUtil.getPlayList(video).length,
-        itemBuilder: (context, index) {
-          return _buildGridItem(index);
-        },
+    return GridView.builder(
+      shrinkWrap: true,
+      // 让 GridView 适配内容高度
+      physics: NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 12.0),
+      controller: _scrollController,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3, // 每行显示 3 个
+        mainAxisSpacing: 8.0,
+        crossAxisSpacing: 8.0,
+        mainAxisExtent: 30,
       ),
+      itemCount: CommonUtil.getPlayList(video).length,
+      itemBuilder: (context, index) {
+        return _buildGridItem(index);
+      },
     );
   }
 
