@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lemon_os/mywidget/MyLoadingIndicator.dart';
@@ -34,7 +35,6 @@ class _DetailScreenState extends State<DetailScreen> {
   int _selectedIndex = 0; // 用于跟踪当前选中的播放项
   bool _isFullScreen = false; // 存储全屏状态
   final ScrollController _scrollController = ScrollController();
-
 
   @override
   void initState() {
@@ -196,7 +196,7 @@ class _DetailScreenState extends State<DetailScreen> {
         ),
 
         // 视频信息和播放列表部分，使用 CustomScrollView 滑动
-        Expanded(child: _buildVideoInfo(false)),
+        Expanded(child: _buildVideoInfo(true)),
       ],
     );
   }
@@ -253,21 +253,66 @@ class _DetailScreenState extends State<DetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "简介",
-            style: TextStyle(
-              fontSize: 14.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
           const SizedBox(height: 4.0),
-          CollapsibleText(
-            text: video.vodBlurb,
-            style: const TextStyle(fontSize: 12.0),
-          ),
+          ExpandablePanel(
+              theme: ExpandableThemeData(
+                headerAlignment: ExpandablePanelHeaderAlignment.center,
+                iconPadding: EdgeInsets.zero,
+              ),
+              header: Text("简介",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+              collapsed: Text(video.vodBlurb,
+                  softWrap: true, maxLines: 2, overflow: TextOverflow.ellipsis),
+              expanded: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 6.0),
+                  Text(
+                    video.vodBlurb,
+                    style: const TextStyle(
+                      fontSize: 12.0,
+                    ),
+                  ),
+                  const Text(
+                    "导演",
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 4.0,
+                  ),
+                  Text(
+                    video.vodDirector,
+                    style: const TextStyle(
+                      fontSize: 12.0,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 6.0,
+                  ),
+                  const Text(
+                    "主演",
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 4.0,
+                  ),
+                  Text(
+                    video.vodActor,
+                    style: const TextStyle(
+                      fontSize: 12.0,
+                    ),
+                  ),
+                ],
+              )),
           const SizedBox(height: 6.0),
           const Text(
-            "备注",
+            "更新",
             style: TextStyle(
               fontSize: 14.0,
               fontWeight: FontWeight.bold,
@@ -277,7 +322,6 @@ class _DetailScreenState extends State<DetailScreen> {
             video.vodRemarks,
             style: const TextStyle(
               fontSize: 12.0,
-              color: Colors.grey,
             ),
           ),
           const SizedBox(
