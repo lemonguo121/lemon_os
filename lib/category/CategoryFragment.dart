@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:lemon_os/http/data/CategoryBean.dart';
 import 'package:lemon_os/mywidget/MyEmptyDataView.dart';
@@ -158,7 +159,16 @@ class _CategoryState extends State<CategoryFragment>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSecendCategory(),
+          ExpandablePanel(
+              theme: ExpandableThemeData(
+                headerAlignment: ExpandablePanelHeaderAlignment.center,
+                iconPadding: EdgeInsets.symmetric(horizontal: 12),
+              ),
+              collapsed: Text("",
+                  softWrap: true, maxLines: 1, style: TextStyle(fontSize: 2),),
+              header: Text("",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+              expanded: _buildSecendCategory()),
           // 视频列表
           _buildListView(isVertical),
         ],
@@ -208,7 +218,8 @@ class _CategoryState extends State<CategoryFragment>
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.0),
-      height: ((subCategories.length /( isVertical ? 5 : 10)).ceil() * 30).toDouble(), // 动态高度
+      height: ((subCategories.length / (isVertical ? 5 : 10)).ceil() * 30)
+          .toDouble(), // 动态高度
       child: GridView.builder(
         padding: EdgeInsets.zero,
         physics: const NeverScrollableScrollPhysics(),
