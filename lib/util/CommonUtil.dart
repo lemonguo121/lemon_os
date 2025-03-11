@@ -51,4 +51,14 @@ class CommonUtil {
     var screenWidth = screenSize.width;
     return screenHeight > screenWidth ? true : false;
   }
+
+  static double getScreenWidth(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
+    return screenSize.width;
+  }
+
+  static double getScreenHeight(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
+    return screenSize.height;
+  }
 }

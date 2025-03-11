@@ -183,7 +183,7 @@ class _CategoryState extends State<CategoryFragment>
                   crossAxisCount: isVertical ? 2 : 4, //
                   crossAxisSpacing: 8.0, // 水平方向间距
                   mainAxisSpacing: 8.0, // 垂直方向间距
-                  childAspectRatio: 1.3, // 调整宽高比
+                  childAspectRatio: 1.5, // 调整宽高比
                 ),
                 key: _pageStorageKey,
                 // 使用 PageStorageKey

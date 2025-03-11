@@ -54,7 +54,7 @@ class _CategoryListItemState extends State<CategoryListItem> {
                       begin: Alignment.topCenter, // 渐变起点（顶部）
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.black.withOpacity(0.0), // 顶部完全透明
+                        Colors.black.withOpacity(0.1), // 顶部完全透明
                         Colors.black.withOpacity(0.7), // 底部半透明黑色
                       ]),
                   borderRadius: const BorderRadius.only(
@@ -79,6 +79,15 @@ class _CategoryListItemState extends State<CategoryListItem> {
                   ),
                   Text(
                     widget.realVideo.vodArea,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: Colors.white,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    widget.realVideo.vodYear,
                     style: const TextStyle(
                       fontSize: 10,
                       color: Colors.white,

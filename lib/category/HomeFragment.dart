@@ -82,7 +82,6 @@ class _HomeFragmentState extends State<HomeFragment>
           .toList();
       String idsString = ids.join(',');
 
-
       var newData;
       homeCategoryList.clear();
       if (paresType == "1") {
@@ -151,7 +150,11 @@ class _HomeFragmentState extends State<HomeFragment>
             ],
           ),
         ),
-        Column(children: [ MyLoadingIndicator(isLoading: isLoading && homeCategoryList.isEmpty)],)
+        Column(
+          children: [
+            MyLoadingIndicator(isLoading: isLoading && homeCategoryList.isEmpty)
+          ],
+        )
       ],
     );
   }
@@ -166,45 +169,44 @@ class _HomeFragmentState extends State<HomeFragment>
   }
 
   Widget _buildCategorySection(int typePid, List<HomeCategoryData> videos) {
-    return Container(
-        margin: EdgeInsets.only(top: 12.0, left: 16.0, right: 16.0),
-        // padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(12), // 圆角半径
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 12,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 10,
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
+          child: Text(
+            _getTypeContent(typePid),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ),
+        Container(
+          margin: EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
+          padding: const EdgeInsets.only(top: 10.0),
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(12), // 圆角半径
+          ),
+          child: IntrinsicHeight(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.only(left: 8.0),
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: videos
+                  .map((video) => SizedBox(
+                        child: Homecateforylistitem(realVideo: video.video),
+                      ))
+                  .toList(),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-              child: Text(
-                _getTypeContent(typePid),
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-            IntrinsicHeight(
-              child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: videos
-                      .map((video) => SizedBox(
-                            child: Homecateforylistitem(video: video.video),
-                          ))
-                      .toList(),
-                ),
-              ),
-            ),
-          ],
-        ));
+          ),
+          ),
+        ),
+      ],
+    );
   }
 
   String _getTypeContent(int typePid) {
