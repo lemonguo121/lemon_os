@@ -1,6 +1,6 @@
 {
-    "name": "lemon_os",
-    "short_name": "lemon_os",
+    "name": "lemon_tv",
+    "short_name": "lemon_tv",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
