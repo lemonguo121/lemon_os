@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:lemon_os/mywidget/VodForamTag.dart';
-import 'package:lemon_os/search/SearchScreen.dart';
 
 import '../detail/DetailScreen.dart';
 import '../http/data/RealVideo.dart';
+import '../mywidget/VodForamTag.dart';
+import '../search/SearchScreen.dart';
 import '../util/LoadingImage.dart';
 
 class CategoryListItem extends StatefulWidget {

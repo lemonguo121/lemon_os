@@ -1,8 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:lemon_os/mywidget/MyLoadingIndicator.dart';
-import 'package:lemon_os/subscrip/SubscriptionPage.dart';
-import 'package:lemon_os/util/CommonUtil.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:xml/xml.dart';
 
@@ -13,8 +10,11 @@ import '../http/data/CategoryBean.dart';
 import '../http/data/HomeCateforyData.dart';
 import '../http/data/RealVideo.dart';
 import '../http/data/Video.dart';
+import '../mywidget/MyLoadingIndicator.dart';
 import '../search/SearchScreen.dart';
 import '../subscrip/AddSubscriptionPage.dart';
+import '../subscrip/SubscriptionPage.dart';
+import '../util/CommonUtil.dart';
 import '../util/SPManager.dart';
 
 class HomeScreen extends StatefulWidget {

@@ -3,11 +3,11 @@ import 'dart:ffi';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lemon_os/mywidget/MyLoadingIndicator.dart';
 import 'package:xml/xml.dart';
 
 import '../http/HttpService.dart';
 import '../http/data/RealVideo.dart';
+import '../mywidget/MyLoadingIndicator.dart';
 import '../util/SPManager.dart';
 import '../player/VideoPlayerScreen.dart';
 import '../util/CommonUtil.dart';

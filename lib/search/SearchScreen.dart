@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:lemon_os/search/SearchHistoryList.dart';
-import 'package:lemon_os/search/SearchResultList.dart';
 import 'package:xml/xml.dart';
 
 import '../http/HttpService.dart';
 import '../http/data/RealVideo.dart';
 import '../util/SPManager.dart';
+import 'SearchHistoryList.dart';
+import 'SearchResultList.dart';
 
 class SearchScreen extends StatefulWidget {
   final String query;

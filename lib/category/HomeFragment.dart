@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:lemon_os/http/data/HomeCateforyData.dart';
-import 'package:lemon_os/http/data/Video.dart';
-import 'package:lemon_os/mywidget/MyEmptyDataView.dart';
-import 'package:lemon_os/mywidget/MyLoadingIndicator.dart';
-import 'package:lemon_os/util/SPManager.dart';
 import 'package:xml/xml.dart';
 
 import '../home/HomeCateforyListItem.dart';
 import '../http/HttpService.dart';
 import '../http/data/CategoryBean.dart';
+import '../http/data/HomeCateforyData.dart';
 import '../http/data/RealVideo.dart';
+import '../http/data/Video.dart';
+import '../mywidget/MyEmptyDataView.dart';
+import '../mywidget/MyLoadingIndicator.dart';
+import '../util/SPManager.dart';
 
 class HomeFragment extends StatefulWidget {
   final CategoryBean alClass;

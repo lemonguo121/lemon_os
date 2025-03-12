@@ -2,16 +2,17 @@ import 'dart:async';
 
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import 'package:lemon_os/http/data/CategoryBean.dart';
-import 'package:lemon_os/mywidget/MyEmptyDataView.dart';
-import 'package:lemon_os/mywidget/MyLoadingIndicator.dart';
-import 'package:lemon_os/util/CommonUtil.dart';
+
 import 'package:xml/xml.dart';
 
 import '../home/HomeListItem.dart';
 import '../http/HttpService.dart';
+import '../http/data/CategoryBean.dart';
 import '../http/data/CategoryChildBean.dart';
 import '../http/data/RealVideo.dart';
+import '../mywidget/MyEmptyDataView.dart';
+import '../mywidget/MyLoadingIndicator.dart';
+import '../util/CommonUtil.dart';
 import '../util/SPManager.dart';
 import 'CategoryListItem.dart';
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lemon_os/http/data/RealVideo.dart';
+
+import '../http/data/RealVideo.dart';
 
 class VodForamTag extends StatefulWidget {
   final RealVideo realVideo;

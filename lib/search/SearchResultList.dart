@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:lemon_os/http/data/RealVideo.dart';
-import 'package:lemon_os/mywidget/MyLoadingIndicator.dart';
 
 import '../detail/DetailScreen.dart';
+import '../http/data/RealVideo.dart';
+import '../mywidget/MyLoadingIndicator.dart';
 import '../util/LoadingImage.dart';
 
 class SearchResultList extends StatefulWidget {
