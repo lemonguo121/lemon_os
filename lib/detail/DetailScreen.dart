@@ -204,7 +204,7 @@ class _DetailScreenState extends State<DetailScreen> {
   Widget _buildHorContent() {
     double screenWidth = CommonUtil.getScreenWidth(context);
     double screenHeight = CommonUtil.getScreenHeight(context);
-    var playerWidth = screenWidth / 2;
+    var playerWidth = screenWidth / 3*2;
     var playerHeight = playerWidth / 16 * 9;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
