@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:lemon_tv/util/SubscriptionsUtil.dart';
 
 import '../http/HttpService.dart';
+import '../http/data/SubscripBean.dart';
 import '../main.dart';
 import '../util/SPManager.dart';
 
@@ -14,27 +16,28 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
   final TextEditingController _domainController = TextEditingController();
   final TextEditingController _paresController = TextEditingController();
 
+  SubscriptionsUtil _subscriptionsUtil = SubscriptionsUtil();
+
   void _saveSubscription() async {
     String name = _nameController.text.trim();
     String domain = _domainController.text.trim();
-    String paresType = _paresController.text.trim();
 
     if (name.isNotEmpty && domain.isNotEmpty) {
-      List<Map<String, String>> subscriptions =
-          await SPManager.getSubscriptions();
+      List<StorehouseBean> subscriptions = await SPManager.getSubscriptions();
 
-      bool exists = subscriptions.any((sub) => sub['domain'] == domain);
+      bool exists = subscriptions.any((sub) => sub.url == domain);
       if (exists) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("该站点已存在"), duration: Duration(seconds: 2)),
         );
         return;
       }
-
-      await SPManager.saveSubscription(name, domain,paresType);
-      await SPManager.saveCurrentSubscription(name, domain,paresType);
-      HttpService.updateBaseUrl(domain);
-
+      List<StorehouseBean> sites = [];
+      sites.add(StorehouseBean(name: name, url: domain));
+      // _subscriptionsUtil.setCurrentSite(site);
+      await SPManager.saveSubscription(sites);
+      // await SPManager.saveCurrentStorehouse(name, domain, paresType);
+      await _subscriptionsUtil.requestSubscription(name, domain);
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => HomePage()),
@@ -47,54 +50,34 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
   void _onekeyAdd() async {
     List<Map<String, String>> defaultSubscriptions = [
       {
-        "name": "黑木耳",
-        "domain": "https://json02.heimuer.xyz/api.php/provide/vod/",
-        "paresType": "1"
+        "name": "1122",
+        "url":
+            "https://ghfast.top/https://raw.githubusercontent.com/lemonguo121/BoxRes/main/Myuse/cat.json",
       },
       {
-        "name": "黑木耳(海外)",
-        "domain": "https://json.heimuer.xyz/api.php/provide/vod/",
-        "paresType": "1"
+        "name": "22",
+        "domain":
+            "https://github.moeyy.xyz/https://raw.githubusercontent.com/xyq254245/xyqonlinerule/main/XYQTVBox.json",
       },
-
-      {
-        "name": "爱看",
-        "domain": "https://ikunzyapi.com/api.php/provide/vod/from/ikm3u8/",
-        "paresType": "1"
-      },
-      {
-        "name": "最大",
-        "domain": "https://zuida001.com/api.php/provide/vod/at/xml/",
-        "paresType": "0"
-      }
-      // ,
-      // {
-      //   "name": "乐播",
-      //   "domain": "https://lbapi9.com/api.php/provide/vod/at/xml/",
-      //   "paresType": "0"
-      // }
     ];
 
     // 获取当前存储的订阅列表
-    List<Map<String, String>> subscriptions = await SPManager.getSubscriptions();
+    List<StorehouseBean> subscriptions = await SPManager.getSubscriptions();
 
     int addedCount = 0;
 
     for (var sub in defaultSubscriptions) {
-      bool exists = subscriptions.any((s) => s['domain'] == sub['domain']);
+      bool exists = subscriptions.any((s) => s.url == sub['url']);
       if (!exists) {
-        await SPManager.saveSubscription(sub['name']!, sub['domain']!, sub['paresType']!);
+        subscriptions.add(
+            StorehouseBean(name: sub['name'] ?? "", url: sub['url'] ?? ""));
+        await SPManager.saveSubscription(subscriptions);
         addedCount++;
       }
     }
 
-    if (addedCount > 0) {
-      await SPManager.saveCurrentSubscription(
-        defaultSubscriptions[0]['name']!,
-        defaultSubscriptions[0]['domain']!,
-        defaultSubscriptions[0]['paresType']!,
-      );
-      HttpService.updateBaseUrl(defaultSubscriptions[0]['domain']!);
+    if (addedCount > 0 && _subscriptionsUtil.currentSite == null) {
+      await SPManager.saveCurrentStorehouse(subscriptions.first);
     }
 
     // 检查是否仍然挂载，避免错误
@@ -110,7 +93,7 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => HomePage()),
-              (route) => false,
+          (route) => false,
         );
       }
     }
@@ -134,7 +117,10 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
             ),
             TextField(
               controller: _paresController,
-              decoration: InputDecoration(labelText: "解析类型",hintText: "json类型为1，xml类型为0",hintStyle: TextStyle(color: Colors.black.withAlpha(70))),
+              decoration: InputDecoration(
+                  labelText: "解析类型",
+                  hintText: "json类型为1，xml类型为0",
+                  hintStyle: TextStyle(color: Colors.black.withAlpha(70))),
             ),
             SizedBox(height: 20),
             ElevatedButton(

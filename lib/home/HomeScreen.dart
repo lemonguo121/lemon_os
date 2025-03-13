@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:lemon_tv/http/data/SubscripBean.dart';
+import 'package:lemon_tv/util/SubscriptionsUtil.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:xml/xml.dart';
 
@@ -10,6 +12,7 @@ import '../http/data/CategoryBean.dart';
 import '../http/data/HomeCateforyData.dart';
 import '../http/data/RealVideo.dart';
 import '../http/data/Video.dart';
+import '../http/data/storehouse_bean_entity.dart';
 import '../mywidget/MyLoadingIndicator.dart';
 import '../search/SearchScreen.dart';
 import '../subscrip/AddSubscriptionPage.dart';
@@ -28,10 +31,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final PageController _pageController = PageController();
   late TabController _tabController = TabController(length: 0, vsync: this);
   final HttpService _httpService = HttpService();
+  final SubscriptionsUtil _subscriptionsUtil = SubscriptionsUtil();
   List<CategoryBean> categories = [];
   bool isLoading = true;
-  String scripName = "未订阅";
-  String paresType = "1";
+
+  // String paresType = "1";
 
   // 缓存 Fragment 实例
   final Map<String, CategoryFragment> _cachedFragments = {};
@@ -50,9 +54,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Future<void> _loadData() async {
     setState(() => isLoading = true);
     try {
-      await _getSubscripName();
+      var siteMap = await _subscriptionsUtil.requestSubscription("123123",
+          "https://ghfast.top/https://raw.githubusercontent.com/lemonguo121/BoxRes/main/Myuse/lemon.json");
+      // await _getSubscripName();
+      var currentSite = _subscriptionsUtil.currentSite;
       var responseString;
-      if (paresType == "1") {
+      if (currentSite?.type == 1) {
         Map<String, dynamic> jsonMap = await _httpService.get("");
         responseString = ResponseData.fromJson(jsonMap);
       } else {
@@ -143,6 +150,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    var currentSite = _subscriptionsUtil.currentSite;
     if (isLoading) {
       return Column(children: [MyLoadingIndicator(isLoading: isLoading)]);
     }
@@ -153,23 +161,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           SizedBox(height: isVertical ? 55.0 : 40),
           _buildSearch(),
           Expanded(
-              child: FutureBuilder(
-            future: SPManager.getSubscriptions(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return _buildNoSubscriptionView();
-              }
-              return categories.isEmpty
-                  ? _buildNoDataView()
-                  : _buildCategorySelector();
-            },
-          )),
+            child: currentSite == null
+                ? _buildNoSubscriptionView() // 如果 currentSite 为 null，显示 "没有订阅" 视图
+                : categories.isEmpty
+                    ? _buildNoDataView() // 如果 categories 为空，显示 "没有数据" 视图
+                    : _buildCategorySelector(), // 否则，显示分类选择视图
+          ),
         ],
       ),
     );
   }
 
   Widget _buildSearch() {
+    var currentSite = _subscriptionsUtil.currentSite;
     return Row(
       children: [
         const SizedBox(width: 12.0),
@@ -183,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               const SizedBox(width: 4),
               SizedBox(
                 width: 40,
-                child: Text(scripName,
+                child: Text(currentSite!=null?currentSite.name:"未订阅",
                     style: const TextStyle(fontSize: 12, color: Colors.black87),
                     overflow: TextOverflow.ellipsis),
               ),
@@ -193,8 +197,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         const SizedBox(width: 8.0),
         Expanded(
           child: InkWell(
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => SearchScreen(query: "",))),
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => SearchScreen(
+                          query: "",
+                        ))),
             child: Container(
               height: 35,
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -255,18 +263,4 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Future<void> _getSubscripName() async {
-    var _currentSubscription = await SPManager.getCurrentSubscription();
-    if (_currentSubscription != null) {
-      setState(() {
-        scripName = _currentSubscription['name'] ?? "未订阅";
-        paresType = _currentSubscription['paresType'] ?? "1";
-      });
-    } else {
-      setState(() {
-        scripName = "未订阅";
-        paresType = "0";
-      });
-    }
-  }
 }

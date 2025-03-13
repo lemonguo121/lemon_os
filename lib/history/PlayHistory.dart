@@ -22,8 +22,8 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    _loadHistoryList();
+    // WidgetsBinding.instance.addObserver(this);
+    // _loadHistoryList();
   }
 
   @override

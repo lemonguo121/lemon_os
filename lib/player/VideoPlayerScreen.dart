@@ -12,7 +12,6 @@ import 'VoiceAndLightFeedbackPositoned.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
   final int initialIndex;
-  final String videoTitle;
   final RealVideo video;
   final ValueChanged<bool> onFullScreenChanged;
   final ValueChanged<int> onChangePlayPositon;
@@ -27,7 +26,6 @@ class VideoPlayerScreen extends StatefulWidget {
   VideoPlayerScreen({
     required this.initialIndex,
     required this.video,
-    required this.videoTitle,
     required this.onFullScreenChanged,
     required this.onChangePlayPositon,
     required this.videoPlayerHeight,
@@ -73,6 +71,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
 
   Future<void> _initializePlayer() async {
     videoList = CommonUtil.getPlayList(widget.video);
+    print("play url = ${videoList[_currentIndex]['url']}");
     _controller =
         VideoPlayerController.network(videoList[_currentIndex]['url']!);
     await _controller.initialize();
@@ -381,7 +380,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                 MenuContainer(
                     videoId: videoId,
                     videoTitle:
-                        "${widget.videoTitle} ${videoList[_currentIndex]['title']!}",
+                        "${widget.video.vodName} ${videoList[_currentIndex]['title']!}",
                     controller: _controller,
                     onSetState: setState,
                     showSkipFeedback: showSkipFeedback,

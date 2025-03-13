@@ -28,7 +28,7 @@ class _VodForamTagState extends State<VodForamTag> {
           ),
         ),
         child: Text(
-          widget.realVideo.site['name'] ?? "",
+          widget.realVideo.site.name ?? "",
           style: TextStyle(
             color: Colors.white,
             fontSize: 10.0,

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:lemon_tv/util/SubscriptionsUtil.dart';
 
 import 'package:xml/xml.dart';
 
@@ -82,11 +83,11 @@ class _CategoryState extends State<CategoryFragment>
 
   Future<void> _getData() async {
     try {
-      var _currentSubscription = await SPManager.getCurrentSubscription();
-      if (_currentSubscription == null) {
+      var currentSite = SubscriptionsUtil().currentSite;
+      if (currentSite == null) {
         return;
       }
-      var paresType = _currentSubscription['paresType'] ?? "1";
+      var paresType = currentSite.type ?? 1;
 
       var typeId = "";
       if (widget.alClass.categoryChildList.isNotEmpty) {
@@ -97,7 +98,7 @@ class _CategoryState extends State<CategoryFragment>
         typeId = widget.alClass.typeId.toString();
       }
       var newData;
-      if (paresType == "1") {
+      if (paresType == 1) {
         Map<String, dynamic> newJsonMap = await _httpService.get(
           "",
           params: {
@@ -107,7 +108,7 @@ class _CategoryState extends State<CategoryFragment>
             "f": ""
           },
         );
-        newData = RealResponseData.fromJson(newJsonMap, _currentSubscription);
+        newData = RealResponseData.fromJson(newJsonMap, currentSite);
       } else {
         XmlDocument newJsonMap = await _httpService.get(
           "",
@@ -118,7 +119,7 @@ class _CategoryState extends State<CategoryFragment>
             "f": ""
           },
         );
-        newData = RealResponseData.fromXml(newJsonMap, _currentSubscription);
+        newData = RealResponseData.fromXml(newJsonMap, currentSite);
       }
 
       setState(() {
@@ -165,8 +166,12 @@ class _CategoryState extends State<CategoryFragment>
                 headerAlignment: ExpandablePanelHeaderAlignment.center,
                 iconPadding: EdgeInsets.symmetric(horizontal: 12),
               ),
-              collapsed: Text("",
-                  softWrap: true, maxLines: 1, style: TextStyle(fontSize: 2),),
+              collapsed: Text(
+                "",
+                softWrap: true,
+                maxLines: 1,
+                style: TextStyle(fontSize: 2),
+              ),
               header: Text("",
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
               expanded: _buildSecendCategory()),

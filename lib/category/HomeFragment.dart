@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lemon_tv/util/SubscriptionsUtil.dart';
 import 'package:xml/xml.dart';
 
 import '../home/HomeCateforyListItem.dart';
@@ -61,15 +62,13 @@ class _HomeFragmentState extends State<HomeFragment>
     try {
       if (isLoading) return;
       setState(() => isLoading = true);
-      var _currentSubscription = await SPManager.getCurrentSubscription();
-      if (_currentSubscription == null) {
+ var currentSite = SubscriptionsUtil().currentSite;
+      if (currentSite == null) {
         return;
       }
-      var subscriptionDomain = '';
-      var paresType = _currentSubscription['paresType'] ?? "1";
-      subscriptionDomain = _currentSubscription['domain'] ?? "";
+      var paresType = currentSite.type ?? 1;
       var responseString;
-      if (paresType == "1") {
+      if (paresType == 1) {
         Map<String, dynamic> jsonMap = await _httpService.get("");
         responseString = ResponseData.fromJson(jsonMap);
       } else {
@@ -84,19 +83,19 @@ class _HomeFragmentState extends State<HomeFragment>
 
       var newData;
       homeCategoryList.clear();
-      if (paresType == "1") {
+      if (paresType == 1) {
         Map<String, dynamic> newJsonMap = await _httpService.get(
           "",
           params: {"ac": "detail", "ids": idsString},
         );
-        newData = RealResponseData.fromJson(newJsonMap, _currentSubscription);
+        newData = RealResponseData.fromJson(newJsonMap, currentSite);
       } else {
         XmlDocument xmlDoc = await _httpService.get(
           "",
           params: {"ac": "videolist", "ids": idsString},
         );
 
-        newData = RealResponseData.fromXml(xmlDoc, _currentSubscription);
+        newData = RealResponseData.fromXml(xmlDoc, currentSite);
       }
 
       setState(() {

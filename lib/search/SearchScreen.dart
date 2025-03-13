@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:lemon_tv/util/SubscriptionsUtil.dart';
 import 'package:xml/xml.dart';
 
 import '../http/HttpService.dart';
 import '../http/data/RealVideo.dart';
+import '../http/data/storehouse_bean_entity.dart';
 import '../util/SPManager.dart';
 import 'SearchHistoryList.dart';
 import 'SearchResultList.dart';
@@ -23,11 +25,12 @@ class _SearchScreenState extends State<SearchScreen>
   final HttpService _httpService = HttpService();
   List<String> _searchHistory = [];
   Map<String, RealResponseData> _searchResults = {}; // 以站点名存储不同站点的搜索结果
-  List<Map<String, String>> _subscriptions = [];
+  List<StorehouseBeanSites> selectStorehouse = [];
   late RealResponseData selectResponseData;
   String selectSite = ""; // 当前选择的站点名
   bool _hasSearch = false;
   List<String> hasResultSite = [];
+
 
   @override
   void initState() {
@@ -42,10 +45,11 @@ class _SearchScreenState extends State<SearchScreen>
 
   // 加载已订阅站点
   Future<void> _loadSubscriptions() async {
-    _subscriptions = await SPManager.getSubscriptions();
-    if (_subscriptions.isNotEmpty) {
+    selectStorehouse = SubscriptionsUtil().selectStorehouse;
+    // _subscriptions = await SPManager.getStorehouse();
+    if (selectStorehouse.isNotEmpty) {
       setState(() {
-        selectSite = _subscriptions[0]['name'] ?? ""; // 默认选择第一个站点
+        selectSite = selectStorehouse.first.name; // 默认选择第一个站点
       });
     }
     _loadSearchResults(selectSite);
@@ -83,14 +87,14 @@ class _SearchScreenState extends State<SearchScreen>
 
     try {
       var isResearch = false;
-      for (var subscription in _subscriptions) {
-        String subscriptionName = subscription['name'] ?? '未知站点';
-        String subscriptionDomain = subscription['domain'] ?? '';
-        String paresType = subscription['paresType'] ?? "1";
+      for (var subscription in selectStorehouse) {
+        String subscriptionName = subscription.name ?? '未知站点';
+        String subscriptionDomain = subscription.api ?? '';
+        int paresType = subscription.type?? 1;
         var response;
         if (paresType == "1") {
           Map<String, dynamic> newJsonMap =
-              await _httpService.getBySubscription(
+          await _httpService.getBySubscription(
             subscriptionDomain,
             paresType,
             "",
@@ -193,7 +197,7 @@ class _SearchScreenState extends State<SearchScreen>
             ),
 
             //搜索结果
-            if (_subscriptions.isNotEmpty)
+            if (selectStorehouse.isNotEmpty)
               SearchResultList(
                   isLoading: _isLoading,
                   hasResultSite: hasResultSite,
@@ -221,7 +225,7 @@ class _SearchScreenState extends State<SearchScreen>
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
                 contentPadding:
-                    EdgeInsets.symmetric(vertical: 0.0, horizontal: 12.0),
+                EdgeInsets.symmetric(vertical: 0.0, horizontal: 12.0),
               ),
               style: const TextStyle(fontSize: 16.0),
             ),

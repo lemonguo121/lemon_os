@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,15 +5,15 @@ import 'package:xml/xml.dart';
 
 import '../http/HttpService.dart';
 import '../http/data/RealVideo.dart';
+import '../http/data/storehouse_bean_entity.dart';
 import '../mywidget/MyLoadingIndicator.dart';
-import '../util/SPManager.dart';
 import '../player/VideoPlayerScreen.dart';
 import '../util/CommonUtil.dart';
-import 'CollapsibleText.dart';
+import '../util/SPManager.dart';
 
 class DetailScreen extends StatefulWidget {
   final int vodId;
-  final Map<String, String> site;
+  final StorehouseBeanSites site;
 
   const DetailScreen({super.key, required this.vodId, required this.site});
 
@@ -55,12 +53,11 @@ class _DetailScreenState extends State<DetailScreen> {
 
   Future<void> _fetchDetail() async {
     try {
-      var paresType = widget.site['paresType'] ?? "1";
-      var subscription = widget.site['domain'] ?? "";
-      if (paresType == "1") {
-        await SPManager.getCurrentSubscription();
+      var paresType = widget.site.type ?? 1;
+      var subscription = widget.site.api ?? "";
+      if (paresType == 1) {
         Map<String, dynamic> jsonMap = await _httpService.getBySubscription(
-          widget.site['domain'] ?? "",
+          subscription,
           paresType,
           "",
           params: {
@@ -185,7 +182,6 @@ class _DetailScreenState extends State<DetailScreen> {
               : playerHeight, // 非全屏时固定高度
           child: VideoPlayerScreen(
             initialIndex: _selectedIndex,
-            videoTitle: video.vodName,
             video: video,
             onFullScreenChanged: _onFullScreenChanged,
             onChangePlayPositon: _onChangePlayPositon,
@@ -218,7 +214,6 @@ class _DetailScreenState extends State<DetailScreen> {
               : screenHeight, // 非全屏时固定高度
           child: VideoPlayerScreen(
             initialIndex: _selectedIndex,
-            videoTitle: video.vodName,
             video: video,
             onFullScreenChanged: _onFullScreenChanged,
             onChangePlayPositon: _onChangePlayPositon,

@@ -11,6 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  uses-material-design: true
   dio: ^5.0.0
   video_player: ^2.4.5
   smooth_page_indicator: ^1.0.0
@@ -24,6 +25,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   cached_network_image: ^3.3.0
   expandable: ^5.0.1
+  punycode: ^1.0.0
+
 
 dev_dependencies:
   flutter_test:
