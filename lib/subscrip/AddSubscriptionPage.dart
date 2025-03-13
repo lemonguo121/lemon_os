@@ -56,7 +56,7 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
       },
       {
         "name": "22",
-        "domain":
+        "url":
             "https://github.moeyy.xyz/https://raw.githubusercontent.com/xyq254245/xyqonlinerule/main/XYQTVBox.json",
       },
     ];
@@ -76,9 +76,9 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
       }
     }
 
-    if (addedCount > 0 && _subscriptionsUtil.currentSite == null) {
-      await SPManager.saveCurrentStorehouse(subscriptions.first);
-    }
+    // if (addedCount > 0 && _subscriptionsUtil.currentSite == null) {
+    //   await SPManager.saveCurrentStorehouse(subscriptions.first);
+    // }
 
     // 检查是否仍然挂载，避免错误
     if (mounted) {
@@ -114,13 +114,6 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
             TextField(
               controller: _domainController,
               decoration: InputDecoration(labelText: "站点域名"),
-            ),
-            TextField(
-              controller: _paresController,
-              decoration: InputDecoration(
-                  labelText: "解析类型",
-                  hintText: "json类型为1，xml类型为0",
-                  hintStyle: TextStyle(color: Colors.black.withAlpha(70))),
             ),
             SizedBox(height: 20),
             ElevatedButton(

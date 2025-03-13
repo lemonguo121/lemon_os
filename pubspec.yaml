@@ -25,9 +25,12 @@ dependencies:
   cached_network_image: ^3.3.0
   expandable: ^5.0.1
   punycode: ^1.0.0
+  json_annotation: ^4.7.0
 
 
 dev_dependencies:
+  build_runner: ^2.3.0
+  json_serializable: ^6.5.1
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0

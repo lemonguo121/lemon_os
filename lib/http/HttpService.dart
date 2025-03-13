@@ -19,8 +19,6 @@ class HttpService {
 
   HttpService._internal();
 
-  late SubscriptionsUtil _subscriptionsUtil = SubscriptionsUtil();
-
   // 更新 baseUrl
   static Future<void> updateBaseUrl(String newBaseUrl) async {
     baseUrl = newBaseUrl;
@@ -29,8 +27,7 @@ class HttpService {
   // GET 请求
   Future<dynamic> get(String path, {Map<String, dynamic>? params}) async {
     try {
-      var currentSite = _subscriptionsUtil.currentSite;
-
+      var currentSite = await SPManager.getCurrentSite();
       // 设置选中状态，如果有当前选中的站点
       if (currentSite != null) {
         baseUrl = currentSite.api;
@@ -46,8 +43,8 @@ class HttpService {
     }
   }
 
-  Future<dynamic> getBySubscription(String storehouse, int paresType,
-      String path,
+  Future<dynamic> getBySubscription(
+      String storehouse, int paresType, String path,
       {Map<String, dynamic>? params}) async {
     try {
       final uri = Uri.parse(storehouse ?? baseUrl + path)
@@ -112,7 +109,7 @@ class HttpService {
     return {
       'Content-Type': 'application/json; charset=utf-8',
       'User-Agent':
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
     };
   }
 

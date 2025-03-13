@@ -64,7 +64,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
 
   Future<void> _initializeSystemSettings() async {
     _currentBrightness = await ScreenBrightness().current; // 获取系统亮度
-    print("_currentBrightness = $_currentBrightness");
     _currentVolume = await SPManager.getCurrentVolume(); // 获取保存的音量
     setState(() {});
   }
@@ -95,6 +94,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     final tailTime = await SPManager.getSkipTailTimes(videoId);
 
     _controller.addListener(() {
+      if (_controller.value.hasError) {
+        CommonUtil.showToast("${_controller.value.errorDescription}");
+        print("play error = ${_controller.value.errorDescription}");
+      }
       if (_controller.value.duration > Duration.zero && !_isLoadVideoPlayed) {
         var skipTime = const Duration(milliseconds: 0);
         if (tailTime > const Duration(milliseconds: 1000)) {

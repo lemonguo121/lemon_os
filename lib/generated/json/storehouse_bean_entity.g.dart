@@ -224,64 +224,28 @@ extension StorehouseBeanLivesChannelsExtension on StorehouseBeanLivesChannels {
 
 StorehouseBeanSites $StorehouseBeanSitesFromJson(Map<String, dynamic> json) {
   final StorehouseBeanSites storehouseBeanSites = StorehouseBeanSites();
-  final String? key = jsonConvert.convert<String>(json['key']);
-  if (key != null) {
-    storehouseBeanSites.key = key;
-  }
-  final String? name = jsonConvert.convert<String>(json['name']);
-  if (name != null) {
-    storehouseBeanSites.name = name;
-  }
-  final int? type = jsonConvert.convert<int>(json['type']);
-  if (type != null) {
-    storehouseBeanSites.type = type;
-  }
-  final String? api = jsonConvert.convert<String>(json['api']);
-  if (api != null) {
-    storehouseBeanSites.api = api;
-  }
-  final String? jar = jsonConvert.convert<String>(json['jar']);
-  if (jar != null) {
-    storehouseBeanSites.jar = jar;
-  }
-  final int? searchable = jsonConvert.convert<int>(json['searchable']);
-  if (searchable != null) {
-    storehouseBeanSites.searchable = searchable;
-  }
-  final int? quickSearch = jsonConvert.convert<int>(json['quickSearch']);
-  if (quickSearch != null) {
-    storehouseBeanSites.quickSearch = quickSearch;
-  }
-  final int? filterable = jsonConvert.convert<int>(json['filterable']);
-  if (filterable != null) {
-    storehouseBeanSites.filterable = filterable;
-  }
-  final int? changeable = jsonConvert.convert<int>(json['changeable']);
-  if (changeable != null) {
-    storehouseBeanSites.changeable = changeable;
-  }
-  final String? playUrl = jsonConvert.convert<String>(json['playUrl']);
-  if (playUrl != null) {
-    storehouseBeanSites.playUrl = playUrl;
-  }
-  final List<String>? categories = (json['categories'] as List<dynamic>?)?.map(
-          (e) => jsonConvert.convert<String>(e) as String).toList();
-  if (categories != null) {
-    storehouseBeanSites.categories = categories;
-  }
-  final String? ext = jsonConvert.convert<String>(json['ext']);
-  if (ext != null) {
-    storehouseBeanSites.ext = ext;
-  }
-  final int? timeout = jsonConvert.convert<int>(json['timeout']);
-  if (timeout != null) {
-    storehouseBeanSites.timeout = timeout;
-  }
-  final StorehouseBeanSitesStyle? style = jsonConvert.convert<
-      StorehouseBeanSitesStyle>(json['style']);
-  if (style != null) {
-    storehouseBeanSites.style = style;
-  }
+
+  storehouseBeanSites.key = jsonConvert.convert<String>(json['key']) ?? "";
+  storehouseBeanSites.name = jsonConvert.convert<String>(json['name']) ?? "";
+  storehouseBeanSites.type = jsonConvert.convert<int>(json['type']) ?? 0;
+  storehouseBeanSites.api = jsonConvert.convert<String>(json['api']) ?? "";
+  storehouseBeanSites.jar = jsonConvert.convert<String>(json['jar']) ?? "";
+  storehouseBeanSites.searchable = jsonConvert.convert<int>(json['searchable']) ?? 0;
+  storehouseBeanSites.quickSearch = jsonConvert.convert<int>(json['quickSearch']) ?? 0;
+  storehouseBeanSites.filterable = jsonConvert.convert<int>(json['filterable']) ?? 0;
+  storehouseBeanSites.changeable = jsonConvert.convert<int>(json['changeable']) ?? 0;
+  storehouseBeanSites.playUrl = jsonConvert.convert<String>(json['playUrl']) ?? "";
+
+  storehouseBeanSites.categories = (json['categories'] as List<dynamic>?)?.map(
+          (e) => jsonConvert.convert<String>(e) ?? "").toList() ?? [];
+
+  storehouseBeanSites.ext = jsonConvert.convert<String>(json['ext']) ?? "";
+  storehouseBeanSites.timeout = jsonConvert.convert<int>(json['timeout']) ?? 0;
+
+  storehouseBeanSites.style = json['style'] != null
+      ? jsonConvert.convert<StorehouseBeanSitesStyle>(json['style'])
+      : null;
+
   return storehouseBeanSites;
 }
 
@@ -300,7 +264,7 @@ Map<String, dynamic> $StorehouseBeanSitesToJson(StorehouseBeanSites entity) {
   data['categories'] = entity.categories;
   data['ext'] = entity.ext;
   data['timeout'] = entity.timeout;
-  data['style'] = entity.style.toJson();
+  data['style'] = entity.style?.toJson();
   return data;
 }
 

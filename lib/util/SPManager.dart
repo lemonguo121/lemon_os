@@ -4,18 +4,18 @@ import '../http/data/RealVideo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../http/data/SubscripBean.dart';
+import '../http/data/storehouse_bean_entity.dart';
 
 class SPManager {
   static const String _progressKey = "video_progress";
   static const String _skipHeadKey = "skip_head_time";
   static const String _skipTailKey = "skip_tail_time";
   static const String _videoHistory = "video_history";
-  static const String _storehouseKey = "storehousekey";
-  static const String _current_storehouse = "current_storehouse";
   static const String _current_volume = "_current_volume";
   static const String _search_key = "_current_volume";
   static const String _subscriptinKey = "_subscriptinKey";
-  static const String _currentsubscriptinKey = "_currentsubscriptinKey";
+  static const String _currentSubscriptinKey = "_currentSubscriptinKey";
+  static const String _currentSitetinKey = "_currentSitetinKey";
 
   // 保存播放进度
   static Future<void> saveProgress(String videoUrl, Duration position) async {
@@ -132,109 +132,6 @@ class SPManager {
     await prefs.setString(_videoHistory, jsonEncode(history));
   }
 
-  // 保存站点列表
-  // static Future<void> saveStorehouse(
-  //     String name, String domain, String paresType) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   List<String> subscriptions = prefs.getStringList(_storehouseKey) ?? [];
-  //
-  //   // 确保不会重复添加相同站点
-  //   String newSite =
-  //       jsonEncode({"name": name, "domain": domain, "paresType": paresType});
-  //   if (!subscriptions.contains(newSite)) {
-  //     subscriptions.add(newSite);
-  //     await prefs.setStringList(_storehouseKey, subscriptions);
-  //   }
-  // }
-
-  // 获取站点列表
-  // static Future<List<Map<String, String>>> getStorehouse() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   List<String> subscriptions = prefs.getStringList(_storehouseKey) ?? [];
-  //   return subscriptions
-  //       .map((item) => Map<String, String>.from(jsonDecode(item)))
-  //       .toList();
-  // }
-
-  // 删除指定站点
-  // static Future<void> removeStorehouse(String name) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   List<String> subscriptions = prefs.getStringList(_storehouseKey) ?? [];
-  //
-  //   subscriptions.removeWhere((item) {
-  //     Map<String, String> site = Map<String, String>.from(jsonDecode(item));
-  //     return site['name'] == name;
-  //   });
-  //
-  //   await prefs.setStringList(_storehouseKey, subscriptions);
-  // }
-
-  // 更新站点信息
-  // static Future<bool> updateStorehouse(String oldName, String newName,
-  //     String newDomain, String newParesType) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   List<String> subscriptions = prefs.getStringList(_storehouseKey) ?? [];
-  //
-  //   var _currentSubscription = await getCurrentStorehouse();
-  //   bool updated = false;
-  //
-  //   for (int i = 0; i < subscriptions.length; i++) {
-  //     Map<String, String> site =
-  //         Map<String, String>.from(jsonDecode(subscriptions[i]));
-  //
-  //     if (site['name'] == oldName) {
-  //       subscriptions[i] = jsonEncode(
-  //           {"name": newName, "domain": newDomain, "paresType": newParesType});
-  //       updated = true;
-  //
-  //       // 如果当前选中的站点是旧站点，则更新当前订阅
-  //       if ((_currentSubscription?['name'] ?? "") == oldName) {
-  //         await saveCurrentStorehouse(newName, newDomain, newParesType);
-  //       }
-  //       break;
-  //     }
-  //   }
-  //   if (updated) {
-  //     await prefs.setStringList(_storehouseKey, subscriptions);
-  //   }
-  //   return updated;
-  // }
-
-// 保存当前选中的站点
-//   static Future<void> saveCurrentStorehouse(
-//       String name, String domain, String paresType) async {
-//     final prefs = await SharedPreferences.getInstance();
-//     String currentSite =
-//         jsonEncode({"name": name, "domain": domain, "paresType": paresType});
-//     await prefs.setString(_current_storehouse, currentSite);
-//   }
-
-// 更新当前选中的站点
-//   static Future<void> updateCurrentStorehouse(
-//       String newName, String domain) async {
-//     final prefs = await SharedPreferences.getInstance();
-//
-//     // 去除空格，避免存入不必要的空格字符
-//     String trimmedName = newName.trim();
-//     String trimmedDomain = domain.trim();
-//
-//     String currentSite =
-//         jsonEncode({"name": trimmedName, "domain": trimmedDomain});
-//
-//     // 确保 key 名正确
-//     await prefs.setString(_current_storehouse, currentSite);
-//   }
-
-// 获取当前选中的站点
-//   static Future<Map<String, String>?> getCurrentStorehouse() async {
-//     final prefs = await SharedPreferences.getInstance();
-//     String? currentSite = prefs.getString(_current_storehouse);
-//     if (currentSite != null) {
-//       return Map<String, String>.from(jsonDecode(currentSite));
-//     }
-//     return null; // 返回 null 如果没有选中的站点
-//   }
-
   // 获取搜索历史
   static Future<List<String>> getSearchHistory() async {
     final prefs = await SharedPreferences.getInstance();
@@ -247,19 +144,19 @@ class SPManager {
     await prefs.setStringList(_search_key, _searchHistory);
   }
 
+  // 保存指定仓库
   static Future<void> saveSubscription(
       List<StorehouseBean> subscriptions) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
     // 使用 Set 过滤掉重复 URL
     final uniqueSubscriptions = subscriptions.toSet().toList();
-
     // 序列化 JSON 并存储
     String jsonString =
         jsonEncode(uniqueSubscriptions.map((e) => e.toJson()).toList());
     await prefs.setString(_subscriptinKey, jsonString);
   }
 
+  // 获取所有的仓库
   static Future<List<StorehouseBean>> getSubscriptions() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? jsonString = prefs.getString(_subscriptinKey);
@@ -270,13 +167,50 @@ class SPManager {
     return jsonList.map((e) => StorehouseBean.fromJson(e)).toList();
   }
 
-  static Future<void> saveCurrentStorehouse(StorehouseBean subscrip) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_currentsubscriptinKey, subscrip.url);
+  // 删除指定仓库
+  static Future<void> removeSubscription(String name) async {
+    List<StorehouseBean> subscriptions = await getSubscriptions();
+    subscriptions.removeWhere((item) {
+      return item.name == name;
+    });
+    await saveSubscription(subscriptions);
   }
 
-  static Future<String> getCurrentStorehouse() async {
+  // 获取当前选择的仓库
+  static Future<StorehouseBean?> getCurrentSubscription() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_currentsubscriptinKey)??"";
+    String? jsonString = prefs.getString(_currentSubscriptinKey);
+    if (jsonString != null) {
+      Map<String, dynamic> scriptionMap = jsonDecode(jsonString);
+      return StorehouseBean.fromJson(scriptionMap);
+    }
+    return null;
+  }
+
+  // 记录当前选择的仓库
+  static Future<void> saveCurrentSubscription(
+      StorehouseBean storehouseBean) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String storehouseJson =
+        jsonEncode(storehouseBean.toJson()); // 序列化为 JSON 字符串
+    prefs.setString(_currentSitetinKey, storehouseJson);
+  }
+
+  // 记录当前的站点
+  static Future<void> saveCurrentSite(StorehouseBeanSites site) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String siteJson = jsonEncode(site.toJson()); // 序列化为 JSON 字符串
+    prefs.setString(_currentSitetinKey, siteJson);
+  }
+
+  // 获取当前的站点
+  static Future<StorehouseBeanSites?> getCurrentSite() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? siteJson = prefs.getString(_currentSitetinKey);
+    if (siteJson != null) {
+      Map<String, dynamic> siteMap = jsonDecode(siteJson);
+      return StorehouseBeanSites.fromJson(siteMap);
+    }
+    return null;
   }
 }

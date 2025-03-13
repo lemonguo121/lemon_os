@@ -74,16 +74,18 @@ class StorehouseBeanSites {
 	late String name;
 	late int type;
 	late String api;
-	late String jar;
+	late String playUrl;
 	late int searchable;
 	late int quickSearch;
-	late int filterable;
-	late int changeable;
-	late String playUrl;
 	late List<String> categories;
-	late String ext;
-	late int timeout;
-	late StorehouseBeanSitesStyle style;
+
+	// ✅ 让缺失的字段有默认值
+	String jar = "";
+	int filterable = 0;
+	int changeable = 0;
+	String ext = "";
+	int timeout = 0;
+	StorehouseBeanSitesStyle? style; // 可以为空，避免报错
 
 	StorehouseBeanSites();
 

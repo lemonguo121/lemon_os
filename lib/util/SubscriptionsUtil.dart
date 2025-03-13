@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:lemon_tv/http/HttpService.dart';
+import 'package:lemon_tv/util/CommonUtil.dart';
 
 import '../http/data/SubscripBean.dart';
 import '../http/data/storehouse_bean_entity.dart';
@@ -17,11 +17,14 @@ class SubscriptionsUtil {
 
   Map<String, List<StorehouseBeanSites>> siteMap = {};
 
-  StorehouseBeanSites? currentSite;
   List<StorehouseBeanSites> selectStorehouse = [];
 
   Future<Map<String, List<StorehouseBeanSites>>> requestSubscription(
       String subscripName, String subscripUrl) async {
+    if (containsChinese(subscripUrl)) {
+      CommonUtil.showToast("暂不支持含中文的接口");
+      return siteMap;
+    }
     Map<String, dynamic> jsonMap = await _httpService.getUrl(subscripUrl);
     if (jsonMap['urls'] != null) {
       var subscripBean = SubscripBean.fromJson(jsonMap);
@@ -33,6 +36,7 @@ class SubscriptionsUtil {
         try {
           if (containsChinese(url)) {
             // 暂不支持含中文的接口
+            CommonUtil.showToast("暂不支持含中文的接口");
             // url = _toPunycode("http://www.饭太硬.com/tv");
             print("SubscriptionsUtil trans url = $url");
             continue;
@@ -51,15 +55,19 @@ class SubscriptionsUtil {
       await SPManager.saveSubscription(singleUrls);
       await getSingleSubscription(jsonMap, subscripName);
     }
-    if (siteMap.isNotEmpty && currentSite == null) {
+    var currentSite = await SPManager.getCurrentSite();
+    if (siteMap.isNotEmpty) {
       // 从 siteMap 中获取第一个 name 对应的站点列表
       var firstSiteList = siteMap.values.first;
       if (firstSiteList.isNotEmpty) {
         selectStorehouse = firstSiteList;
         // 取第一个站点
-        var currentSite = firstSiteList.first;
-        setCurrentSite(currentSite);
-        HttpService.updateBaseUrl(currentSite.api);
+        if (currentSite == null) {
+          var currentSite = firstSiteList.first;
+          await SPManager.saveCurrentSite(currentSite);
+          setCurrentSite(currentSite);
+          HttpService.updateBaseUrl(currentSite.api);
+        }
       }
     }
     return siteMap;
@@ -87,8 +95,8 @@ class SubscriptionsUtil {
     return regExp.hasMatch(domain);
   }
 
-  void setCurrentSite(StorehouseBeanSites site) {
-    this.currentSite = site;
+  Future<void> setCurrentSite(StorehouseBeanSites site) async {
+    await SPManager.saveCurrentSite(site);
   }
 
   String _toPunycode(String input) {
