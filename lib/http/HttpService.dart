@@ -104,7 +104,7 @@ class HttpService {
     }
   }
 
-  // 获取请求头
+  // 获取接口请求头
   Map<String, String> _getHeaders() {
     return {
       'Content-Type': 'application/json; charset=utf-8',
@@ -112,7 +112,16 @@ class HttpService {
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
     };
   }
+  // 获取仓库时请求头
+  Map<String, String> _getStorehouseHeaders() {
+    return {
+      'Content-Type': 'application/json; charset=utf-8',
+      'User-Agent': 'okhttp/3.15', // 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      'Accept':
+      'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
 
+    };
+  }
   dynamic _handleResponse(http.Response response, int paresType) {
     if (response.statusCode == 200) {
       // 使用 UTF-8 解码，避免中文乱码
@@ -139,7 +148,7 @@ class HttpService {
     try {
       final uri = Uri.parse(subscriptionUrl); // 使用 replace 添加查询参数
 
-      final response = await http.get(uri, headers: _getHeaders());
+      final response = await http.get(uri, headers: _getStorehouseHeaders());
       return _handleUrlResponse(response);
     } catch (e) {
       throw _handleError(e);
@@ -147,13 +156,45 @@ class HttpService {
   }
 
   dynamic _handleUrlResponse(http.Response response) {
+    var result = "";
+
     if (response.statusCode == 200) {
       // 使用 UTF-8 解码，避免中文乱码
       String decodedBody = utf8.decode(response.bodyBytes);
       // **方法 1：根据 Content-Type 头部判断**
       return json.decode(decodedBody);
+
+      // if (response.body == null) {
+      //   // No response body
+      //   throw Exception("Empty response body");
+      // } else {
+      //   // Clean and find result
+      //   result = SubscriptionsUtil().findResult(response.body, null);
+      //
+      //   // Debugging: print the result to ensure it's valid JSON
+      //   print("Result before cleaning: $result");
+      //
+      //   // Clean the result and parse JSON
+      //   try {
+      //     return json.decode(cleanJson(result));
+      //   } catch (e) {
+      //     throw Exception("Error parsing JSON: $e");
+      //   }
+      // }
     } else {
       throw Exception("Server Error: ${response.statusCode}");
     }
   }
+
+  String cleanJson(String jsonStr) {
+    // Remove control characters and invisible characters
+    jsonStr = jsonStr.replaceAll(RegExp(r'[\x00-\x1F\x7F]'), '');  // Remove control characters
+    jsonStr = jsonStr.replaceAll(RegExp(r'[\u200B-\u200D\uFEFF]'), ''); // Remove invisible characters (like Zero Width Space)
+
+    // Remove single-line comments (// starting with //)
+    jsonStr = jsonStr.replaceAll(RegExp(r'//.*'), '');
+
+    return jsonStr;
+  }
+
 }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:lemon_tv/http/HttpService.dart';
@@ -7,6 +8,8 @@ import 'package:lemon_tv/util/CommonUtil.dart';
 import '../http/data/SubscripBean.dart';
 import '../http/data/storehouse_bean_entity.dart';
 import 'SPManager.dart';
+import 'AESUtil.dart';
+import 'package:punycode_converter/punycode_converter.dart';
 
 class SubscriptionsUtil {
   static final SubscriptionsUtil _instance = SubscriptionsUtil._internal();
@@ -21,40 +24,37 @@ class SubscriptionsUtil {
   List<StorehouseBeanSites> selectStorehouse = [];
 
   Future<Map<String, List<StorehouseBeanSites>>> requestSubscription(
-      String subscripName, String subscripUrl) async {
+      String subscripName, String url) async {
+    var subscripUrl = url;
     if (containsChinese(subscripUrl)) {
-      CommonUtil.showToast("暂不支持含中文的接口");
-      return siteMap;
+      subscripUrl = _toPunycode(subscripUrl);
     }
+    List<StorehouseBean> urls = [];
     Map<String, dynamic> jsonMap = await _httpService.getUrl(subscripUrl);
     if (jsonMap['urls'] != null) {
       var subscripBean = SubscripBean.fromJson(jsonMap);
-      var urls = subscripBean.urls;
+
+      urls.addAll(subscripBean.urls);
       await SPManager.saveSubscription(urls);
-      for (var value in urls) {
-        var url = value.url;
-        var name = value.name;
-        try {
-          if (containsChinese(url)) {
-            // 暂不支持含中文的接口
-            CommonUtil.showToast("暂不支持含中文的接口");
-            // url = _toPunycode("http://www.饭太硬.com/tv");
-            print("SubscriptionsUtil trans url = $url");
-            continue;
-          } else {
-            Map<String, dynamic> jsonMap = await _httpService.getUrl(url);
-            await getSingleSubscription(jsonMap, name);
-          }
-        } catch (e) {
-          print("Lemon Error processing URL ${value.url}: $e");
-        }
-      }
+      // for (var value in urls) {
+      //   var url = value.url;
+      //   var name = value.name;
+      //   try {
+      //     if (containsChinese(url)) {
+      //       url = _toPunycode(url);
+      //       print("_toPunycode  url = $url");
+      //     }
+      //     Map<String, dynamic> jsonMap = await _httpService.getUrl(url);
+      //     await getSingleSubscription(jsonMap, name);
+      //   } catch (e) {
+      //     print("Lemon Error processing URL ${value.url}: $e");
+      //   }
+      // }
     } else {
-      List<StorehouseBean> singleUrls = [];
       var storehouseBean = StorehouseBean(url: subscripUrl, name: subscripName);
-      singleUrls.add(storehouseBean);
-      await SPManager.saveSubscription(singleUrls);
-      await getSingleSubscription(jsonMap, subscripName);
+      urls.add(storehouseBean);
+      await SPManager.saveSubscription(urls);
+      // await getSingleSubscription(jsonMap, subscripName);
     }
     var currentSite = await SPManager.getCurrentSite();
     if (siteMap.isNotEmpty) {
@@ -64,6 +64,7 @@ class SubscriptionsUtil {
         selectStorehouse = firstSiteList;
         // 取第一个站点
         if (currentSite == null) {
+          SPManager.saveCurrentSubscription(urls[0]);
           var currentSite = firstSiteList.first;
           await SPManager.saveCurrentSite(currentSite);
           setCurrentSite(currentSite);
@@ -92,7 +93,7 @@ class SubscriptionsUtil {
     var siteList = storehouseBeanEntity.sites;
     selectStorehouse = siteList;
     var currentSite = await SPManager.getCurrentSite();
-    if (currentSite == null&&selectStorehouse.isNotEmpty) {
+    if (currentSite == null && selectStorehouse.isNotEmpty) {
       SPManager.saveCurrentSite(selectStorehouse[0]);
     }
   }
@@ -108,10 +109,47 @@ class SubscriptionsUtil {
   }
 
   String _toPunycode(String input) {
-    // 使用dart:convert包提供的 ascii编码和utf8转换
-    List<int> ascii = utf8.encode(input); // 确保在使用前定义了 ascii 变量
-    return ascii.map((e) => String.fromCharCode(e)).join();
+    var uri = Uri.parse(input);
+    return uri.punyEncoded.toString();
   }
 
-  static void paresStorehouse(StorehouseBean storehouseBean) {}
+  /// 解析加密内容
+  String findResult(String json, String? configKey) {
+    String content = json;
+    try {
+      if (AESUtil.isJson(content)) return content;
+
+      RegExp pattern = RegExp(r'[A-Za-z0]{8}\*\*');
+      Match? match = pattern.firstMatch(content);
+      if (match != null) {
+        content = content.substring(content.indexOf(match.group(0)!) + 10);
+        content = utf8.decode(base64.decode(content));
+      }
+
+      if (content.startsWith("2423")) {
+        String data =
+            content.substring(content.indexOf("2324") + 4, content.length - 26);
+        content = utf8
+            .decode(Uint8List.fromList(AESUtil.fromHex(content)))
+            .toLowerCase();
+
+        String key = AESUtil.rightPadding(
+            content.substring(
+                content.indexOf("\$#") + 2, content.indexOf("#\$")),
+            "0",
+            16);
+        String iv = AESUtil.rightPadding(
+            content.substring(content.length - 13), "0", 16);
+
+        json = AESUtil.decryptCBC(data, key, iv) ?? json;
+      } else if (configKey != null && !AESUtil.isJson(content)) {
+        json = AESUtil.decryptECB(content, configKey) ?? json;
+      } else {
+        json = content;
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
+    return json;
+  }
 }

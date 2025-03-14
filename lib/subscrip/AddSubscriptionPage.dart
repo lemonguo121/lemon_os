@@ -52,10 +52,11 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
     var storehouseBean = StorehouseBean(
         name: "1122",
         url:
-            "https://ghfast.top/https://raw.githubusercontent.com/lemonguo121/BoxRes/main/Myuse/lemon.json");
+            "https://ghfast.top/https://raw.githubusercontent.com/lemonguo121/BoxRes/main/Myuse/cat.json");
     // int addedCount = 0;
 
-  var map = await  SubscriptionsUtil().requestSubscription(storehouseBean.name,storehouseBean.url);
+    var map = await SubscriptionsUtil()
+        .requestSubscription(storehouseBean.name, storehouseBean.url);
 
     // 检查是否仍然挂载，避免错误
     if (mounted) {
@@ -67,11 +68,12 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
       );
 
       if (map.length > 0) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage()),
-          (route) => false,
-        );
+        Navigator.pop(context);
+        // Navigator.pushAndRemoveUntil(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => HomePage()),
+        //   (route) => false,
+        // );
       }
     }
   }
