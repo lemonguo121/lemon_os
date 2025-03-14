@@ -74,20 +74,27 @@ class SubscriptionsUtil {
     return siteMap;
   }
 
+  Future<Map<String, List<StorehouseBeanSites>>> requestCurrentSubscrip(
+      StorehouseBean currentStorehouse) async {
+    if (containsChinese(currentStorehouse.url)) {
+      CommonUtil.showToast("暂不支持含中文的接口");
+      return siteMap;
+    }
+    Map<String, dynamic> jsonMap =
+        await _httpService.getUrl(currentStorehouse.url);
+    await getSingleSubscription(jsonMap, currentStorehouse.name);
+    return siteMap;
+  }
+
   Future<void> getSingleSubscription(
       Map<String, dynamic> jsonMap, String name) async {
     var storehouseBeanEntity = StorehouseBeanEntity.fromJson(jsonMap);
     var siteList = storehouseBeanEntity.sites;
-    siteMap.update(name, (existingSites) => existingSites..addAll(siteList),
-        ifAbsent: () => siteList);
-
-    // var sites = storehouseBeanEntity.sites;
-    // for (var site in sites) {
-    //   var api = site.api;
-    //   var type = site.type;
-    //   var name = site.name;
-    //   print("SubscriptionsUtil site api = $api type = $type  name = $name");
-    // }
+    selectStorehouse = siteList;
+    var currentSite = await SPManager.getCurrentSite();
+    if (currentSite == null&&selectStorehouse.isNotEmpty) {
+      SPManager.saveCurrentSite(selectStorehouse[0]);
+    }
   }
 
   bool containsChinese(String domain) {

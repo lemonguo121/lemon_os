@@ -61,18 +61,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         });
         return;
       }
-      var siteMap = await _subscriptionsUtil.requestSubscription(
-          currentStorehouse?.name ?? "", currentStorehouse?.url ?? "");
-      // "https://ghfast.top/https://raw.githubusercontent.com/lemonguo121/BoxRes/main/Myuse/cat.json");
-      // await _getSubscripName();
-      if (siteMap==null) {
+      var siteMap =
+          await _subscriptionsUtil.requestCurrentSubscrip(currentStorehouse);
+      if (siteMap == null) {
         setState(() {
           currentSite = null;
         });
         return;
       }
       currentSite = await SPManager.getCurrentSite();
-      if (currentSite==null) {
+      if (currentSite == null) {
         setState(() {
           currentSite = null;
         });
@@ -331,8 +329,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       onTap: () {
         setState(() {
           _selecteSitedIndex = index;
-          SPManager.saveCurrentSite(selectStorehouse);
-          // _subscriptionsUtil.currentSite = selectStorehouse;
+           SPManager.saveCurrentSite(
+              _subscriptionsUtil.selectStorehouse[_selecteSitedIndex]);
         });
         Navigator.pushAndRemoveUntil(
           context,
