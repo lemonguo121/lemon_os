@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:lemon_tv/http/HttpService.dart';
 import 'package:lemon_tv/util/CommonUtil.dart';
 
@@ -104,4 +105,6 @@ class SubscriptionsUtil {
     List<int> ascii = utf8.encode(input); // 确保在使用前定义了 ascii 变量
     return ascii.map((e) => String.fromCharCode(e)).join();
   }
+
+  static void paresStorehouse(StorehouseBean storehouseBean) {}
 }

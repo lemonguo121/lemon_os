@@ -193,7 +193,7 @@ class SPManager {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String storehouseJson =
         jsonEncode(storehouseBean.toJson()); // 序列化为 JSON 字符串
-    prefs.setString(_currentSitetinKey, storehouseJson);
+    prefs.setString(_currentSubscriptinKey, storehouseJson);
   }
 
   // 记录当前的站点

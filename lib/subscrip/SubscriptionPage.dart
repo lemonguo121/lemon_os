@@ -23,21 +23,35 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   }
 
   Future<void> _loadSubscriptions() async {
-    List<StorehouseBean> subscriptions = await SPManager.getSubscriptions();
-    _currentstorehouse = await SPManager.getCurrentSubscription();
+    final subscriptionsFuture = SPManager.getSubscriptions();
+    final currentStorehouseFuture = SPManager.getCurrentSubscription();
 
-    if (_currentstorehouse != null) {
-      _selectedIndex =
-          subscriptions.indexWhere((site) => site.url == _currentstorehouse);
-    }
+    final subscriptions = await subscriptionsFuture;
+    final currentStorehouse = await currentStorehouseFuture;
 
     setState(() {
+      if (currentStorehouse != null) {
+        print(
+            "_currentstorehouse ${currentStorehouse.name}   ${currentStorehouse.url}");
+        _selectedIndex = subscriptions.indexWhere((site) =>
+            site.url == currentStorehouse.url ||
+            site.name == currentStorehouse.name);
+        _currentstorehouse = currentStorehouse;
+
+      }
       _storehouses = subscriptions;
     });
   }
 
   void _deleteSubscription(String name) async {
     await SPManager.removeSubscription(name);
+    setState(() {
+      _storehouses.removeWhere((item) => item.name == name);
+      if (_selectedIndex != null && _selectedIndex! >= _storehouses.length) {
+        _selectedIndex = null; // 重置选中项
+        _currentstorehouse = null;
+      }
+    });
     _loadSubscriptions();
   }
 
@@ -51,32 +65,31 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     }
   }
 
-  void _saveCurrentSubscription(StorehouseBean storehouseBean) async {
+  Future _saveCurrentSubscription(StorehouseBean storehouseBean) async {
     await SPManager.saveCurrentSubscription(storehouseBean);
   }
 
   void _onConfirm() async {
-    // if (_currentstorehouse==null) {
-    //   SPManager.
-    // }
+    if (_selectedIndex == null || _selectedIndex! >= _storehouses.length) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("请选择一个订阅"),
+      ));
+      return;
+    }
+    final selectedSite = _storehouses[_selectedIndex!];
+    final selectedUrl = selectedSite.url;
+    final selectedName = selectedSite.name;
+    if (_currentstorehouse == null || _currentstorehouse!.url != selectedUrl) {
+      var storehouse = StorehouseBean(name: selectedName, url: selectedUrl);
+      await _saveCurrentSubscription(storehouse);
 
-    if (_storehouses.isNotEmpty && _selectedIndex != null) {
-      final selectedSite = _storehouses[_selectedIndex!];
-      final selectedUrl = selectedSite.url;
-      final selectedName = selectedSite.name;
-
-      // if (_currentstorehouse!.url != selectedUrl) {
-        var Storehouse = StorehouseBean(name: selectedName, url: selectedUrl);
-        _saveCurrentSubscription(Storehouse);
-
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage()),
-          (route) => false,
-        );
-      // } else {
-      //   Navigator.pop(context);
-      // }
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => HomePage()),
+        (route) => false,
+      );
+    } else {
+      Navigator.pop(context);
     }
   }
 
@@ -158,7 +171,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
               onChanged: (int? value) {
                 setState(() {
                   _selectedIndex = value;
-                  _saveCurrentSubscription(storehouseBean);
+                  // _selectCurrentstorehouse = storehouseBean;
                 });
               },
             ),

@@ -14,7 +14,6 @@ class AddSubscriptionPage extends StatefulWidget {
 class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _domainController = TextEditingController();
-  final TextEditingController _paresController = TextEditingController();
 
   SubscriptionsUtil _subscriptionsUtil = SubscriptionsUtil();
 
@@ -48,48 +47,26 @@ class _AddSubscriptionPageState extends State<AddSubscriptionPage> {
 
   /// **一键导入多个站点**
   void _onekeyAdd() async {
-    List<Map<String, String>> defaultSubscriptions = [
-      {
-        "name": "1122",
-        "url":
-            "https://ghfast.top/https://raw.githubusercontent.com/lemonguo121/BoxRes/main/Myuse/cat.json",
-      },
-      {
-        "name": "22",
-        "url":
-            "https://github.moeyy.xyz/https://raw.githubusercontent.com/xyq254245/xyqonlinerule/main/XYQTVBox.json",
-      },
-    ];
-
     // 获取当前存储的订阅列表
     List<StorehouseBean> subscriptions = await SPManager.getSubscriptions();
+    var storehouseBean = StorehouseBean(
+        name: "1122",
+        url:
+            "https://ghfast.top/https://raw.githubusercontent.com/lemonguo121/BoxRes/main/Myuse/lemon.json");
+    // int addedCount = 0;
 
-    int addedCount = 0;
-
-    for (var sub in defaultSubscriptions) {
-      bool exists = subscriptions.any((s) => s.url == sub['url']);
-      if (!exists) {
-        subscriptions.add(
-            StorehouseBean(name: sub['name'] ?? "", url: sub['url'] ?? ""));
-        await SPManager.saveSubscription(subscriptions);
-        addedCount++;
-      }
-    }
-
-    // if (addedCount > 0 && _subscriptionsUtil.currentSite == null) {
-    //   await SPManager.saveCurrentStorehouse(subscriptions.first);
-    // }
+  var map = await  SubscriptionsUtil().requestSubscription(storehouseBean.name,storehouseBean.url);
 
     // 检查是否仍然挂载，避免错误
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(addedCount > 0 ? "成功导入 $addedCount 个站点" : "所有站点已存在"),
+          content: Text("操作成功"),
           duration: Duration(seconds: 2),
         ),
       );
 
-      if (addedCount > 0) {
+      if (map.length > 0) {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => HomePage()),
