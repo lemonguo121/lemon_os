@@ -74,6 +74,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     if (_currentstorehouse == null || _currentstorehouse!.url != selectedUrl) {
       var storehouse = StorehouseBean(name: selectedName, url: selectedUrl);
       await _saveCurrentSubscription(storehouse);
+      await SPManager.cleanCurrentSite();
       await Future.delayed(Duration(milliseconds: 300));
       Navigator.pushAndRemoveUntil(
         context,
@@ -93,7 +94,35 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("添加订阅"),
+          title: Stack(
+            children: [
+              Align(
+                alignment: Alignment.topLeft,
+                child: Text("添加订阅"),
+              ),
+              Align(
+                alignment: Alignment.topRight,
+                child: TextButton(
+                  onPressed: () async {
+                    var storehouseBean = StorehouseBean(
+                      name: "1122",
+                      url:
+                          "https://ghfast.top/https://raw.githubusercontent.com/lemonguo121/BoxRes/main/Myuse/lemoncr.json",
+                    );
+                    _nameController.text = storehouseBean.name;
+                    _domainController.text = storehouseBean.url;
+                    Navigator.pop(context);
+                    await requestSubscription(
+                        storehouseBean.name, storehouseBean.url);
+                  },
+                  child: Text(
+                    "一键添加",
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                ),
+              ),
+            ],
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -116,24 +145,11 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
               onPressed: () async {
                 String name = _nameController.text.trim();
                 String url = _domainController.text.trim();
-                await requestSubscription(name, url);
                 Navigator.pop(context);
+                await requestSubscription(name, url);
               },
               child: Text("添加"),
             ),
-            TextButton(
-                onPressed: () async {
-                  var storehouseBean = StorehouseBean(
-                      name: "1122",
-                      url:
-                          "https://ghfast.top/https://raw.githubusercontent.com/lemonguo121/BoxRes/main/Myuse/cat.json");
-                  _nameController.text = storehouseBean.name;
-                  _domainController.text = storehouseBean.url;
-                  await requestSubscription(
-                      storehouseBean.name, storehouseBean.url);
-                  Navigator.pop(context);
-                },
-                child: Text("一键添加"))
           ],
         );
       },
@@ -141,16 +157,20 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   }
 
   Future requestSubscription(String name, String url) async {
-    setState(() {
-      isLoading = true;
-    });
-    await _subscriptionsUtil.requestSubscription(name, url);
-    await loadSubscriptions(); // 重新加载订阅列表
-    if (mounted) {
+    try {
       setState(() {
-        isLoading = false;
+        isLoading = true;
       });
-    }
+      await _subscriptionsUtil.requestSubscription(name, url);
+      await loadSubscriptions(); // 重新加载订阅列表
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+      print("requestSubscription   e = $e");
+    } finally {}
   }
 
   /// 显示编辑站点弹窗

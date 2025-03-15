@@ -213,4 +213,10 @@ class SPManager {
     }
     return null;
   }
+
+  // 清除当前站点
+  static Future<void> cleanCurrentSite() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove(_currentSitetinKey);
+  }
 }

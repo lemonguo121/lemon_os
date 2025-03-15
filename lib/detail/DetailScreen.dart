@@ -135,8 +135,7 @@ class _DetailScreenState extends State<DetailScreen> {
   void _scrollToSelectedItem(int index) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // 根据屏幕宽度和网格配置计算条目高度
-      final double screenWidth = MediaQuery.of(context).size.width;
-      final double itemHeight = (screenWidth - 24) / 3 / 3.5;
+      final double itemHeight = 38;
       // 每行的条目数
       const int itemsPerRow = 3;
       // 计算需要滚动的位置

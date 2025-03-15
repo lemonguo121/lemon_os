@@ -36,66 +36,44 @@ class SubscriptionsUtil {
 
       urls.addAll(subscripBean.urls);
       await SPManager.saveSubscription(urls);
-      // for (var value in urls) {
-      //   var url = value.url;
-      //   var name = value.name;
-      //   try {
-      //     if (containsChinese(url)) {
-      //       url = _toPunycode(url);
-      //       print("_toPunycode  url = $url");
-      //     }
-      //     Map<String, dynamic> jsonMap = await _httpService.getUrl(url);
-      //     await getSingleSubscription(jsonMap, name);
-      //   } catch (e) {
-      //     print("Lemon Error processing URL ${value.url}: $e");
-      //   }
-      // }
     } else {
       var storehouseBean = StorehouseBean(url: subscripUrl, name: subscripName);
       urls.add(storehouseBean);
       await SPManager.saveSubscription(urls);
-      // await getSingleSubscription(jsonMap, subscripName);
     }
-    // var currentSite = await SPManager.getCurrentSite();
-    // if (siteMap.isNotEmpty) {
-    //   // 从 siteMap 中获取第一个 name 对应的站点列表
-    //   var firstSiteList = siteMap.values.first;
-    //   if (firstSiteList.isNotEmpty) {
-    //     selectStorehouse = firstSiteList;
-    //     // 取第一个站点
-    //     if (currentSite == null) {
-    //       SPManager.saveCurrentSubscription(urls[0]);
-    //       var currentSite = firstSiteList.first;
-    //       await SPManager.saveCurrentSite(currentSite);
-    //       setCurrentSite(currentSite);
-    //       HttpService.updateBaseUrl(currentSite.api);
-    //     }
-    //   }
-    // }
+
     return siteMap;
   }
 
-  Future<Map<String, List<StorehouseBeanSites>>> requestCurrentSubscrip(
+  // 根据仓库，请求仓库下所有站点
+  Future<StorehouseBeanSites?> requestCurrentSites(
       StorehouseBean currentStorehouse) async {
     if (containsChinese(currentStorehouse.url)) {
       CommonUtil.showToast("暂不支持含中文的接口");
-      return siteMap;
+      return null;
     }
     Map<String, dynamic> jsonMap =
-        await _httpService.getUrl(currentStorehouse.url);
-    await getSingleSubscription(jsonMap, currentStorehouse.name);
-    return siteMap;
+    await _httpService.getUrl(currentStorehouse.url);
+    var newSite = await getSingleSubscription(jsonMap, currentStorehouse.name);
+    return newSite;
   }
 
-  Future<void> getSingleSubscription(
+  Future<StorehouseBeanSites?> getSingleSubscription(
       Map<String, dynamic> jsonMap, String name) async {
     var storehouseBeanEntity = StorehouseBeanEntity.fromJson(jsonMap);
     var siteList = storehouseBeanEntity.sites;
     selectStorehouse = siteList;
-    var currentSite = await SPManager.getCurrentSite();
-    if (currentSite == null && selectStorehouse.isNotEmpty) {
-      SPManager.saveCurrentSite(selectStorehouse[0]);
+    if (selectStorehouse.isNotEmpty) {
+      // 先看有没有缓存的站点，如果没有，是切换活添加仓库；如果不为空，则是切换站点
+      var currentSite = await SPManager.getCurrentSite();
+      if (currentSite == null) {
+        await SPManager.saveCurrentSite(selectStorehouse[0]);
+        return selectStorehouse[0];
+      }else{
+        return currentSite;
+      }
     }
+    return null;
   }
 
   bool containsChinese(String domain) {
@@ -128,7 +106,7 @@ class SubscriptionsUtil {
 
       if (content.startsWith("2423")) {
         String data =
-            content.substring(content.indexOf("2324") + 4, content.length - 26);
+        content.substring(content.indexOf("2324") + 4, content.length - 26);
         content = utf8
             .decode(Uint8List.fromList(AESUtil.fromHex(content)))
             .toLowerCase();

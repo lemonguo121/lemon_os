@@ -34,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   List<CategoryBean> categories = [];
   bool isLoading = true;
   StorehouseBeanSites? currentSite;
-
+  final ScrollController _scrollController = ScrollController();
   // String paresType = "1";
 
   // 缓存 Fragment 实例
@@ -54,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Future<void> _loadData() async {
     setState(() => isLoading = true);
     try {
+      // 第一步先检查当前是否有选择的仓库
       var currentStorehouse = await SPManager.getCurrentSubscription();
       if (currentStorehouse == null) {
         setState(() {
@@ -62,16 +63,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         });
         return;
       }
-      var siteMap =
-          await _subscriptionsUtil.requestCurrentSubscrip(currentStorehouse);
-      if (siteMap == null) {
-        setState(() {
-          print("HomeScreen siteMap = $siteMap");
-          currentSite = null;
-        });
-        return;
-      }
-      currentSite = await SPManager.getCurrentSite();
+      // 第二步，根据当前的仓库去请求仓库下的站点
+       currentSite =
+          await _subscriptionsUtil.requestCurrentSites(currentStorehouse);
       if (currentSite == null) {
         setState(() {
           print("HomeScreen currentSite = $currentSite");
@@ -131,6 +125,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void dispose() {
     _pageController.dispose();
     _tabController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -191,7 +186,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
     );
   }
+  void _scrollToSelectedItem(int index) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 根据屏幕宽度和网格配置计算条目高度
+      final double itemHeight = 38;
+      // 每行的条目数
+      const int itemsPerRow = 2;
+      // 计算需要滚动的位置
+      final double scrollPosition = (index ~/ itemsPerRow) * itemHeight;
 
+      // 滚动至计算的位置
+      _scrollController.animateTo(
+        scrollPosition,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
   Widget _buildSearch() {
     return Row(
       children: [
@@ -205,6 +216,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
               ),
               builder: (context) {
+                Future.delayed(Duration.zero, () {
+                  if (currentSite != null) {
+                    int selectedIndex = _subscriptionsUtil.selectStorehouse
+                        .indexWhere((e) => e.name == currentSite!.name);
+                    if (selectedIndex != -1) {
+                      _scrollToSelectedItem(selectedIndex);
+                    }
+                  }
+                });
+
                 return Container(
                   padding: EdgeInsets.all(16),
                   height: 260, // 固定弹窗高度
@@ -219,6 +240,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       // 将 GridView 放入 SingleChildScrollView 或 Expanded
                       Expanded(
                         child: GridView.builder(
+                          controller: _scrollController,
                           shrinkWrap: true, // 防止 GridView 超出范围
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
@@ -328,13 +350,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildSiteGridItem(int index) {
     var selectStorehouse = _subscriptionsUtil.selectStorehouse[index];
     var siteName = selectStorehouse.name;
+
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selecteSitedIndex = index;
-          SPManager.saveCurrentSite(
-              _subscriptionsUtil.selectStorehouse[_selecteSitedIndex]);
-        });
+      onTap: () async {
+        _selecteSitedIndex = index;
+        await SPManager.saveCurrentSite(
+            _subscriptionsUtil.selectStorehouse[_selecteSitedIndex]);
+        setState(() {});
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => HomePage()),
