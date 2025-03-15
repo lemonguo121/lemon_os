@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:lemon_tv/subscrip/SubscriptionPage.dart';
 import 'package:lemon_tv/util/SubscriptionsUtil.dart';
 import 'package:xml/xml.dart';
 
@@ -15,7 +16,6 @@ import '../http/data/storehouse_bean_entity.dart';
 import '../main.dart';
 import '../mywidget/MyLoadingIndicator.dart';
 import '../search/SearchScreen.dart';
-import '../subscrip/AddSubscriptionPage.dart';
 import '../util/CommonUtil.dart';
 import '../util/SPManager.dart';
 
@@ -57,6 +57,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       var currentStorehouse = await SPManager.getCurrentSubscription();
       if (currentStorehouse == null) {
         setState(() {
+          print("HomeScreen currentStorehouse = $currentStorehouse");
           currentSite = null;
         });
         return;
@@ -65,6 +66,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           await _subscriptionsUtil.requestCurrentSubscrip(currentStorehouse);
       if (siteMap == null) {
         setState(() {
+          print("HomeScreen siteMap = $siteMap");
           currentSite = null;
         });
         return;
@@ -72,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       currentSite = await SPManager.getCurrentSite();
       if (currentSite == null) {
         setState(() {
+          print("HomeScreen currentSite = $currentSite");
           currentSite = null;
         });
         return;
@@ -291,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Center(
       child: GestureDetector(
         onTap: () => Navigator.push(context,
-            MaterialPageRoute(builder: (context) => AddSubscriptionPage())),
+            MaterialPageRoute(builder: (context) => SubscriptionPage())),
         child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -329,7 +332,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       onTap: () {
         setState(() {
           _selecteSitedIndex = index;
-           SPManager.saveCurrentSite(
+          SPManager.saveCurrentSite(
               _subscriptionsUtil.selectStorehouse[_selecteSitedIndex]);
         });
         Navigator.pushAndRemoveUntil(

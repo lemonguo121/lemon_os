@@ -56,22 +56,22 @@ class SubscriptionsUtil {
       await SPManager.saveSubscription(urls);
       // await getSingleSubscription(jsonMap, subscripName);
     }
-    var currentSite = await SPManager.getCurrentSite();
-    if (siteMap.isNotEmpty) {
-      // 从 siteMap 中获取第一个 name 对应的站点列表
-      var firstSiteList = siteMap.values.first;
-      if (firstSiteList.isNotEmpty) {
-        selectStorehouse = firstSiteList;
-        // 取第一个站点
-        if (currentSite == null) {
-          SPManager.saveCurrentSubscription(urls[0]);
-          var currentSite = firstSiteList.first;
-          await SPManager.saveCurrentSite(currentSite);
-          setCurrentSite(currentSite);
-          HttpService.updateBaseUrl(currentSite.api);
-        }
-      }
-    }
+    // var currentSite = await SPManager.getCurrentSite();
+    // if (siteMap.isNotEmpty) {
+    //   // 从 siteMap 中获取第一个 name 对应的站点列表
+    //   var firstSiteList = siteMap.values.first;
+    //   if (firstSiteList.isNotEmpty) {
+    //     selectStorehouse = firstSiteList;
+    //     // 取第一个站点
+    //     if (currentSite == null) {
+    //       SPManager.saveCurrentSubscription(urls[0]);
+    //       var currentSite = firstSiteList.first;
+    //       await SPManager.saveCurrentSite(currentSite);
+    //       setCurrentSite(currentSite);
+    //       HttpService.updateBaseUrl(currentSite.api);
+    //     }
+    //   }
+    // }
     return siteMap;
   }
 
