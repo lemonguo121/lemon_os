@@ -164,13 +164,14 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
       await _subscriptionsUtil.requestSubscription(name, url);
       await loadSubscriptions(); // 重新加载订阅列表
     } catch (e) {
+      print("requestSubscription   e = $e");
+    } finally {
       if (mounted) {
         setState(() {
           isLoading = false;
         });
       }
-      print("requestSubscription   e = $e");
-    } finally {}
+    }
   }
 
   /// 显示编辑站点弹窗

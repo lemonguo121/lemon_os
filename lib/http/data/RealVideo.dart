@@ -157,7 +157,7 @@ class RealVideo {
         typeName: json['typeName'],
         vodPlayUrl: json['vodPlayUrl'],
         typePid: json['typePid'],
-        site: json['site'],
+        site:StorehouseBeanSites.fromJson(json['site']) ,
         vodFrom: json['vodFrom']);
   }
 }
