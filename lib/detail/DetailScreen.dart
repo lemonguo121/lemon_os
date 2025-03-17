@@ -140,7 +140,7 @@ class _DetailScreenState extends State<DetailScreen> {
       const int itemsPerRow = 3;
       // 计算需要滚动的位置
       final double scrollPosition = (index ~/ itemsPerRow) * itemHeight;
-
+      print("scrollPosition = $scrollPosition");
       // 滚动至计算的位置
       _scrollController.animateTo(
         scrollPosition,
@@ -164,7 +164,6 @@ class _DetailScreenState extends State<DetailScreen> {
 
   Widget _buildCustomScrollView() {
     var isVertical = CommonUtil.isVertical(context);
-
     return isVertical || _isFullScreen
         ? _buildVerContent()
         : _buildHorContent();
@@ -199,7 +198,7 @@ class _DetailScreenState extends State<DetailScreen> {
   Widget _buildHorContent() {
     double screenWidth = CommonUtil.getScreenWidth(context);
     double screenHeight = CommonUtil.getScreenHeight(context);
-    var playerWidth = screenWidth / 3*2;
+    var playerWidth = screenWidth / 3 * 2;
     var playerHeight = playerWidth / 16 * 9;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,6 +229,7 @@ class _DetailScreenState extends State<DetailScreen> {
 
   Widget _buildVideoInfo(bool isVertical) {
     return SingleChildScrollView(
+      controller: _scrollController,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -338,7 +338,6 @@ class _DetailScreenState extends State<DetailScreen> {
   Widget _buildGrid() {
     return GridView.builder(
       shrinkWrap: true,
-      // 让 GridView 适配内容高度
       physics: NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 12.0),
       controller: _scrollController,
