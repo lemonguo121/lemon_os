@@ -64,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return;
       }
       // 第二步，根据当前的仓库去请求仓库下的站点
-       currentSite =
+      currentSite =
           await _subscriptionsUtil.requestCurrentSites(currentStorehouse);
       if (currentSite == null) {
         setState(() {
@@ -186,6 +186,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
     );
   }
+
   void _scrollToSelectedItem(int index) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // 根据屏幕宽度和网格配置计算条目高度
@@ -203,6 +204,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       );
     });
   }
+
   Widget _buildSearch() {
     return Row(
       children: [
@@ -241,7 +243,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       Expanded(
                         child: GridView.builder(
                           controller: _scrollController,
-                          shrinkWrap: true, // 防止 GridView 超出范围
+                          shrinkWrap: true,
+                          // 防止 GridView 超出范围
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
