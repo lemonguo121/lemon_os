@@ -87,12 +87,12 @@ class _SearchScreenState extends State<SearchScreen>
 
     try {
       var isResearch = false;
-      for (var subscription in selectStorehouse) {
-        String subscriptionName = subscription.name ?? '未知站点';
-        String subscriptionDomain = subscription.api ?? '';
-        int paresType = subscription.type?? 1;
+      for (var site in selectStorehouse) {
+        String subscriptionName = site.name ?? '未知站点';
+        String subscriptionDomain = site.api ?? '';
+        int paresType = site.type?? 1;
         var response;
-        if (paresType == "1") {
+        if (paresType == 1) {
           Map<String, dynamic> newJsonMap =
           await _httpService.getBySubscription(
             subscriptionDomain,
@@ -103,7 +103,7 @@ class _SearchScreenState extends State<SearchScreen>
               "wd": query,
             },
           );
-          response = RealResponseData.fromJson(newJsonMap, subscription);
+          response = RealResponseData.fromJson(newJsonMap, site);
         } else {
           XmlDocument newJsonMap = await _httpService.getBySubscription(
             subscriptionDomain,
@@ -114,7 +114,7 @@ class _SearchScreenState extends State<SearchScreen>
               "wd": query,
             },
           );
-          response = RealResponseData.fromXml(newJsonMap, subscription);
+          response = RealResponseData.fromXml(newJsonMap, site);
         }
 
         setState(() {

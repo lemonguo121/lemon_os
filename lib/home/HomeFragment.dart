@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lemon_tv/util/SubscriptionsUtil.dart';
 import 'package:xml/xml.dart';
 
-import '../home/HomeCateforyListItem.dart';
+import 'HomeCateforyListItem.dart';
 import '../http/HttpService.dart';
 import '../http/data/CategoryBean.dart';
 import '../http/data/HomeCateforyData.dart';

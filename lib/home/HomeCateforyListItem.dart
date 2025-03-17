@@ -28,7 +28,7 @@ class _HomecateforylistitemState extends State<Homecateforylistitem> {
     var screenWidth = CommonUtil.getScreenWidth(context);
     var itemMargin = 8.0;
     var itemWidth =
-        (screenWidth - 16 - ((itemCount-1) * itemMargin)) / itemCount;
+        (screenWidth - 16 - ((itemCount+1) * itemMargin)) / itemCount;
     var itemHeight = itemWidth / 3 * 4;
     return Container(
         height: itemHeight, // 图片高度

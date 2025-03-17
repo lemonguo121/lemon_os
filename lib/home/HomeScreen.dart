@@ -6,7 +6,7 @@ import 'package:lemon_tv/util/SubscriptionsUtil.dart';
 import 'package:xml/xml.dart';
 
 import '../category/CategoryFragment.dart';
-import '../category/HomeFragment.dart';
+import 'HomeFragment.dart';
 import '../http/HttpService.dart';
 import '../http/data/CategoryBean.dart';
 import '../http/data/HomeCateforyData.dart';
