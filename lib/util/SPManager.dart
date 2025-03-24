@@ -43,15 +43,15 @@ class SPManager {
   }
 
   // 获取保存的音量
-  static Future<double> getCurrentVolume() async {
+  static Future<int> getCurrentVolume() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getDouble(_current_volume) ?? 0.1;
+    return prefs.getInt(_current_volume) ??50;
   }
 
   // 保存音量
-  static Future<void> saveVolume(double volume) async {
+  static Future<void> saveVolume(int volume) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setDouble(_current_volume, volume);
+    prefs.setInt(_current_volume, volume);
   }
 
   // 记录跳过片头

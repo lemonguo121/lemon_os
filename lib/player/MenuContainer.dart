@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import '../util/CommonUtil.dart';
 import 'package:video_player/video_player.dart';
 
@@ -7,7 +8,7 @@ import '../util/SPManager.dart';
 class MenuContainer extends StatefulWidget {
   final int videoId;
   final String videoTitle;
-  final VideoPlayerController controller;
+  final VlcPlayerController controller;
   final Function(void Function()) onSetState;
   final ValueChanged<bool> showSkipFeedback;
   final ValueChanged<String> playPositonTips;
@@ -18,6 +19,9 @@ class MenuContainer extends StatefulWidget {
   final VoidCallback playNextVideo;
   final VoidCallback toggleFullScreen;
   final bool isFullScreen;
+  final Duration position;
+  final Duration duration;
+  final double progress;
 
   const MenuContainer({
     super.key,
@@ -34,6 +38,9 @@ class MenuContainer extends StatefulWidget {
     required this.playNextVideo,
     required this.toggleFullScreen,
     required this.isFullScreen,
+    required this.position,
+    required this.duration,
+    required this.progress,
   });
 
   @override
@@ -103,39 +110,40 @@ class _MenuContainerState extends State<MenuContainer> {
                 height: 30,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
+                    // 固定宽度按钮
                     SizedBox(
                       child: IconButton(
                         padding: EdgeInsets.zero,
-                        icon: const Icon(Icons.skip_previous,
-                            color: Colors.white),
+                        icon: const Icon(Icons.skip_previous, color: Colors.white),
                         onPressed: widget.playPreviousVideo,
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 2),
-                      child: _buildMenuText(CommonUtil.formatDuration(
-                          widget.controller.value.position)),
+                      child: _buildMenuText(CommonUtil.formatDuration(widget.controller.value.position)),
                     ),
-                    Expanded(
-                      child: SizedBox(
-                        child: VideoProgressIndicator(
-                          padding: const EdgeInsets.only(
-                              left: 6, right: 6, bottom: 0),
-                          widget.controller,
-                          allowScrubbing: true,
-                          colors: const VideoProgressColors(
-                            playedColor: Colors.blue,
-                            bufferedColor: Colors.grey,
-                            backgroundColor: Colors.white,
-                          ),
-                        ),
+
+                    // 使用 Expanded 确保进度条不会超出屏幕宽度
+                    Flexible(
+                      child: Slider(
+                        value: widget.progress.clamp(0.0, 1.0),
+                        // 进度条范围
+                        onChanged: (value) async {
+                          final seekTo = Duration(
+                              milliseconds: (value * widget.controller.value.duration.inMilliseconds).toInt());
+                          await widget.controller.seekTo(seekTo); // 拖动进度条调整视频进度
+                        },
                       ),
                     ),
+
                     Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: _buildMenuText(CommonUtil.formatDuration(
-                            widget.controller.value.duration))),
+                      padding: const EdgeInsets.only(top: 2),
+                      child: _buildMenuText(CommonUtil.formatDuration(widget.controller.value.duration)),
+                    ),
+
+                    // 固定宽度按钮
                     SizedBox(
                       child: IconButton(
                         padding: EdgeInsets.zero,
@@ -143,13 +151,13 @@ class _MenuContainerState extends State<MenuContainer> {
                         onPressed: widget.playNextVideo,
                       ),
                     ),
+
+                    // 全屏切换按钮
                     SizedBox(
                       child: IconButton(
                         padding: EdgeInsets.zero,
                         icon: Icon(
-                          widget.isFullScreen
-                              ? Icons.fullscreen_exit
-                              : Icons.fullscreen,
+                          widget.isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen,
                           color: Colors.white,
                         ),
                         onPressed: widget.toggleFullScreen,

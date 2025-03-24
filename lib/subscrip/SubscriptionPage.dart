@@ -107,7 +107,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                     var storehouseBean = StorehouseBean(
                       name: "1122",
                       url:
-                          "https://ghfast.top/https://raw.githubusercontent.com/lemonguo121/BoxRes/main/Myuse/lemoncr.json",
+                          "https://ghfast.top/https://raw.githubusercontent.com/lemonguo121/BoxRes/main/Myuse/lemon.json",
                     );
                     _nameController.text = storehouseBean.name;
                     _domainController.text = storehouseBean.url;
