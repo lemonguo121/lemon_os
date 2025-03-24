@@ -155,7 +155,7 @@ class _DetailScreenState extends State<DetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var vodPic = video.vodPic;
+
 
     return Scaffold(
       body: isLoading
@@ -167,7 +167,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   children: [
                     Positioned.fill(
                       child: Image.network(
-                        vodPic,
+                        video.vodPic,
                         fit: BoxFit.cover, // 背景图片覆盖整个屏幕
                       ),
                     ),
@@ -281,6 +281,7 @@ class _DetailScreenState extends State<DetailScreen> {
               theme: ExpandableThemeData(
                 headerAlignment: ExpandablePanelHeaderAlignment.center,
                 iconPadding: EdgeInsets.zero,
+                iconColor: Colors.white
               ),
               header: Text("简介",
                   style: TextStyle(
@@ -297,7 +298,7 @@ class _DetailScreenState extends State<DetailScreen> {
               expanded: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(video.vodBlurb),
+                  Text(video.vodBlurb,style: TextStyle(color: Colors.white),),
                   const SizedBox(height: 6.0),
                   Videoinfowidget(title: "导演", content: video.vodDirector),
                   const SizedBox(
@@ -378,7 +379,7 @@ class _DetailScreenState extends State<DetailScreen> {
               ? Colors.blueAccent // 选中时改变背景色
               : Colors.transparent, // 未选中时背景透明
           border: Border.all(
-            color: Colors.blueAccent,
+            color: Colors.white,
             width: _selectedIndex == index ? 0 : 1,
           ),
           borderRadius: BorderRadius.circular(3.0), // 圆角边框
@@ -388,7 +389,7 @@ class _DetailScreenState extends State<DetailScreen> {
           style: TextStyle(
             color: _selectedIndex == index
                 ? Colors.white // 选中时字体颜色
-                : Colors.blueAccent,
+                : Colors.white,
             fontSize: 10.0,
             fontWeight: FontWeight.bold,
           ),
