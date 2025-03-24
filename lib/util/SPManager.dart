@@ -8,6 +8,7 @@ import '../http/data/storehouse_bean_entity.dart';
 
 class SPManager {
   static const String _progressKey = "video_progress";
+  static const String _playSpeedKey = "_play_speedKey";
   static const String _skipHeadKey = "skip_head_time";
   static const String _skipTailKey = "skip_tail_time";
   static const String _videoHistory = "video_history";
@@ -28,6 +29,17 @@ class SPManager {
     final prefs = await SharedPreferences.getInstance();
     final seconds = prefs.getInt("$_progressKey$videoUrl") ?? 0;
     return Duration(seconds: seconds);
+  }
+
+  // 保存播放速度（全局）
+  static void savePlaySpeed(double speed) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setDouble(_playSpeedKey, speed);
+  }
+
+  static Future<double> getPlaySpeed() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getDouble(_playSpeedKey) ?? 1.0;
   }
 
   // 保存播放到多少集
@@ -215,7 +227,7 @@ class SPManager {
   }
 
   // 清除当前站点
-  static Future<void> cleanCurrentSite() async{
+  static Future<void> cleanCurrentSite() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove(_currentSitetinKey);
   }

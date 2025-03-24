@@ -1,6 +1,9 @@
+import 'dart:ui';
+
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lemon_tv/home/VideoInfoWidget.dart';
 import 'package:xml/xml.dart';
 
 import '../http/HttpService.dart';
@@ -152,13 +155,34 @@ class _DetailScreenState extends State<DetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var vodPic = video.vodPic;
+
     return Scaffold(
       body: isLoading
           ? Column(
               children: [MyLoadingIndicator(isLoading: isLoading)]) // 加载中显示
           : (responseData.videos.isEmpty)
               ? const Center(child: Text("无法加载详情")) // 数据加载失败显示
-              : _buildCustomScrollView(),
+              : Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Image.network(
+                        vodPic,
+                        fit: BoxFit.cover, // 背景图片覆盖整个屏幕
+                      ),
+                    ),
+                    Positioned.fill(
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(
+                            sigmaX: 50.0, sigmaY: 50.0), // 设置模糊程度
+                        child: Container(
+                          color: Colors.black.withOpacity(0), // 可以设置背景的透明度
+                        ),
+                      ),
+                    ),
+                    _buildCustomScrollView(), // 将页面内容放置在背景之上
+                  ],
+                ),
     );
   }
 
@@ -259,54 +283,38 @@ class _DetailScreenState extends State<DetailScreen> {
                 iconPadding: EdgeInsets.zero,
               ),
               header: Text("简介",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-              collapsed: Text(video.vodBlurb,
-                  softWrap: true, maxLines: 2, overflow: TextOverflow.ellipsis),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white)),
+              collapsed: Text(
+                video.vodBlurb,
+                softWrap: true,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: Colors.white),
+              ),
               expanded: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text(video.vodBlurb),
                   const SizedBox(height: 6.0),
-                  Text(
-                    video.vodBlurb,
-                    style: const TextStyle(
-                      fontSize: 12.0,
-                    ),
-                  ),
-                  const Text(
-                    "导演",
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 4.0,
-                  ),
-                  Text(
-                    video.vodDirector,
-                    style: const TextStyle(
-                      fontSize: 12.0,
-                    ),
-                  ),
+                  Videoinfowidget(title: "导演", content: video.vodDirector),
                   const SizedBox(
                     height: 6.0,
                   ),
-                  const Text(
-                    "主演",
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 4.0,
-                  ),
-                  Text(
-                    video.vodActor,
-                    style: const TextStyle(
-                      fontSize: 12.0,
-                    ),
-                  ),
+                  Videoinfowidget(title: "主演", content: video.vodActor),
+                  const SizedBox(height: 6.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Videoinfowidget(title: "年份", content: video.vodYear),
+                      const SizedBox(width: 6.0),
+                      Videoinfowidget(title: "地区", content: video.vodArea),
+                      const SizedBox(width: 6.0),
+                      Videoinfowidget(title: "类型", content: video.typeName),
+                    ],
+                  )
                 ],
               )),
           const SizedBox(height: 6.0),
@@ -315,12 +323,14 @@ class _DetailScreenState extends State<DetailScreen> {
             style: TextStyle(
               fontSize: 14.0,
               fontWeight: FontWeight.bold,
+                color: Colors.white
             ),
           ),
           Text(
             video.vodRemarks.isNotEmpty ? video.vodRemarks : "暂无更新",
             style: const TextStyle(
               fontSize: 12.0,
+                color: Colors.white
             ),
           ),
           const SizedBox(
@@ -328,7 +338,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           const Text(
             "选集",
-            style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold,color: Colors.white),
           ),
         ],
       ),

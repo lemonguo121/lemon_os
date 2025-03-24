@@ -12,6 +12,7 @@ class MenuContainer extends StatefulWidget {
   final ValueChanged<bool> showSkipFeedback;
   final ValueChanged<String> playPositonTips;
   final ValueChanged<Duration> seekToPosition;
+  final ValueChanged<double> changePlaySpeed;
   final bool isPlaying;
   final VoidCallback togglePlayPause;
   final VoidCallback playPreviousVideo;
@@ -28,6 +29,7 @@ class MenuContainer extends StatefulWidget {
     required this.showSkipFeedback,
     required this.playPositonTips,
     required this.seekToPosition,
+    required this.changePlaySpeed,
     required this.isPlaying,
     required this.togglePlayPause,
     required this.playPreviousVideo,
@@ -61,6 +63,9 @@ class _MenuContainerState extends State<MenuContainer> {
 
   @override
   Widget build(BuildContext context) {
+    var bufferedProgress = widget.controller.value.buffered.isNotEmpty
+        ? widget.controller.value.buffered.last.end.inMilliseconds.toDouble()
+        : 0.0;
     double bottomBarHeight = widget.isFullScreen ? 80.0 : 70.0;
     return Column(
       children: [
@@ -119,17 +124,25 @@ class _MenuContainerState extends State<MenuContainer> {
                     ),
                     Expanded(
                       child: SizedBox(
-                        child: VideoProgressIndicator(
-                          padding: const EdgeInsets.only(
-                              left: 6, right: 6, bottom: 0),
-                          widget.controller,
-                          allowScrubbing: true,
-                          colors: const VideoProgressColors(
-                            playedColor: Colors.blue,
-                            bufferedColor: Colors.grey,
-                            backgroundColor: Colors.white,
-                          ),
-                        ),
+                        child: Slider(
+                            value: widget
+                                .controller.value.position.inMilliseconds
+                                .toDouble(),
+                            min: 0.0,
+                            max: widget.controller.value.duration.inMilliseconds
+                                .toDouble(),
+                            onChanged: (double value) {
+                              setState(() {
+                                widget.seekToPosition(
+                                    Duration(milliseconds: value.toInt()));
+                              });
+                            },
+                            activeColor: Colors.blue,
+                            // 自定义颜色
+                            inactiveColor: Colors.white,
+                            // 自定义颜色
+                            secondaryActiveColor: Colors.grey,
+                            secondaryTrackValue: bufferedProgress),
                       ),
                     ),
                     Padding(
@@ -187,8 +200,8 @@ class _MenuContainerState extends State<MenuContainer> {
                                       )
                                       .toList(),
                                   onChanged: (speed) {
-                                    widget.controller.setPlaybackSpeed(speed!);
-                                    widget.onSetState;
+                                    widget.changePlaySpeed(speed!);
+
                                   },
                                 ),
                               )),

@@ -92,7 +92,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     }
 
     final tailTime = await SPManager.getSkipTailTimes(videoId);
-
+    var playSpeed = await SPManager.getPlaySpeed();
+    _controller.setPlaybackSpeed(playSpeed);
     _controller.addListener(() {
       if (_controller.value.hasError) {
         CommonUtil.showToast("${_controller.value.errorDescription}");
@@ -100,7 +101,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
       }
       if (_controller.value.duration > Duration.zero && !_isLoadVideoPlayed) {
         var skipTime = const Duration(milliseconds: 0);
-        if (tailTime > const Duration(milliseconds: 1000)) {
+        if (tailTime >= const Duration(milliseconds: 1000)) {
           isSkipTail = true;
           skipTime = tailTime;
         } else {
@@ -389,6 +390,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                     showSkipFeedback: showSkipFeedback,
                     playPositonTips: playPositonTips,
                     seekToPosition: _seekToPosition,
+                    changePlaySpeed: _changePlaySpeed,
                     isPlaying: _isPlaying,
                     togglePlayPause: _togglePlayPause,
                     playPreviousVideo: _playPreviousVideo,
@@ -420,6 +422,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
 
   void _seekToPosition(Duration position) {
     _controller.seekTo(position);
+  }
+
+  void _changePlaySpeed(double speed) {
+    _controller.setPlaybackSpeed(speed);
+    SPManager.savePlaySpeed(speed);
+    setState(() {});
   }
 
   // 更新视频并重新初始化播放器

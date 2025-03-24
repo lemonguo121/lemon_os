@@ -35,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool isLoading = true;
   StorehouseBeanSites? currentSite;
   final ScrollController _scrollController = ScrollController();
+
   // String paresType = "1";
 
   // 缓存 Fragment 实例
@@ -227,11 +228,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     }
                   }
                 });
+                var dialogSize ;
+                if (CommonUtil.isVertical(context)) {
+                  dialogSize = CommonUtil.getScreenWidth(context) * 9 / 10;
+                }else{
+                  dialogSize = CommonUtil.getScreenHeight(context) * 9 / 10;
+                }
 
                 return Container(
                   padding: EdgeInsets.all(16),
-                  height: 260, // 固定弹窗高度
-                  width: 320,
+                  height: dialogSize*7/8, // 固定弹窗高度
+                  width: dialogSize,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
