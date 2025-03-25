@@ -43,6 +43,7 @@ class _SearchResultListState extends State<SearchResultList> {
             // 站点列表
             child: _buildSiteList(),
           ),
+          SizedBox(width: 10.0,),
           Expanded(
             flex: 6,
             child: widget.selectResponseData.videos.isEmpty

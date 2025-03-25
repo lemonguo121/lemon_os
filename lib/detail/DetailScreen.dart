@@ -174,7 +174,7 @@ class _DetailScreenState extends State<DetailScreen> {
                     Positioned.fill(
                       child: BackdropFilter(
                         filter: ImageFilter.blur(
-                            sigmaX: 50.0, sigmaY: 50.0), // 设置模糊程度
+                            sigmaX: 40.0, sigmaY: 40.0), // 设置模糊程度
                         child: Container(
                           color: Colors.black.withOpacity(0), // 可以设置背景的透明度
                         ),

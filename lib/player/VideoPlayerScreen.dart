@@ -53,6 +53,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   String _playPositonTips = ""; //调节进度时候的文案
   bool _isBuffering = false; //是否在缓冲
   bool lastIsVer = true; //进入全屏前记录手机是否是竖直的
+  Duration headTime = Duration(milliseconds: 0);
+  Duration tailTime = Duration(milliseconds: 0);
+
   @override
   void initState() {
     super.initState();
@@ -81,7 +84,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     videoId = widget.video.vodId;
     SPManager.saveIndex(videoId, _currentIndex);
     // 获取跳过时间
-    final headTime = await SPManager.getSkipHeadTimes(videoId);
+    headTime = await SPManager.getSkipHeadTimes(videoId);
 
     if (savedPosition > Duration.zero && savedPosition > headTime) {
       _controller.seekTo(savedPosition);
@@ -91,7 +94,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
       _controller.seekTo(headTime);
     }
 
-    final tailTime = await SPManager.getSkipTailTimes(videoId);
+    tailTime = await SPManager.getSkipTailTimes(videoId);
     var playSpeed = await SPManager.getPlaySpeed();
     _controller.setPlaybackSpeed(playSpeed);
     _controller.addListener(() {
@@ -230,6 +233,32 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
         widget.onChangePlayPositon(_currentIndex);
       });
     }
+  }
+
+  Future<void> _setSkipHead() async {
+    headTime = _controller.value.position;
+    await SPManager.saveSkipHeadTimes(videoId, headTime);
+    setState(() {});
+  }
+
+  Future<void> _cleanSkipHead() async {
+    await SPManager.clearSkipHeadTimes(videoId);
+    setState(() {});
+  }
+
+  Future<void> _setSkipTail() async {
+    tailTime = _controller.value.position;
+    await SPManager.saveSkipTailTimes(
+      videoId,
+      (await SPManager.getSkipTailTimes(videoId)),
+      tailTime,
+    );
+    setState(() {});
+  }
+
+  Future<void> _cleanSkipTail() async {
+    await SPManager.clearSkipTailTimes(videoId);
+    setState(() {});
   }
 
   // 判断视频是横还是竖屏
@@ -395,6 +424,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                     togglePlayPause: _togglePlayPause,
                     playPreviousVideo: _playPreviousVideo,
                     playNextVideo: _playNextVideo,
+                    setSkipHead: _setSkipHead,
+                    cleanSkipHead: _cleanSkipHead,
+                    setSkipTail: _setSkipTail,
+                    cleanSkipTail: _cleanSkipTail,
                     toggleFullScreen: _toggleFullScreen,
                     isFullScreen: _isFullScreen),
               if (!_isPlaying && _controller.value.isInitialized)

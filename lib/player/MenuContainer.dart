@@ -18,6 +18,10 @@ class MenuContainer extends StatefulWidget {
   final VoidCallback playPreviousVideo;
   final VoidCallback playNextVideo;
   final VoidCallback toggleFullScreen;
+  final VoidCallback setSkipTail;
+  final VoidCallback cleanSkipTail;
+  final VoidCallback setSkipHead;
+  final VoidCallback cleanSkipHead;
   final bool isFullScreen;
 
   const MenuContainer({
@@ -35,6 +39,10 @@ class MenuContainer extends StatefulWidget {
     required this.playPreviousVideo,
     required this.playNextVideo,
     required this.toggleFullScreen,
+    required this.setSkipTail,
+    required this.cleanSkipTail,
+    required this.setSkipHead,
+    required this.cleanSkipHead,
     required this.isFullScreen,
   });
 
@@ -78,23 +86,23 @@ class _MenuContainerState extends State<MenuContainer> {
             children: [
               Center(
                   child: IconButton(
-                padding: EdgeInsets.zero,
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () {
-                  if (widget.isFullScreen) {
-                    widget.toggleFullScreen();
-                  } else {
-                    Navigator.pop(context);
-                  }
-                },
-              )),
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () {
+                      if (widget.isFullScreen) {
+                        widget.toggleFullScreen();
+                      } else {
+                        Navigator.pop(context);
+                      }
+                    },
+                  )),
               Flexible(
                   child: Text(
-                widget.videoTitle,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              )),
+                    widget.videoTitle,
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  )),
             ],
           ),
         ),
@@ -193,15 +201,15 @@ class _MenuContainerState extends State<MenuContainer> {
                                   style: TextStyle(color: Colors.white),
                                   items: [0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
                                       .map(
-                                        (speed) => DropdownMenuItem<double>(
+                                        (speed) =>
+                                        DropdownMenuItem<double>(
                                           value: speed,
                                           child: _buildMenuText("$speed"),
                                         ),
-                                      )
+                                  )
                                       .toList(),
                                   onChanged: (speed) {
                                     widget.changePlaySpeed(speed!);
-
                                   },
                                 ),
                               )),
@@ -252,20 +260,16 @@ class _MenuContainerState extends State<MenuContainer> {
                           // 显示跳过片头时间
                           GestureDetector(
                             onTap: () async {
-                              final currentTime =
-                                  widget.controller.value.position;
-                              await SPManager.saveSkipHeadTimes(
-                                  widget.videoId, currentTime);
-                              widget.onSetState;
+                              widget.setSkipHead();
+
                             },
                             onLongPress: () async {
-                              await SPManager.clearSkipHeadTimes(
-                                  widget.videoId);
-                              widget.onSetState;
+                              widget.cleanSkipHead();
+
                             },
                             child: FutureBuilder<Duration>(
                               future:
-                                  SPManager.getSkipHeadTimes(widget.videoId),
+                              SPManager.getSkipHeadTimes(widget.videoId),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData && snapshot.data != null) {
                                   final headTime = snapshot.data!;
@@ -283,24 +287,16 @@ class _MenuContainerState extends State<MenuContainer> {
                           // 显示跳过片尾时间
                           GestureDetector(
                             onTap: () async {
-                              final currentTime =
-                                  widget.controller.value.position;
-                              await SPManager.saveSkipTailTimes(
-                                widget.videoId,
-                                (await SPManager.getSkipTailTimes(
-                                    widget.videoId)),
-                                currentTime,
-                              );
-                              widget.onSetState;
+                          widget.setSkipTail();
+
                             },
                             onLongPress: () async {
-                              await SPManager.clearSkipTailTimes(
-                                  widget.videoId);
-                              widget.onSetState;
+                              widget.cleanSkipTail();
+
                             },
                             child: FutureBuilder<Duration>(
                               future:
-                                  SPManager.getSkipTailTimes(widget.videoId),
+                              SPManager.getSkipTailTimes(widget.videoId),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData && snapshot.data != null) {
                                   final headTime = snapshot.data!;
