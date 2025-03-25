@@ -69,6 +69,9 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
       return;
     }
     final selectedSite = _storehouses[_selectedIndex!];
+    _storehouses.removeAt(_selectedIndex!);
+    _storehouses.insert(0, selectedSite);
+    SPManager.saveSubscription(_storehouses);
     final selectedUrl = selectedSite.url;
     final selectedName = selectedSite.name;
     if (_currentstorehouse == null || _currentstorehouse!.url != selectedUrl) {
@@ -108,7 +111,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                       name: "1122",
                       url:
                           "https://gh-proxy.com/https://raw.githubusercontent.com/lemonguo121/BoxRes/refs/heads/main/Myuse/lemon.json",
-                          // "https://gh-proxy.com/https://raw.githubusercontent.com/lemonguo121/BoxRes/main/Myuse/cat.json",
+                      // "https://gh-proxy.com/https://raw.githubusercontent.com/lemonguo121/BoxRes/main/Myuse/cat.json",
                     );
                     _nameController.text = storehouseBean.name;
                     _domainController.text = storehouseBean.url;

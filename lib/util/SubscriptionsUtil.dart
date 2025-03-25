@@ -29,16 +29,19 @@ class SubscriptionsUtil {
     if (containsChinese(subscripUrl)) {
       subscripUrl = _toPunycode(subscripUrl);
     }
-    List<StorehouseBean> urls = [];
+    List<StorehouseBean> urls =await SPManager.getSubscriptions();
     Map<String, dynamic> jsonMap = await _httpService.getUrl(subscripUrl);
     if (jsonMap['urls'] != null) {
       var subscripBean = SubscripBean.fromJson(jsonMap);
 
       urls.addAll(subscripBean.urls);
+      urls = urls.toSet().toList();
       await SPManager.saveSubscription(urls);
     } else {
       var storehouseBean = StorehouseBean(url: subscripUrl, name: subscripName);
-      urls.add(storehouseBean);
+      if (!urls.contains(storehouseBean)) {
+        urls.add(storehouseBean);
+      }
       await SPManager.saveSubscription(urls);
     }
 
