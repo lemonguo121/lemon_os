@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class BatteryTimeWidget extends StatefulWidget {
-   final bool isFullScreen ;
+  final bool isFullScreen;
 
-  const BatteryTimeWidget( {required this.isFullScreen});
+  const BatteryTimeWidget({required this.isFullScreen});
 
   @override
   _BatteryTimeWidgetState createState() => _BatteryTimeWidgetState();
@@ -55,7 +55,7 @@ class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.isFullScreen||!(Platform.isAndroid || Platform.isIOS )) {
+    if (!widget.isFullScreen || !(Platform.isAndroid || Platform.isIOS)) {
       return const SizedBox.shrink(); // 桌面端隐藏
     }
 
@@ -67,24 +67,25 @@ class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
           _timeString,
           style: const TextStyle(color: Colors.white, fontSize: 14),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 16),
 
         // 水平电池样式
         Container(
-          width: 25, // 电池整体宽度
-          height: 12, // 电池整体高度
+          width: 28, // 电池整体宽度
+          height: 15, // 电池整体高度
           decoration: BoxDecoration(
             border: Border.all(color: Colors.white, width: 1.5), // 边框
             borderRadius: BorderRadius.circular(3), // 圆角
           ),
           child: Stack(
+            alignment: Alignment.center, // 这里确保子元素居中
             children: [
-              // 进度条
+              // 电池进度条
               Positioned(
-                left: 1.5,
-                right: 1.5,
-                top: 1.5,
-                bottom: 1.5,
+                left: 1.0,
+                right: 1.0,
+                top: 1.0,
+                bottom: 1.0,
                 child: FractionallySizedBox(
                   alignment: Alignment.centerLeft,
                   widthFactor: _batteryLevel / 100, // 计算电池电量
@@ -96,6 +97,15 @@ class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
                   ),
                 ),
               ),
+              // 显示电量数值
+              Text(
+                '$_batteryLevel', // 显示电池百分比
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ),
@@ -104,7 +114,7 @@ class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
         Container(
           width: 3, // 电池突出部分
           height: 6,
-          margin: const EdgeInsets.only(left: 2),
+          margin: const EdgeInsets.only(left: 1),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(1),
