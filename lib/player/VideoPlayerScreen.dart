@@ -53,6 +53,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   String _playPositonTips = ""; //调节进度时候的文案
   bool _isBuffering = false; //是否在缓冲
   bool lastIsVer = true; //进入全屏前记录手机是否是竖直的
+  bool isScreenLocked = false; //是否锁住屏幕
   Duration headTime = Duration(milliseconds: 0);
   Duration tailTime = Duration(milliseconds: 0);
 
@@ -194,6 +195,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   void _togglePlayPause() {
+    if(isScreenLocked){
+      return;
+    }
     setState(() {
       if (_isPlaying) {
         _controller.pause();
@@ -293,6 +297,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   void _handleVerticalDrag(DragUpdateDetails details) {
+    if(isScreenLocked){
+      return;
+    }
     double delta = details.primaryDelta ?? 0;
     if (details.localPosition.dx < MediaQuery.of(context).size.width / 2) {
       // 左侧滑动 - 调节亮度
@@ -308,6 +315,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   void _handleHorizontalDrag(DragUpdateDetails details) {
+    if(isScreenLocked){
+      return;
+    }
     double delta = details.primaryDelta ?? 0;
     if (delta.abs() > 1) {
       _seekPlayProgress((delta / 2).toInt());
@@ -344,6 +354,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   void _cancelDrag(DragEndDetails details) {
+    if(isScreenLocked){
+      return;
+    }
     _cancelControll();
   }
 
@@ -424,24 +437,27 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                 ),
               if (_isControllerVisible)
                 MenuContainer(
-                    videoId: videoId,
-                    videoTitle:
-                        "${widget.video.vodName} ${videoList[_currentIndex]['title']!}",
-                    controller: _controller,
-                    showSkipFeedback: showSkipFeedback,
-                    playPositonTips: playPositonTips,
-                    seekToPosition: _seekToPosition,
-                    changePlaySpeed: _changePlaySpeed,
-                    isPlaying: _isPlaying,
-                    togglePlayPause: _togglePlayPause,
-                    playPreviousVideo: _playPreviousVideo,
-                    playNextVideo: _playNextVideo,
-                    setSkipHead: _setSkipHead,
-                    cleanSkipHead: _cleanSkipHead,
-                    setSkipTail: _setSkipTail,
-                    cleanSkipTail: _cleanSkipTail,
-                    toggleFullScreen: _toggleFullScreen,
-                    isFullScreen: _isFullScreen),
+                  videoId: videoId,
+                  videoTitle:
+                      "${widget.video.vodName} ${videoList[_currentIndex]['title']!}",
+                  controller: _controller,
+                  showSkipFeedback: showSkipFeedback,
+                  playPositonTips: playPositonTips,
+                  seekToPosition: _seekToPosition,
+                  changePlaySpeed: _changePlaySpeed,
+                  toggleScreenLock: _toggleScreenLock,
+                  isPlaying: _isPlaying,
+                  togglePlayPause: _togglePlayPause,
+                  playPreviousVideo: _playPreviousVideo,
+                  playNextVideo: _playNextVideo,
+                  setSkipHead: _setSkipHead,
+                  cleanSkipHead: _cleanSkipHead,
+                  setSkipTail: _setSkipTail,
+                  cleanSkipTail: _cleanSkipTail,
+                  toggleFullScreen: _toggleFullScreen,
+                  isFullScreen: _isFullScreen,
+                  isScreenLocked: isScreenLocked,
+                ),
               if (!_isPlaying && _controller.value.isInitialized)
                 Center(
                   child: GestureDetector(
@@ -473,6 +489,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     _controller.setPlaybackSpeed(speed);
     SPManager.savePlaySpeed(speed);
     setState(() {});
+  }
+
+  void _toggleScreenLock() {
+    setState(() {
+      isScreenLocked = !isScreenLocked;
+    });
   }
 
   // 更新视频并重新初始化播放器
