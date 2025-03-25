@@ -54,6 +54,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   bool _isBuffering = false; //是否在缓冲
   bool lastIsVer = true; //进入全屏前记录手机是否是竖直的
   bool isScreenLocked = false; //是否锁住屏幕
+  bool isParesFail = false; //是否解析失败
   Duration headTime = Duration(milliseconds: 0);
   Duration tailTime = Duration(milliseconds: 0);
 
@@ -73,11 +74,19 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   Future<void> _initializePlayer() async {
+    setState(() {
+      isParesFail = false;
+      _isBuffering = true;
+    });
     videoList = CommonUtil.getPlayList(widget.video);
     print("play url = ${videoList[_currentIndex]['url']}");
     _controller =
         VideoPlayerController.network(videoList[_currentIndex]['url']!);
-    await _controller.initialize();
+    try {
+      await _controller.initialize();
+    } catch (e) {
+      print("play error = $e");
+    }
     _isLoadVideoPlayed = false; // 确保每次初始化时复位
     var isSkipTail = false;
     final savedPosition =
@@ -100,7 +109,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     _controller.setPlaybackSpeed(playSpeed);
     _controller.addListener(() {
       if (_controller.value.hasError) {
-        CommonUtil.showToast("${_controller.value.errorDescription}");
+        isParesFail = true;
+        setState(() {});
         print("play error = ${_controller.value.errorDescription}");
       }
       if (_controller.value.duration > Duration.zero && !_isLoadVideoPlayed) {
@@ -195,7 +205,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   void _togglePlayPause() {
-    if(isScreenLocked){
+    if (isScreenLocked) {
       return;
     }
     setState(() {
@@ -271,6 +281,22 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   Widget _buildVideoPlayer() {
+    if (isParesFail) {
+      return Center(
+        child: Container(
+          color: Colors.black.withOpacity(0.7), // 可以设置背景颜色，给提示区域加个遮罩
+          child: const Center(
+            child: Text(
+              '视频解析失败', // 错误信息
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     if (!_controller.value.isInitialized || _isBuffering) {
       return Stack(
         children: [
@@ -297,7 +323,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   void _handleVerticalDrag(DragUpdateDetails details) {
-    if(isScreenLocked){
+    if (isScreenLocked) {
       return;
     }
     double delta = details.primaryDelta ?? 0;
@@ -315,7 +341,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   void _handleHorizontalDrag(DragUpdateDetails details) {
-    if(isScreenLocked){
+    if (isScreenLocked) {
       return;
     }
     double delta = details.primaryDelta ?? 0;
@@ -354,7 +380,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   void _cancelDrag(DragEndDetails details) {
-    if(isScreenLocked){
+    if (isScreenLocked) {
       return;
     }
     _cancelControll();
