@@ -268,15 +268,28 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
 
   Widget _buildVideoPlayer() {
     if (!_controller.value.isInitialized || _isBuffering) {
-      return const Center(
-        child: CircularProgressIndicator(),
+      return Stack(
+        children: [
+          // 播放器，背景会显示黑色或其他你选择的背景色
+          Center(
+            child: AspectRatio(
+              aspectRatio: _controller.value.aspectRatio,
+              child: VideoPlayer(_controller),
+            ),
+          ),
+          // 悬浮在播放器上层的加载指示器
+          const Center(
+            child: CircularProgressIndicator(),
+          ),
+        ],
       );
     }
     return Center(
-        child: AspectRatio(
-      aspectRatio: _controller.value.aspectRatio,
-      child: VideoPlayer(_controller),
-    ));
+      child: AspectRatio(
+        aspectRatio: _controller.value.aspectRatio,
+        child: VideoPlayer(_controller),
+      ),
+    );
   }
 
   void _handleVerticalDrag(DragUpdateDetails details) {
@@ -415,7 +428,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                     videoTitle:
                         "${widget.video.vodName} ${videoList[_currentIndex]['title']!}",
                     controller: _controller,
-                    onSetState: setState,
                     showSkipFeedback: showSkipFeedback,
                     playPositonTips: playPositonTips,
                     seekToPosition: _seekToPosition,

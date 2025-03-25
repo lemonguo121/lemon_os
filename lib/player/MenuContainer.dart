@@ -3,12 +3,12 @@ import '../util/CommonUtil.dart';
 import 'package:video_player/video_player.dart';
 
 import '../util/SPManager.dart';
+import 'BatteryTimeWidget.dart';
 
 class MenuContainer extends StatefulWidget {
   final int videoId;
   final String videoTitle;
   final VideoPlayerController controller;
-  final Function(void Function()) onSetState;
   final ValueChanged<bool> showSkipFeedback;
   final ValueChanged<String> playPositonTips;
   final ValueChanged<Duration> seekToPosition;
@@ -29,7 +29,6 @@ class MenuContainer extends StatefulWidget {
     required this.videoId,
     required this.videoTitle,
     required this.controller,
-    required this.onSetState,
     required this.showSkipFeedback,
     required this.playPositonTips,
     required this.seekToPosition,
@@ -80,36 +79,62 @@ class _MenuContainerState extends State<MenuContainer> {
         // 顶部控制栏
         Container(
           height: 70.0,
-          color: Colors.black.withOpacity(0.7),
-          padding: EdgeInsets.only(left: 16, top: 35, right: 16, bottom: 0),
+          color: Colors.black.withOpacity(0.2),
+          padding: const EdgeInsets.only(left: 8, right: 16),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Center(
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () {
-                      if (widget.isFullScreen) {
-                        widget.toggleFullScreen();
-                      } else {
-                        Navigator.pop(context);
-                      }
-                    },
-                  )),
-              Flexible(
-                  child: Text(
-                    widget.videoTitle,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  )),
+              // 返回按钮 + 标题
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  // 保证返回按钮和标题垂直对齐
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 35.0),
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () {
+                          if (widget.isFullScreen) {
+                            widget.toggleFullScreen();
+                          } else {
+                            Navigator.pop(context);
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 4), // 按钮和标题之间的间距
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 35.0),
+                        child: Text(
+                          widget.videoTitle,
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 14),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // 电量 & 时间
+              Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                  child: BatteryTimeWidget(isFullScreen: widget.isFullScreen),
+                ),
+              ),
             ],
           ),
         ),
         const Spacer(flex: 4),
         Container(
           height: bottomBarHeight,
-          color: Colors.black.withOpacity(0.7),
+          color: Colors.black.withOpacity(0.2),
           child: Column(
             children: [
               SizedBox(
@@ -166,15 +191,14 @@ class _MenuContainerState extends State<MenuContainer> {
                     ),
                     SizedBox(
                       child: IconButton(
-                        padding: EdgeInsets.zero,
-                        icon: Icon(
-                          widget.isFullScreen
-                              ? Icons.fullscreen_exit
-                              : Icons.fullscreen,
-                          color: Colors.white,
-                        ),
-                        onPressed: widget.toggleFullScreen,
-                      ),
+                          padding: EdgeInsets.zero,
+                          icon: Icon(
+                            widget.isFullScreen
+                                ? Icons.fullscreen_exit
+                                : Icons.fullscreen,
+                            color: Colors.white,
+                          ),
+                          onPressed: widget.toggleFullScreen),
                     ),
                   ],
                 ),
@@ -201,12 +225,11 @@ class _MenuContainerState extends State<MenuContainer> {
                                   style: TextStyle(color: Colors.white),
                                   items: [0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
                                       .map(
-                                        (speed) =>
-                                        DropdownMenuItem<double>(
+                                        (speed) => DropdownMenuItem<double>(
                                           value: speed,
                                           child: _buildMenuText("$speed"),
                                         ),
-                                  )
+                                      )
                                       .toList(),
                                   onChanged: (speed) {
                                     widget.changePlaySpeed(speed!);
@@ -261,15 +284,13 @@ class _MenuContainerState extends State<MenuContainer> {
                           GestureDetector(
                             onTap: () async {
                               widget.setSkipHead();
-
                             },
                             onLongPress: () async {
                               widget.cleanSkipHead();
-
                             },
                             child: FutureBuilder<Duration>(
                               future:
-                              SPManager.getSkipHeadTimes(widget.videoId),
+                                  SPManager.getSkipHeadTimes(widget.videoId),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData && snapshot.data != null) {
                                   final headTime = snapshot.data!;
@@ -287,16 +308,14 @@ class _MenuContainerState extends State<MenuContainer> {
                           // 显示跳过片尾时间
                           GestureDetector(
                             onTap: () async {
-                          widget.setSkipTail();
-
+                              widget.setSkipTail();
                             },
                             onLongPress: () async {
                               widget.cleanSkipTail();
-
                             },
                             child: FutureBuilder<Duration>(
                               future:
-                              SPManager.getSkipTailTimes(widget.videoId),
+                                  SPManager.getSkipTailTimes(widget.videoId),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData && snapshot.data != null) {
                                   final headTime = snapshot.data!;

@@ -81,7 +81,6 @@ class _DetailScreenState extends State<DetailScreen> {
         );
         responseData = RealResponseData.fromXml(jsonMap, widget.site); // 更新状态
       }
-
       setState(() {
         var videos = responseData.videos;
         video = videos[0];
@@ -107,9 +106,7 @@ class _DetailScreenState extends State<DetailScreen> {
 
   // 处理全屏状态回调
   void _onFullScreenChanged(bool isFullScreen) {
-    setState(() {
-      _isFullScreen = isFullScreen; // 更新全屏状态
-    });
+    _isFullScreen = isFullScreen; // 更新全屏状态
     if (_isFullScreen) {
       // 全屏时隐藏状态栏和禁用滚动
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
@@ -117,6 +114,7 @@ class _DetailScreenState extends State<DetailScreen> {
       // 退出全屏时恢复状态栏和启用滚动
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     }
+    setState(() {});
   }
 
   void _onChangePlayPositon(int currentPosition) {
@@ -155,8 +153,6 @@ class _DetailScreenState extends State<DetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       body: isLoading
           ? Column(
@@ -279,10 +275,9 @@ class _DetailScreenState extends State<DetailScreen> {
           const SizedBox(height: 4.0),
           ExpandablePanel(
               theme: ExpandableThemeData(
-                headerAlignment: ExpandablePanelHeaderAlignment.center,
-                iconPadding: EdgeInsets.zero,
-                iconColor: Colors.white
-              ),
+                  headerAlignment: ExpandablePanelHeaderAlignment.center,
+                  iconPadding: EdgeInsets.zero,
+                  iconColor: Colors.white),
               header: Text("简介",
                   style: TextStyle(
                       fontSize: 14,
@@ -298,7 +293,10 @@ class _DetailScreenState extends State<DetailScreen> {
               expanded: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(video.vodBlurb,style: TextStyle(color: Colors.white),),
+                  Text(
+                    video.vodBlurb,
+                    style: TextStyle(color: Colors.white),
+                  ),
                   const SizedBox(height: 6.0),
                   Videoinfowidget(title: "导演", content: video.vodDirector),
                   const SizedBox(
@@ -322,24 +320,23 @@ class _DetailScreenState extends State<DetailScreen> {
           const Text(
             "更新",
             style: TextStyle(
-              fontSize: 14.0,
-              fontWeight: FontWeight.bold,
-                color: Colors.white
-            ),
+                fontSize: 14.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.white),
           ),
           Text(
             video.vodRemarks.isNotEmpty ? video.vodRemarks : "暂无更新",
-            style: const TextStyle(
-              fontSize: 12.0,
-                color: Colors.white
-            ),
+            style: const TextStyle(fontSize: 12.0, color: Colors.white),
           ),
           const SizedBox(
             height: 4.0,
           ),
           const Text(
             "选集",
-            style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold,color: Colors.white),
+            style: TextStyle(
+                fontSize: 14.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.white),
           ),
         ],
       ),
