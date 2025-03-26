@@ -35,28 +35,32 @@ class _DetailScreenState extends State<DetailScreen> {
   );
   bool isLoading = true; // 用于显示加载状态
   int _selectedIndex = 0; // 用于跟踪当前选中的播放项
+  int _selectedPlayFromIndex = 0; // 用于跟踪当前选中播放的播放源
   bool _isFullScreen = false; // 存储全屏状态
   final ScrollController _scrollController = ScrollController();
+  int _selectFromIndex = 0; // 用于跟踪当前选中查看的播放源
 
   @override
   void initState() {
     super.initState();
-    _fetchDetail().then((value) => _loadProgress()); // 请求详情数据
+    _fetchDetail(); // 请求详情数据
   }
 
   // 异步加载视频进度
   Future<void> _loadProgress() async {
-    int? progress = await SPManager.getIndex(widget.vodId);
-    if (progress != null) {
-      setState(() {
-        _selectedIndex = progress;
-      });
-      _scrollToSelectedItem(progress);
-    }
+    int? progress = await SPManager.getIndex(widget.vodId) ?? 0;
+    int? fromIndex = await SPManager.getFromIndex(widget.vodId) ?? 0;
+    setState(() {
+      _selectedIndex = progress;
+      _selectedPlayFromIndex = fromIndex;
+      _selectFromIndex = fromIndex;
+    });
+    _scrollToSelectedItem(progress);
   }
 
   Future<void> _fetchDetail() async {
     try {
+      await _loadProgress();
       var paresType = widget.site.type ?? 1;
       var subscription = widget.site.api ?? "";
       if (paresType == 1) {
@@ -121,17 +125,30 @@ class _DetailScreenState extends State<DetailScreen> {
   void _onChangePlayPositon(int currentPosition) {
     setState(() {
       _selectedIndex = currentPosition;
+      _selectedPlayFromIndex = _selectFromIndex;
     });
     _scrollToSelectedItem(currentPosition);
   }
 
   void _changePlayPosition(int index) {
+    if (index == _selectedIndex && _selectedPlayFromIndex == _selectFromIndex) {
+      return;
+    }
     _onChangePlayPositon(index);
     final videoId = widget.vodId;
-    final playItem = CommonUtil.getPlayList(video)[index];
+    final playItem = CommonUtil.getPlayListAndForm(video)
+        .playList[_selectedPlayFromIndex][index];
     SPManager.saveIndex(videoId, index);
+    SPManager.saveFromIndex(videoId, _selectedPlayFromIndex);
     SPManager.saveHistory(video);
-    VideoPlayerScreen.of(context)?.playVideo(playItem['url']!, _selectedIndex);
+    VideoPlayerScreen.of(context)
+        ?.playVideo(playItem["url"] ?? "", _selectedIndex);
+  }
+
+  void changeFromPosition(int index) {
+    setState(() {
+      _selectFromIndex = index;
+    });
   }
 
   void _scrollToSelectedItem(int index) {
@@ -203,6 +220,7 @@ class _DetailScreenState extends State<DetailScreen> {
               : playerHeight, // 非全屏时固定高度
           child: VideoPlayerScreen(
             initialIndex: _selectedIndex,
+            fromIndex: _selectedPlayFromIndex,
             video: video,
             onFullScreenChanged: _onFullScreenChanged,
             onChangePlayPositon: _onChangePlayPositon,
@@ -227,7 +245,6 @@ class _DetailScreenState extends State<DetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 播放器部分，固定在顶部
-
         SizedBox(
           width: playerWidth,
           height: _isFullScreen
@@ -235,6 +252,7 @@ class _DetailScreenState extends State<DetailScreen> {
               : screenHeight, // 非全屏时固定高度
           child: VideoPlayerScreen(
             initialIndex: _selectedIndex,
+            fromIndex: _selectedPlayFromIndex,
             video: video,
             onFullScreenChanged: _onFullScreenChanged,
             onChangePlayPositon: _onChangePlayPositon,
@@ -270,6 +288,9 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   Widget _buildVideoDetial() {
+    var videoPlayData = CommonUtil.getPlayListAndForm(video);
+    var fromList = videoPlayData.fromList;
+    var playList = videoPlayData.playList;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: Column(
@@ -291,14 +312,14 @@ class _DetailScreenState extends State<DetailScreen> {
                 softWrap: true,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: Colors.white,fontSize: 12),
+                style: TextStyle(color: Colors.white, fontSize: 12),
               ),
               expanded: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     video.vodBlurb,
-                    style: TextStyle(color: Colors.white,fontSize: 12),
+                    style: TextStyle(color: Colors.white, fontSize: 12),
                   ),
                   const SizedBox(height: 6.0),
                   Videoinfowidget(title: "导演", content: video.vodDirector),
@@ -318,7 +339,11 @@ class _DetailScreenState extends State<DetailScreen> {
                     ],
                   ),
                   const SizedBox(height: 6.0),
-                  Videoinfowidget(title: "播放地址（长按链接复制）", content: CommonUtil.getPlayList(video)[_selectedIndex]['url']??""),
+                  Videoinfowidget(
+                      title: "播放地址（长按链接复制）",
+                      content: playList[_selectedPlayFromIndex][_selectedIndex]
+                              ['url'] ??
+                          ""),
                 ],
               )),
           const SizedBox(height: 6.0),
@@ -334,6 +359,23 @@ class _DetailScreenState extends State<DetailScreen> {
             style: const TextStyle(fontSize: 12.0, color: Colors.white),
           ),
           const SizedBox(
+            height: 6.0,
+          ),
+          const Text(
+            "线路",
+            style: TextStyle(
+                fontSize: 14.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.white),
+          ),
+          const SizedBox(
+            height: 4.0,
+          ),
+          SizedBox(
+            height: 20,
+            child: _buildVodFromList(fromList),
+          ),
+          const SizedBox(
             height: 4.0,
           ),
           const Text(
@@ -343,12 +385,16 @@ class _DetailScreenState extends State<DetailScreen> {
                 fontWeight: FontWeight.bold,
                 color: Colors.white),
           ),
+          const SizedBox(
+            height: 4.0,
+          ),
         ],
       ),
     );
   }
 
   Widget _buildGrid() {
+    var playList = CommonUtil.getPlayListAndForm(video).playList;
     return GridView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -360,15 +406,17 @@ class _DetailScreenState extends State<DetailScreen> {
         crossAxisSpacing: 8.0,
         mainAxisExtent: 30,
       ),
-      itemCount: CommonUtil.getPlayList(video).length,
+      itemCount: CommonUtil.getPlayListAndForm(video)
+          .playList[_selectedPlayFromIndex]
+          .length,
       itemBuilder: (context, index) {
-        return _buildGridItem(index);
+        return _buildGridItem(index, playList);
       },
     );
   }
 
-  Widget _buildGridItem(int index) {
-    final playItem = CommonUtil.getPlayList(video)[index];
+  Widget _buildGridItem(int index, List<List<Map<String, String>>> playList) {
+    final playItem = playList[_selectFromIndex][index];
     final title = playItem['title']!; // 播放标题
     return GestureDetector(
       onTap: () {
@@ -377,19 +425,24 @@ class _DetailScreenState extends State<DetailScreen> {
       child: Container(
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: _selectedIndex == index
+          color: _selectedIndex == index &&
+                  _selectedPlayFromIndex == _selectFromIndex
               ? Colors.blueAccent // 选中时改变背景色
               : Colors.transparent, // 未选中时背景透明
           border: Border.all(
             color: Colors.white,
-            width: _selectedIndex == index ? 0 : 1,
+            width: _selectedIndex == index &&
+                    _selectedPlayFromIndex == _selectFromIndex
+                ? 0
+                : 1,
           ),
           borderRadius: BorderRadius.circular(3.0), // 圆角边框
         ),
         child: Text(
           title,
           style: TextStyle(
-            color: _selectedIndex == index
+            color: _selectedIndex == index &&
+                    _selectedPlayFromIndex == _selectFromIndex
                 ? Colors.white // 选中时字体颜色
                 : Colors.white,
             fontSize: 10.0,
@@ -400,5 +453,32 @@ class _DetailScreenState extends State<DetailScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildVodFromList(List<String> fromList) {
+    return ListView.builder(
+        shrinkWrap: true,
+        scrollDirection: Axis.horizontal,
+        itemCount: fromList.length,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () {
+              changeFromPosition(index);
+            },
+            child: Container(
+              padding: EdgeInsets.only(right: 15),
+              child: Text(
+                fromList[index],
+                style: TextStyle(
+                    color:
+                        _selectFromIndex == index ? Colors.blue : Colors.white,
+                    fontSize: 13,
+                    fontWeight: _selectFromIndex == index
+                        ? FontWeight.bold
+                        : FontWeight.normal),
+              ),
+            ),
+          );
+        });
   }
 }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../http/data/RealVideo.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+import '../http/data/VideoPlayData.dart';
+
 class CommonUtil {
   static Future showToast(String content) async {
     Fluttertoast.showToast(
@@ -22,27 +24,50 @@ class CommonUtil {
     return hours != "00" ? "$hours:$minutes:$seconds" : "$minutes:$seconds";
   }
 
-  // 获取播放列表
-  static List<Map<String, String>> getPlayList(RealVideo video) {
-    // 检查 vod_play_url 是否为字符串
+  // 获取播放列表和来源，返回 VideoPlayData
+  static VideoPlayData getPlayListAndForm(RealVideo video) {
     String vodPlayUrl = video.vodPlayUrl ?? '';
-    if (vodPlayUrl.isEmpty) {
-      return [];
+    String vodFrom = video.vodFrom ?? '';
+
+    if (vodPlayUrl.isEmpty && vodFrom.isEmpty) {
+      return VideoPlayData(playList: [], fromList: [], currentPlayGroup: []);
     }
-    // 处理字符串并转换为 List<Map<String, String>>
-    return vodPlayUrl.split('#').map((item) {
-      final parts = item.split('\$');
-      // 确保 parts 有两个元素，防止出现数组越界错误
-      if (parts.length == 2) {
-        return {
-          'title': parts[0],
-          'url': parts[1],
-        };
-      } else {
-        // 如果格式不正确，返回一个空的 Map
-        return {'title': '', 'url': ''};
+
+    List<List<Map<String, String>>> playList = [];
+    List<String> fromList = [];
+    List<Map<String, String>> currentPlayGroup = [];
+
+    // 处理 vodPlayUrl，分割并添加到结果
+    if (vodPlayUrl.isNotEmpty) {
+      List<String> playUrlGroups = vodPlayUrl.split(RegExp(r'\$\$\$'));
+      for (var group in playUrlGroups) {
+        List<Map<String, String>> playGroup = group.split('#').map((item) {
+          final parts = item.split('\$');
+          if (parts.length == 2) {
+            return {'title': parts[0], 'url': parts[1]};
+          } else {
+            return {'title': '', 'url': ''};
+          }
+        }).toList();
+        playList.add(playGroup);
       }
-    }).toList();
+    }
+
+    // 处理 vodFrom，分割并添加到结果
+    if (vodFrom.isNotEmpty) {
+      fromList = vodFrom.split(RegExp(r'\$\$\$'));
+    }
+
+    // 默认显示第一个 fromList 对应的 playGroup
+    if (fromList.isNotEmpty && playList.isNotEmpty) {
+      currentPlayGroup = playList[0]; // 默认显示第一个来源对应的播放列表
+    }
+
+    return VideoPlayData(
+      playList: playList,
+      fromList: fromList,
+      currentPlayGroup: currentPlayGroup,
+    );
   }
 
   static bool isVertical(BuildContext context) {

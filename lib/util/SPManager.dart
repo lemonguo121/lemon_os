@@ -8,6 +8,7 @@ import '../http/data/storehouse_bean_entity.dart';
 
 class SPManager {
   static const String _progressKey = "video_progress";
+  static const String _videoFromProgress = "video_from_progress";
   static const String _playSpeedKey = "_play_speedKey";
   static const String _skipHeadKey = "skip_head_time";
   static const String _skipTailKey = "skip_tail_time";
@@ -52,6 +53,18 @@ class SPManager {
   static Future<int?> getIndex(int videoId) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt("$_progressKey$videoId");
+  }
+
+  // 保存播放的来源索引
+  static Future<void> saveFromIndex(int videoId, int position) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt("$_videoFromProgress$videoId", position);
+  }
+
+  // 获取播放的来源索引
+  static Future<int?> getFromIndex(int videoId) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt("$_videoFromProgress$videoId");
   }
 
   // 获取保存的音量

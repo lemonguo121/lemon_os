@@ -12,6 +12,7 @@ import 'VoiceAndLightFeedbackPositoned.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
   final int initialIndex;
+  final int fromIndex;
   final RealVideo video;
   final ValueChanged<bool> onFullScreenChanged;
   final ValueChanged<int> onChangePlayPositon;
@@ -25,6 +26,7 @@ class VideoPlayerScreen extends StatefulWidget {
 
   VideoPlayerScreen({
     required this.initialIndex,
+    required this.fromIndex,
     required this.video,
     required this.onFullScreenChanged,
     required this.onChangePlayPositon,
@@ -79,7 +81,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
       isParesFail = false;
       _isBuffering = true;
     });
-    videoList = CommonUtil.getPlayList(widget.video);
+    videoList = CommonUtil.getPlayListAndForm(widget.video).playList[widget.fromIndex];
     playUrl = videoList[_currentIndex]['url']??"";
     print("play url = $playUrl");
     _controller =
@@ -95,6 +97,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
         await SPManager.getProgress(playUrl);
     videoId = widget.video.vodId;
     SPManager.saveIndex(videoId, _currentIndex);
+    SPManager.saveFromIndex(videoId, widget.fromIndex);
     // 获取跳过时间
     headTime = await SPManager.getSkipHeadTimes(videoId);
 
@@ -150,6 +153,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     SPManager.saveProgress(
         playUrl, _controller.value.position);
     SPManager.saveIndex(videoId, _currentIndex);
+    SPManager.saveFromIndex(videoId, widget.fromIndex);
     SPManager.saveHistory(widget.video);
     SystemChrome.setPreferredOrientations([]);
     _controller.dispose();
@@ -289,7 +293,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
           color: Colors.black.withOpacity(0.7), // 可以设置背景颜色，给提示区域加个遮罩
           child: const Center(
             child: Text(
-              '视频解析失败', // 错误信息
+              '视频解析失败，换个线路试试', // 错误信息
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -528,7 +532,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   // 更新视频并重新初始化播放器
   void playVideo(String url, int index) {
     // 找到要播放的视频索引
-    if (index != -1 && index != _currentIndex) {
+    if (index != -1 ) {
       setState(() async {
         await SPManager.saveProgress(
             playUrl, _controller.value.position);

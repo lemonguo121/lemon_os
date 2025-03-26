@@ -17,6 +17,7 @@ class PlayHistory extends StatefulWidget {
 class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
   List<RealVideo>? _historyList;
   int _playIndex = 0;
+  int _fromIndex = 0;
   bool _isLoading = true;
   final Map<int, String> _videoTitles = {}; // 缓存每个视频的标题
   @override
@@ -50,23 +51,23 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
   }
 
   Future<void> _getIndex(int videoId) async {
-    int? progress = await SPManager.getIndex(videoId);
-    if (progress != null) {
-      setState(() {
-        _playIndex = progress;
-      });
-    }
+    int? progress = await SPManager.getIndex(videoId) ?? 0;
+    var fromIndex = await SPManager.getFromIndex(videoId) ?? 0;
+    setState(() {
+      _playIndex = progress;
+      _fromIndex = fromIndex;
+    });
   }
 
   Future<void> getVideoRec(RealVideo video) async {
     try {
       // 异步获取播放索引
       await _getIndex(video.vodId);
-      var playList = CommonUtil.getPlayList(video);
+      var playList = CommonUtil.getPlayListAndForm(video).playList;
 
-      if (_playIndex >= 0 && _playIndex < playList.length) {
+      if (_fromIndex >= 0 && _fromIndex < playList.length) {
         setState(() {
-          _videoTitles[video.vodId] = playList[_playIndex]['title']!;
+          _videoTitles[video.vodId] = playList[_fromIndex][_playIndex]['title']!;
         });
       } else {
         setState(() {
