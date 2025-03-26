@@ -152,15 +152,6 @@ class _DetailScreenState extends State<DetailScreen> {
     });
   }
 
-  // CachedNetworkImage(
-  // imageUrl: pic,
-  // width: double.infinity,
-  // height: double.infinity,
-  // fit: BoxFit.cover,
-  // placeholder: MyLoadingBuilder.placeholderBuilder,
-  // errorWidget: MyLoadingBuilder.errorBuilder,
-  // )
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -325,7 +316,9 @@ class _DetailScreenState extends State<DetailScreen> {
                       const SizedBox(width: 6.0),
                       Videoinfowidget(title: "类型", content: video.typeName),
                     ],
-                  )
+                  ),
+                  const SizedBox(height: 6.0),
+                  Videoinfowidget(title: "播放地址（长按链接复制）", content: CommonUtil.getPlayList(video)[_selectedIndex]['url']??""),
                 ],
               )),
           const SizedBox(height: 6.0),

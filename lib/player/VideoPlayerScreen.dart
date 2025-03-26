@@ -40,6 +40,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   late VideoPlayerController _controller;
   late int _currentIndex;
   late List<Map<String, String>> videoList; // 确保类型为 List<Map<String, String>>
+  String playUrl = ""; // 确保类型为 List<Map<String, String>>
   int videoId = 0;
   bool _isControllerVisible = true;
   bool _isPlaying = false;
@@ -79,9 +80,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
       _isBuffering = true;
     });
     videoList = CommonUtil.getPlayList(widget.video);
-    print("play url = ${videoList[_currentIndex]['url']}");
+    playUrl = videoList[_currentIndex]['url']??"";
+    print("play url = $playUrl");
     _controller =
-        VideoPlayerController.network(videoList[_currentIndex]['url']!);
+        VideoPlayerController.network(playUrl);
     try {
       await _controller.initialize();
     } catch (e) {
@@ -90,7 +92,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     _isLoadVideoPlayed = false; // 确保每次初始化时复位
     var isSkipTail = false;
     final savedPosition =
-        await SPManager.getProgress(videoList[_currentIndex]['url']!);
+        await SPManager.getProgress(playUrl);
     videoId = widget.video.vodId;
     SPManager.saveIndex(videoId, _currentIndex);
     // 获取跳过时间
@@ -146,7 +148,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     SPManager.saveProgress(
-        videoList[_currentIndex]['url']!, _controller.value.position);
+        playUrl, _controller.value.position);
     SPManager.saveIndex(videoId, _currentIndex);
     SPManager.saveHistory(widget.video);
     SystemChrome.setPreferredOrientations([]);
@@ -222,7 +224,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     if (_currentIndex > 0) {
       setState(() async {
         await SPManager.saveProgress(
-            videoList[_currentIndex]['url']!, _controller.value.position);
+            playUrl, _controller.value.position);
         _currentIndex--;
         _isLoadVideoPlayed = true;
         await _controller.pause();
@@ -238,7 +240,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     if (_currentIndex < videoList.length - 1) {
       setState(() async {
         await SPManager.saveProgress(
-            videoList[_currentIndex]['url']!, _controller.value.position);
+            playUrl, _controller.value.position);
         _currentIndex++;
         _isLoadVideoPlayed = true;
         await _controller.pause();
@@ -529,7 +531,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     if (index != -1 && index != _currentIndex) {
       setState(() async {
         await SPManager.saveProgress(
-            videoList[_currentIndex]['url']!, _controller.value.position);
+            playUrl, _controller.value.position);
         _currentIndex = index;
         _isLoadVideoPlayed = true;
         await _controller.pause();

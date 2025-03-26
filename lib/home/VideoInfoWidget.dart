@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class Videoinfowidget extends StatelessWidget {
   final String title;
@@ -14,19 +15,21 @@ class Videoinfowidget extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontSize: 14.0,
-            fontWeight: FontWeight.bold,
-            color: Colors.white
-          ),
+              fontSize: 14.0, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         const SizedBox(
           height: 2.0,
         ),
-        Text(
-          content,
-          style: const TextStyle(
-            fontSize: 12.0,
-              color: Colors.white
+        GestureDetector(
+          onLongPress: (){
+            Clipboard.setData(ClipboardData(text: content));
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("文本已复制")),
+            );
+          },
+          child: Text(
+            content,
+            style: const TextStyle(fontSize: 12.0, color: Colors.white),
           ),
         ),
       ],
