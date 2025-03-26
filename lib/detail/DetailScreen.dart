@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -151,6 +152,15 @@ class _DetailScreenState extends State<DetailScreen> {
     });
   }
 
+  // CachedNetworkImage(
+  // imageUrl: pic,
+  // width: double.infinity,
+  // height: double.infinity,
+  // fit: BoxFit.cover,
+  // placeholder: MyLoadingBuilder.placeholderBuilder,
+  // errorWidget: MyLoadingBuilder.errorBuilder,
+  // )
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -162,9 +172,11 @@ class _DetailScreenState extends State<DetailScreen> {
               : Stack(
                   children: [
                     Positioned.fill(
-                      child: Image.network(
-                        video.vodPic,
-                        fit: BoxFit.cover, // 背景图片覆盖整个屏幕
+                      child: CachedNetworkImage(
+                        imageUrl: video.vodPic,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
                       ),
                     ),
                     Positioned.fill(
@@ -172,7 +184,7 @@ class _DetailScreenState extends State<DetailScreen> {
                         filter: ImageFilter.blur(
                             sigmaX: 40.0, sigmaY: 40.0), // 设置模糊程度
                         child: Container(
-                          color: Colors.black.withOpacity(0), // 可以设置背景的透明度
+                          color: Colors.black.withOpacity(0.2), // 可以设置背景的透明度
                         ),
                       ),
                     ),
@@ -288,14 +300,14 @@ class _DetailScreenState extends State<DetailScreen> {
                 softWrap: true,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white,fontSize: 12),
               ),
               expanded: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     video.vodBlurb,
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: Colors.white,fontSize: 12),
                   ),
                   const SizedBox(height: 6.0),
                   Videoinfowidget(title: "导演", content: video.vodDirector),
