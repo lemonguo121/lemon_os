@@ -1,5 +1,6 @@
 import 'dart:convert'; // 用于 json 编码和解码
 import 'package:http/http.dart' as http;
+import 'package:json5/json5.dart';
 import 'package:lemon_tv/util/SubscriptionsUtil.dart';
 import 'package:xml/xml.dart';
 import '../util/SPManager.dart'; // 导入 SPManager 用于获取当前站点
@@ -160,39 +161,38 @@ class HttpService {
 
     if (response.statusCode == 200) {
       // 使用 UTF-8 解码，避免中文乱码
-      String decodedBody = utf8.decode(response.bodyBytes);
+      // String decodedBody = utf8.decode(response.bodyBytes);
       // **方法 1：根据 Content-Type 头部判断**
-      return json.decode(decodedBody);
+      // return json.decode(decodedBody);
 
-      // if (response.body == null) {
-      //   // No response body
-      //   throw Exception("Empty response body");
-      // } else {
-      //   // Clean and find result
-      //   result = SubscriptionsUtil().findResult(response.body, null);
-      //
-      //   // Debugging: print the result to ensure it's valid JSON
-      //   print("Result before cleaning: $result");
-      //
-      //   // Clean the result and parse JSON
-      //   try {
-      //     return json.decode(cleanJson(result));
-      //   } catch (e) {
-      //     throw Exception("Error parsing JSON: $e");
-      //   }
-      // }
+      if (response.body == null) {
+        // No response body
+        throw Exception("Empty response body");
+      } else {
+        // Clean and find result
+        result = SubscriptionsUtil().findResult(response.body, null);
+
+        // Debugging: print the result to ensure it's valid JSON
+        print("Result before cleaning: $result");
+
+        // Clean the result and parse JSON
+        try {
+          return JSON5.parse(cleanJson(result));
+        } catch (e) {
+          throw Exception("Error parsing JSON: $e");
+        }
+      }
     } else {
       throw Exception("Server Error: ${response.statusCode}");
     }
   }
 
   String cleanJson(String jsonStr) {
-    // Remove control characters and invisible characters
-    jsonStr = jsonStr.replaceAll(RegExp(r'[\x00-\x1F\x7F]'), '');  // Remove control characters
-    jsonStr = jsonStr.replaceAll(RegExp(r'[\u200B-\u200D\uFEFF]'), ''); // Remove invisible characters (like Zero Width Space)
+    // jsonStr = jsonStr.replaceAll(RegExp(r'[\x00-\x1F\x7F]'), '');  // Remove control characters
+    // jsonStr = jsonStr.replaceAll(RegExp(r'[\u200B-\u200D\uFEFF]'), ''); // Remove invisible characters (like Zero Width Space)
 
     // Remove single-line comments (// starting with //)
-    jsonStr = jsonStr.replaceAll(RegExp(r'//.*'), '');
+    // jsonStr = jsonStr.replaceAll(RegExp(r'^\s*//.*$', multiLine: true), '');
 
     return jsonStr;
   }

@@ -29,15 +29,19 @@ class SubscriptionsUtil {
     if (containsChinese(subscripUrl)) {
       subscripUrl = _toPunycode(subscripUrl);
     }
-    List<StorehouseBean> urls =await SPManager.getSubscriptions();
+    print("subscripUrl result $subscripUrl");
+    List<StorehouseBean> urls = await SPManager.getSubscriptions();
     Map<String, dynamic> jsonMap = await _httpService.getUrl(subscripUrl);
     if (jsonMap['urls'] != null) {
       var subscripBean = SubscripBean.fromJson(jsonMap);
       urls.addAll(subscripBean.urls);
-      urls = urls.fold<Map<String, StorehouseBean>>({}, (map, item) {
-        map[item.url] = item;
-        return map;
-      }).values.toList();
+      urls = urls
+          .fold<Map<String, StorehouseBean>>({}, (map, item) {
+            map[item.url] = item;
+            return map;
+          })
+          .values
+          .toList();
       await SPManager.saveSubscription(urls);
     } else {
       var storehouseBean = StorehouseBean(url: subscripUrl, name: subscripName);
@@ -53,12 +57,14 @@ class SubscriptionsUtil {
   // 根据仓库，请求仓库下所有站点
   Future<StorehouseBeanSites?> requestCurrentSites(
       StorehouseBean currentStorehouse) async {
+    var url = currentStorehouse.url;
     if (containsChinese(currentStorehouse.url)) {
-      CommonUtil.showToast("暂不支持含中文的接口");
-      return null;
+      // CommonUtil.showToast("暂不支持含中文的接口");
+      // return null;
+      url=  _toPunycode(url);
     }
     Map<String, dynamic> jsonMap =
-    await _httpService.getUrl(currentStorehouse.url);
+        await _httpService.getUrl(url);
     var newSite = await getSingleSubscription(jsonMap, currentStorehouse.name);
     return newSite;
   }
@@ -74,7 +80,7 @@ class SubscriptionsUtil {
       if (currentSite == null) {
         await SPManager.saveCurrentSite(selectStorehouse[0]);
         return selectStorehouse[0];
-      }else{
+      } else {
         return currentSite;
       }
     }
@@ -111,7 +117,7 @@ class SubscriptionsUtil {
 
       if (content.startsWith("2423")) {
         String data =
-        content.substring(content.indexOf("2324") + 4, content.length - 26);
+            content.substring(content.indexOf("2324") + 4, content.length - 26);
         content = utf8
             .decode(Uint8List.fromList(AESUtil.fromHex(content)))
             .toLowerCase();

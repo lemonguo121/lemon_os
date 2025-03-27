@@ -45,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   // 缓存数据
   final Map<String, RealResponseData> _cachedData = {};
   final Map<String, Map<int, List<HomeCategoryData>>> _cachedHomeData = {};
+  int errorType = -1; //0:作为成功；1：订阅为空；2:站点不可用；
 
   @override
   void initState() {
@@ -53,14 +54,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Future<void> _loadData() async {
+    errorType = -1;
     setState(() => isLoading = true);
     try {
       // 第一步先检查当前是否有选择的仓库
       var currentStorehouse = await SPManager.getCurrentSubscription();
       if (currentStorehouse == null) {
         setState(() {
-          print("HomeScreen currentStorehouse = $currentStorehouse");
-          currentSite = null;
+          errorType = 1;
         });
         return;
       }
@@ -69,8 +70,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           await _subscriptionsUtil.requestCurrentSites(currentStorehouse);
       if (currentSite == null) {
         setState(() {
-          print("HomeScreen currentSite = $currentSite");
-          currentSite = null;
+          errorType = 2;
         });
         return;
       }
@@ -176,13 +176,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         children: [
           SizedBox(height: isVertical ? 55.0 : 40),
           _buildSearch(),
-          Expanded(
-            child: currentSite == null
-                ? _buildNoSubscriptionView() // 如果 currentSite 为 null，显示 "没有订阅" 视图
-                : categories.isEmpty
-                    ? _buildNoDataView() // 如果 categories 为空，显示 "没有数据" 视图
-                    : _buildCategorySelector(), // 否则，显示分类选择视图
-          ),
+          Expanded(child: getErrorView() // 否则，显示分类选择视图
+              ),
         ],
       ),
     );
@@ -228,16 +223,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     }
                   }
                 });
-                var dialogSize ;
+                var dialogSize;
                 if (CommonUtil.isVertical(context)) {
                   dialogSize = CommonUtil.getScreenWidth(context) * 9 / 10;
-                }else{
+                } else {
                   dialogSize = CommonUtil.getScreenHeight(context) * 9 / 10;
                 }
 
                 return Container(
                   padding: EdgeInsets.all(16),
-                  height: dialogSize*7/8, // 固定弹窗高度
+                  height: dialogSize * 7 / 8, // 固定弹窗高度
                   width: dialogSize,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -322,6 +317,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+  // 订阅为空
   Widget _buildNoSubscriptionView() {
     return Center(
       child: GestureDetector(
@@ -333,6 +329,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             Icon(Icons.add, size: 64, color: Colors.grey),
             SizedBox(height: 16),
             Text('暂无数据，点击添加',
+                style: TextStyle(color: Colors.grey, fontSize: 16)),
+          ],
+        ),
+      ),
+    );
+  }
+  //站点不可用
+  Widget _buildSiteInvileView() {
+    return Center(
+      child: GestureDetector(
+        onTap: (){
+          _loadData();
+        },
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.refresh, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text('站点不可用，点击重试，或切换订阅',
                 style: TextStyle(color: Colors.grey, fontSize: 16)),
           ],
         ),
@@ -395,5 +410,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
       ),
     );
+  }
+
+  Widget getErrorView() {
+    if (errorType == 1) {
+      return _buildNoSubscriptionView();
+    } else if (errorType == 2) {
+      return _buildSiteInvileView();
+    } else {
+      return categories.isEmpty ? _buildNoDataView() : _buildCategorySelector();
+    }
   }
 }
