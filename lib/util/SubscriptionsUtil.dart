@@ -33,9 +33,11 @@ class SubscriptionsUtil {
     Map<String, dynamic> jsonMap = await _httpService.getUrl(subscripUrl);
     if (jsonMap['urls'] != null) {
       var subscripBean = SubscripBean.fromJson(jsonMap);
-
       urls.addAll(subscripBean.urls);
-      urls = urls.toSet().toList();
+      urls = urls.fold<Map<String, StorehouseBean>>({}, (map, item) {
+        map[item.url] = item;
+        return map;
+      }).values.toList();
       await SPManager.saveSubscription(urls);
     } else {
       var storehouseBean = StorehouseBean(url: subscripUrl, name: subscripName);

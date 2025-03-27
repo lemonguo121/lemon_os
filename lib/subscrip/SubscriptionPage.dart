@@ -33,8 +33,6 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
     setState(() {
       if (currentStorehouse != null) {
-        print(
-            "_currentstorehouse ${currentStorehouse.name}   ${currentStorehouse.url}");
         _selectedIndex = subscriptions.indexWhere((site) =>
             site.url == currentStorehouse.url ||
             site.name == currentStorehouse.name);
