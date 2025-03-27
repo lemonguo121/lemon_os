@@ -132,7 +132,7 @@ class _MenuContainerState extends State<MenuContainer> {
                   Align(
                     alignment: Alignment.topCenter,
                     child: Padding(
-                      padding: EdgeInsets.only(top: 10.0,right: 10),
+                      padding: EdgeInsets.only(top: 10.0,right: 16),
                       child:
                           BatteryTimeWidget(isFullScreen: widget.isFullScreen),
                     ),
