@@ -10,6 +10,7 @@ class SearchResultList extends StatefulWidget {
   final List<String> hasResultSite;
   final String selectSite;
   final ValueChanged<String> loadSearchResults;
+  final ValueChanged<RealVideo> clickVideoItem;
   final RealResponseData selectResponseData;
   final bool hasSearch;
 
@@ -18,6 +19,7 @@ class SearchResultList extends StatefulWidget {
       required this.hasResultSite,
       required this.selectSite,
       required this.loadSearchResults,
+      required this.clickVideoItem,
       required this.selectResponseData,
       required this.hasSearch});
 
@@ -43,7 +45,9 @@ class _SearchResultListState extends State<SearchResultList> {
             // 站点列表
             child: _buildSiteList(),
           ),
-          SizedBox(width: 10.0,),
+          SizedBox(
+            width: 10.0,
+          ),
           Expanded(
             flex: 6,
             child: widget.selectResponseData.videos.isEmpty
@@ -99,15 +103,7 @@ class _SearchResultListState extends State<SearchResultList> {
           padding: const EdgeInsets.symmetric(vertical: 5.0),
           child: InkWell(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetailScreen(
-                    vodId: video.vodId,
-                    site: video.site,
-                  ),
-                ),
-              );
+              widget.clickVideoItem(video);
             },
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,

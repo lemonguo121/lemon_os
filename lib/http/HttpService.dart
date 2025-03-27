@@ -113,16 +113,18 @@ class HttpService {
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
     };
   }
+
   // 获取仓库时请求头
   Map<String, String> _getStorehouseHeaders() {
     return {
       'Content-Type': 'application/json; charset=utf-8',
-      'User-Agent': 'okhttp/3.15', // 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      'User-Agent': 'okhttp/3.15',
+      // 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
       'Accept':
-      'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
-
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
     };
   }
+
   dynamic _handleResponse(http.Response response, int paresType) {
     if (response.statusCode == 200) {
       // 使用 UTF-8 解码，避免中文乱码
@@ -166,18 +168,11 @@ class HttpService {
       // return json.decode(decodedBody);
 
       if (response.body == null) {
-        // No response body
         throw Exception("Empty response body");
       } else {
-        // Clean and find result
         result = SubscriptionsUtil().findResult(response.body, null);
-
-        // Debugging: print the result to ensure it's valid JSON
-        print("Result before cleaning: $result");
-
-        // Clean the result and parse JSON
         try {
-          return JSON5.parse(cleanJson(result));
+          return JSON5.parse(result);
         } catch (e) {
           throw Exception("Error parsing JSON: $e");
         }
@@ -187,14 +182,34 @@ class HttpService {
     }
   }
 
-  String cleanJson(String jsonStr) {
-    // jsonStr = jsonStr.replaceAll(RegExp(r'[\x00-\x1F\x7F]'), '');  // Remove control characters
-    // jsonStr = jsonStr.replaceAll(RegExp(r'[\u200B-\u200D\uFEFF]'), ''); // Remove invisible characters (like Zero Width Space)
+  // 获取联想词
+  Future<List<String>> getSuggest(String text) async {
+    final String url = "https://suggest.video.iqiyi.com/?if=mobile&key=$text";
+    List<String> titles = [];
+    try {
+      // 发送 GET 请求
+      final response = await http.get(Uri.parse(url));
 
-    // Remove single-line comments (// starting with //)
-    // jsonStr = jsonStr.replaceAll(RegExp(r'^\s*//.*$', multiLine: true), '');
+      if (response.statusCode == 200) {
+        // 请求成功，解析 JSON 数据
 
-    return jsonStr;
+        try {
+          var jsonResponse = jsonDecode(response.body);
+          var datas = jsonResponse['data'];
+
+          for (var item in datas) {
+            titles.add(item['name'].toString().trim());
+          }
+        } catch (e) {
+          print("解析 JSON 时出错: $e");
+        }
+        return titles;
+      } else {
+        print('请求失败，状态码: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('请求出错: $e');
+    }
+    return titles;
   }
-
 }

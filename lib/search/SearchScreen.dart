@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:lemon_tv/util/CommonUtil.dart';
 import 'package:lemon_tv/util/SubscriptionsUtil.dart';
 import 'package:xml/xml.dart';
 
+import '../detail/DetailScreen.dart';
 import '../http/HttpService.dart';
 import '../http/data/RealVideo.dart';
 import '../http/data/storehouse_bean_entity.dart';
@@ -20,7 +22,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen>
     with TickerProviderStateMixin {
-  final TextEditingController _searchController = TextEditingController();
+  TextEditingController _searchController = TextEditingController();
   bool _isLoading = false;
   final HttpService _httpService = HttpService();
   List<String> _searchHistory = [];
@@ -30,7 +32,9 @@ class _SearchScreenState extends State<SearchScreen>
   String selectSite = ""; // 当前选择的站点名
   bool _hasSearch = false;
   List<String> hasResultSite = [];
-
+  List<String> suggestions = [];
+  OverlayEntry? _overlayEntry;
+  final LayerLink _layerLink = LayerLink();
 
   @override
   void initState() {
@@ -90,11 +94,11 @@ class _SearchScreenState extends State<SearchScreen>
       for (var site in selectStorehouse) {
         String subscriptionName = site.name ?? '未知站点';
         String subscriptionDomain = site.api ?? '';
-        int paresType = site.type?? 1;
+        int paresType = site.type ?? 1;
         var response;
         if (paresType == 1) {
           Map<String, dynamic> newJsonMap =
-          await _httpService.getBySubscription(
+              await _httpService.getBySubscription(
             subscriptionDomain,
             paresType,
             "",
@@ -158,6 +162,7 @@ class _SearchScreenState extends State<SearchScreen>
 
   // 加载特定站点的搜索结果
   Future<void> _loadSearchResults(String siteName) async {
+    _hideSuggestions();
     if (_searchResults.containsKey(siteName)) {
       setState(() {
         selectSite = siteName;
@@ -171,6 +176,7 @@ class _SearchScreenState extends State<SearchScreen>
   }
 
   void _changeEditControll(String historyContent) {
+    _hideSuggestions();
     _searchController.text = historyContent;
     _searchVideos();
   }
@@ -203,6 +209,7 @@ class _SearchScreenState extends State<SearchScreen>
                   hasResultSite: hasResultSite,
                   selectSite: selectSite,
                   loadSearchResults: _loadSearchResults,
+                  clickVideoItem: _clickVideoItem,
                   selectResponseData: selectResponseData,
                   hasSearch: _hasSearch),
           ],
@@ -212,31 +219,37 @@ class _SearchScreenState extends State<SearchScreen>
   }
 
   Widget _buildSearchInput() {
-    return Row(
-      children: [
-        Expanded(
-          child: SizedBox(
-            height: 40,
-            child: TextField(
-              controller: _searchController,
-              onSubmitted: (value) => _searchVideos(),
-              decoration: const InputDecoration(
-                hintText: "输入搜索内容",
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
-                contentPadding:
-                EdgeInsets.symmetric(vertical: 0.0, horizontal: 12.0),
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: Row(
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: 40,
+              child: TextField(
+                controller: _searchController,
+                onChanged: (value) {
+                  _performSearch(value);
+                },
+                onSubmitted: (value) => _searchVideos(),
+                decoration: const InputDecoration(
+                  hintText: "输入搜索内容",
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 0.0, horizontal: 12.0),
+                ),
+                style: const TextStyle(fontSize: 16.0),
               ),
-              style: const TextStyle(fontSize: 16.0),
             ),
           ),
-        ),
-        SizedBox(width: 8.0),
-        GestureDetector(
-          onTap: _searchVideos,
-          child: Text("搜索"),
-        ),
-      ],
+          SizedBox(width: 8.0),
+          GestureDetector(
+            onTap: _searchVideos,
+            child: Text("搜索"),
+          ),
+        ],
+      ),
     );
   }
 
@@ -245,5 +258,101 @@ class _SearchScreenState extends State<SearchScreen>
       _searchController.text = widget.query;
       _searchVideos();
     }
+  }
+
+  Future<void> _performSearch(String query) async {
+    if (query.isNotEmpty) {
+      suggestions = await _httpService.getSuggest(query);
+      print("suggestions = ${suggestions.length}");
+      if (suggestions.isNotEmpty) {
+        _showSuggestions();
+      } else {
+        _hideSuggestions();
+      }
+    } else {
+      _hideSuggestions();
+    }
+  }
+
+  void _showSuggestions() {
+    _hideSuggestions(); // 先清除旧的 overlay
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        width: CommonUtil.getScreenWidth(context) * 0.8,
+        child: CompositedTransformFollower(
+          link: _layerLink,
+          offset: Offset(0.0, 45.0), // 控制弹出框的偏移量
+          child: GestureDetector(
+            // 点击任何地方都会关闭 overlay
+            onTap: () {
+              _hideSuggestions(); // 关闭 overlay
+            },
+            child: Material(
+              elevation: 2.0,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 6.0),
+                constraints: BoxConstraints(
+                  maxHeight: 200,
+                ), // 限制最大高度
+                color: Colors.white,
+                child: SingleChildScrollView(
+                  child: Wrap(
+                    alignment: WrapAlignment.start, // 让内容靠左排列
+                    spacing: 2.0, // 每个条目之间的水平间距
+                    runSpacing: 0.1, // 每行之间的垂直间距
+                    children: suggestions.map((suggestion) {
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _searchController.text = suggestion;
+                            _searchVideos();
+                            _hideSuggestions();
+                          });
+                        },
+                        child: Chip(
+                          padding: EdgeInsets.zero,
+                          label: Text(
+                            suggestion,
+                            style: TextStyle(fontSize: 12.0),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void _hideSuggestions() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  @override
+  void dispose() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    super.dispose();
+  }
+
+  void _clickVideoItem(RealVideo video) {
+    _hideSuggestions();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DetailScreen(
+          vodId: video.vodId,
+          site: video.site,
+        ),
+      ),
+    );
   }
 }
