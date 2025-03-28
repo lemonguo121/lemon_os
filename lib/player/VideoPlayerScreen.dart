@@ -352,13 +352,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     }
     double delta = details.primaryDelta ?? 0;
     if (delta.abs() > 1) {
-      _seekPlayProgress((delta / 2).toInt());
+      _seekPlayProgress((delta).toInt());
     }
   }
 
   void _seekPlayProgress(int delta) {
     Duration newPosition =
-        _controller.value.position + Duration(seconds: delta);
+        _controller.value.position + Duration(minutes: delta);
     _playPositonTips =
         "${CommonUtil.formatDuration(newPosition)}/${CommonUtil.formatDuration(_controller.value.duration)}";
     _seekToPosition(newPosition);
