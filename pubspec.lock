@@ -339,6 +339,22 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_vlc_player:
+    dependency: "direct main"
+    description:
+      name: flutter_vlc_player
+      sha256: "5e846156687e5a3911355916dc06558e0e827a91ef245ac59993ed74bec3ec97"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.4.2"
+  flutter_vlc_player_platform_interface:
+    dependency: transitive
+    description:
+      name: flutter_vlc_player_platform_interface
+      sha256: b161dde841368d330be82c5ee6f40b29dadc4227167bf2770d949f576ae2d9b1
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.3"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -684,18 +700,18 @@ packages:
     dependency: "direct main"
     description:
       name: screen_brightness
-      sha256: "99b898dae860ebe55fc872d8e300c6eafff3ee4ccb09301b90adb3f241f29874"
+      sha256: eca7bd9d2c3c688bcad14855361cab7097839400b6b4a56f62b7ae511c709958
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.1"
+    version: "2.1.2"
   screen_brightness_android:
     dependency: transitive
     description:
       name: screen_brightness_android
-      sha256: ff9141bed547db02233e7dd88f990ab01973a0c8a8c04ddb855c7b072f33409a
+      sha256: "6ba1b5812f66c64e9e4892be2d36ecd34210f4e0da8bdec6a2ea34f1aa42683e"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.0"
+    version: "2.1.1"
   screen_brightness_ios:
     dependency: transitive
     description:

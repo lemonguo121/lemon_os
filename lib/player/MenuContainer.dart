@@ -351,7 +351,7 @@ class _MenuContainerState extends State<MenuContainer> {
         ),
         // 锁屏按钮
         Positioned(
-          right: 10,
+          right: 40,
           top: 0,
           bottom: 0,
           child: GestureDetector(
