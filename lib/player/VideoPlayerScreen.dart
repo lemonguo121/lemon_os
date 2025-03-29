@@ -108,7 +108,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
       );
       // _controller.initialize();
       _controller.addOnInitListener(() {
-        isLoading = _controller.value.isInitialized;
+        var isInitialized = _controller.value.isInitialized;
+        print("isInitialized = $isInitialized");
+        setState(() {
+          isLoading = isInitialized;
+        });
+
         _isLoadVideoPlayed = false; // 确保每次初始化时复位
         var isSkipTail = false;
 
@@ -124,7 +129,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
           _controller.seekTo(headTime);
         }
 
-
         _controller.setPlaybackSpeed(playSpeed);
         _controller.addListener(() {
           if (_controller.value.hasError) {
@@ -134,7 +138,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
             });
             print("play error = ${_controller.value.errorDescription}");
           }
-          if (_controller.value.duration > Duration.zero && !_isLoadVideoPlayed) {
+          if (_controller.value.duration > Duration.zero &&
+              !_isLoadVideoPlayed) {
             var skipTime = const Duration(milliseconds: 0);
             if (tailTime >= const Duration(milliseconds: 1000)) {
               isSkipTail = true;
@@ -168,7 +173,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   @override
-  void dispose()async {
+  void dispose() async {
     WidgetsBinding.instance.removeObserver(this);
     SPManager.saveProgress(playUrl, _controller.value.position);
     SPManager.saveIndex(videoId, _currentIndex);
