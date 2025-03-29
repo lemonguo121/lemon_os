@@ -160,12 +160,15 @@ class _DetailScreenState extends State<DetailScreen> {
       // 计算需要滚动的位置
       final double scrollPosition = (index ~/ itemsPerRow) * itemHeight;
       print("scrollPosition = $scrollPosition");
-      // 滚动至计算的位置
-      _scrollController.animateTo(
-        scrollPosition,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+     if( scrollPosition>0){
+       // 滚动至计算的位置
+       _scrollController.animateTo(
+         scrollPosition,
+         duration: const Duration(milliseconds: 300),
+         curve: Curves.easeInOut,
+       );
+     }
+
     });
   }
 

@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
@@ -44,7 +45,7 @@ class VideoPlayerScreen extends StatefulWidget {
 
 class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     with TickerProviderStateMixin, WidgetsBindingObserver {
-  late VideoPlayerController _controller;
+  late VlcPlayerController _controller;
   late int _currentIndex;
   late List<Map<String, String>> videoList; // 确保类型为 List<Map<String, String>>
   String playUrl = ""; // 确保类型为 List<Map<String, String>>
@@ -88,83 +89,95 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
       _isBuffering = true;
       isLoading = true;
     });
+    tailTime = await SPManager.getSkipTailTimes(videoId);
+    var playSpeed = await SPManager.getPlaySpeed();
+    final savedPosition = await SPManager.getProgress(playUrl);
+    // 获取跳过时间
+    headTime = await SPManager.getSkipHeadTimes(videoId);
+
     videoList =
         CommonUtil.getPlayListAndForm(widget.video).playList[widget.fromIndex];
     playUrl = videoList[_currentIndex]['url'] ?? "";
     print("sourse play url = $playUrl");
-    _controller = VideoPlayerController.network(playUrl);
     try {
-      await _controller.initialize();
+      _controller = VlcPlayerController.network(
+        playUrl,
+        hwAcc: HwAcc.full,
+        autoPlay: true,
+        options: VlcPlayerOptions(),
+      );
+      // _controller.initialize();
+      _controller.addOnInitListener(() {
+        isLoading = _controller.value.isInitialized;
+        _isLoadVideoPlayed = false; // 确保每次初始化时复位
+        var isSkipTail = false;
+
+        videoId = widget.video.vodId;
+        SPManager.saveIndex(videoId, _currentIndex);
+        SPManager.saveFromIndex(videoId, widget.fromIndex);
+
+        if (savedPosition > Duration.zero && savedPosition > headTime) {
+          _controller.seekTo(savedPosition);
+        }
+        if (headTime > Duration.zero && headTime > savedPosition) {
+          CommonUtil.showToast("自动跳过片头");
+          _controller.seekTo(headTime);
+        }
+
+
+        _controller.setPlaybackSpeed(playSpeed);
+        _controller.addListener(() {
+          if (_controller.value.hasError) {
+            setState(() {
+              isLoading = false;
+              isParesFail = true;
+            });
+            print("play error = ${_controller.value.errorDescription}");
+          }
+          if (_controller.value.duration > Duration.zero && !_isLoadVideoPlayed) {
+            var skipTime = const Duration(milliseconds: 0);
+            if (tailTime >= const Duration(milliseconds: 1000)) {
+              isSkipTail = true;
+              skipTime = tailTime;
+            } else {
+              isSkipTail = false;
+              skipTime = _controller.value.duration;
+            }
+            if (_controller.value.position >= skipTime) {
+              if (isSkipTail) {
+                CommonUtil.showToast("自动跳过片尾");
+              } else {
+                CommonUtil.showToast("下一集");
+              }
+              _playNextVideo();
+            }
+          }
+          setState(() {
+            _isBuffering = _controller.value.isBuffering;
+          });
+        });
+        _toggleFullScreen;
+        setState(() {});
+        _controller.play();
+        _isPlaying = true;
+      });
     } catch (e) {
+      isParesFail = true;
       print("play error = $e");
     }
-    _isLoadVideoPlayed = false; // 确保每次初始化时复位
-    var isSkipTail = false;
-    final savedPosition = await SPManager.getProgress(playUrl);
-    videoId = widget.video.vodId;
-    SPManager.saveIndex(videoId, _currentIndex);
-    SPManager.saveFromIndex(videoId, widget.fromIndex);
-    // 获取跳过时间
-    headTime = await SPManager.getSkipHeadTimes(videoId);
-
-    if (savedPosition > Duration.zero && savedPosition > headTime) {
-      _controller.seekTo(savedPosition);
-    }
-    if (headTime > Duration.zero && headTime > savedPosition) {
-      CommonUtil.showToast("自动跳过片头");
-      _controller.seekTo(headTime);
-    }
-
-    tailTime = await SPManager.getSkipTailTimes(videoId);
-    var playSpeed = await SPManager.getPlaySpeed();
-    _controller.setPlaybackSpeed(playSpeed);
-    _controller.addListener(() {
-      if (_controller.value.hasError) {
-        setState(() {
-          isLoading = false;
-          isParesFail = true;
-        });
-        print("play error = ${_controller.value.errorDescription}");
-      }
-      if (_controller.value.duration > Duration.zero && !_isLoadVideoPlayed) {
-        var skipTime = const Duration(milliseconds: 0);
-        if (tailTime >= const Duration(milliseconds: 1000)) {
-          isSkipTail = true;
-          skipTime = tailTime;
-        } else {
-          isSkipTail = false;
-          skipTime = _controller.value.duration;
-        }
-        if (_controller.value.position >= skipTime) {
-          if (isSkipTail) {
-            CommonUtil.showToast("自动跳过片尾");
-          } else {
-            CommonUtil.showToast("下一集");
-          }
-          _playNextVideo();
-        }
-      }
-
-      setState(() {
-        _isBuffering = _controller.value.isBuffering;
-      });
-    });
-    _toggleFullScreen;
-    setState(() {});
-    _controller.play();
-    _isPlaying = true;
   }
 
   @override
-  void dispose() {
+  void dispose()async {
     WidgetsBinding.instance.removeObserver(this);
     SPManager.saveProgress(playUrl, _controller.value.position);
     SPManager.saveIndex(videoId, _currentIndex);
     SPManager.saveFromIndex(videoId, widget.fromIndex);
     SPManager.saveHistory(widget.video);
     SystemChrome.setPreferredOrientations([]);
-    _controller.dispose();
     super.dispose();
+    await _controller.stopRendererScanning();
+    await _controller.dispose();
   }
 
   @override
@@ -334,7 +347,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
           Center(
             child: AspectRatio(
               aspectRatio: _controller.value.aspectRatio,
-              child: VideoPlayer(_controller),
+              child: VlcPlayer(
+                controller: _controller,
+                aspectRatio: 16 / 9,
+                placeholder: Center(child: CircularProgressIndicator()),
+              ),
             ),
           ),
           // 悬浮在播放器上层的加载指示器
@@ -347,7 +364,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     return Center(
       child: AspectRatio(
         aspectRatio: _controller.value.aspectRatio,
-        child: VideoPlayer(_controller),
+        child: VlcPlayer(
+          controller: _controller,
+          aspectRatio: 16 / 9,
+          placeholder: Center(child: CircularProgressIndicator()),
+        ),
       ),
     );
   }
@@ -397,7 +418,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
 
   void _adjustVolume(double dy) async {
     _currentVolume = (_currentVolume - dy * 0.01).clamp(0.0, 1.0);
-    await _controller.setVolume(_currentVolume);
+    await _controller.setVolume(_currentVolume.toInt());
     await SPManager.saveVolume(_currentVolume);
     _showTemporaryFeedback(false);
   }

@@ -6,6 +6,12 @@ plugins {
 }
 
 android {
+    packagingOptions {
+        // Fixes duplicate libraries build issue,
+        // when your project uses more than one plugin that depend on C++ libs.
+        pickFirst 'lib/**/libc++_shared.so'
+    }
+
     namespace = "com.example.lemon_os"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion

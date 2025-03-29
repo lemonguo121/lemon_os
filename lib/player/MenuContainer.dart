@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import '../util/CommonUtil.dart';
 import 'package:video_player/video_player.dart';
 
@@ -8,7 +9,7 @@ import 'BatteryTimeWidget.dart';
 class MenuContainer extends StatefulWidget {
   final int videoId;
   final String videoTitle;
-  final VideoPlayerController controller;
+  final VlcPlayerController controller;
   final ValueChanged<bool> showSkipFeedback;
   final ValueChanged<String> playPositonTips;
   final ValueChanged<Duration> seekToPosition;
@@ -74,9 +75,8 @@ class _MenuContainerState extends State<MenuContainer> {
 
   @override
   Widget build(BuildContext context) {
-    var bufferedProgress = widget.controller.value.buffered.isNotEmpty
-        ? widget.controller.value.buffered.last.end.inMilliseconds.toDouble()
-        : 0.0;
+    var bufferedProgress = widget.controller.value.bufferPercent;
+
     double bottomBarHeight = widget.isFullScreen ? 80.0 : 70.0;
     return Stack(
       children: [
