@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,7 +14,6 @@ import '../util/CommonUtil.dart';
 import '../util/SPManager.dart';
 import 'SkipFeedbackPositoned.dart';
 import 'VoiceAndLightFeedbackPositoned.dart';
-import 'package:http/http.dart' as http;
 
 class VideoPlayerScreen extends StatefulWidget {
   final int initialIndex;
@@ -23,7 +23,7 @@ class VideoPlayerScreen extends StatefulWidget {
   final ValueChanged<int> onChangePlayPositon;
   final double videoPlayerHeight;
   static final GlobalKey<_VideoPlayerScreenState> _globalKey =
-  GlobalKey<_VideoPlayerScreenState>();
+      GlobalKey<_VideoPlayerScreenState>();
 
   static _VideoPlayerScreenState? of(BuildContext context) {
     return _globalKey.currentState;
@@ -82,130 +82,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     setState(() {});
   }
 
-  // 入口函数：解析 M3U8，判断类型，并处理广告
-  Future<String> processM3U8(String m3u8Url) async {
-    final response = await http.get(Uri.parse(m3u8Url));
-    if (response.statusCode != 200) {
-      return "无法加载 M3U8 文件";
-    }
-
-    List<String> lines = LineSplitter().convert(response.body);
-
-    if (lines.any((line) => line.startsWith("#EXT-X-STREAM-INF"))) {
-      print("检测到多码率自适应流，解析子 M3U8...");
-      return await processMasterPlaylist(lines, m3u8Url);
-    } else if (lines.any((line) => line.startsWith("#EXTINF"))) {
-      print("检测到普通片段列表，过滤广告...");
-      return await filterAndSaveM3U8(lines, m3u8Url);
-    } else {
-      return "未知格式的 M3U8";
-    }
-  }
-
-// 处理多码率自适应流
-  Future<String> processMasterPlaylist(List<String> lines,
-      String baseUrl) async {
-    for (String line in lines) {
-      if (line.startsWith("#EXT-X-STREAM-INF")) {
-        continue; // 跳过流信息
-      }
-      if (line.isNotEmpty && !line.startsWith("#")) {
-        // 拼接完整子 M3U8 URL
-        String subM3u8Url = Uri.parse(baseUrl).resolve(line).toString();
-        print("解析子 M3U8: $subM3u8Url");
-        return await processM3U8(subM3u8Url); // 递归处理子 M3U8
-      }
-    }
-    return "未找到子 M3U8 URL";
-  }
-
-// 过滤广告并生成新 M3U8
-  Future<String> filterAndSaveM3U8(List<String> lines, String m3u8Url) async {
-    List<String> newM3U8 = [];
-    bool isAdSegment = false; // 用来标记是否是广告片段
-    bool isInMainContent = m3u8Url.contains("#EXT-X-KEY"); // 判断是否包含 EXT-X-KEY，如果包含则正文从第一个 EXT-X-KEY 开始
-    Uri baseUri = Uri.parse(m3u8Url); // 获取 Base URL
-
-    for (String line in lines) {
-      // 如果包含 EXT-X-KEY，就开始正文内容，跳过广告
-      if (isInMainContent && line.startsWith("#EXT-X-KEY")) {
-        newM3U8.add(processKeyUri(line, baseUri)); // 添加 KEY 信息
-        isAdSegment = false; // 进入正文，广告结束
-        continue; // 跳过到下一个
-      }
-
-      // 如果是广告分隔符 EXT-X-DISCONTINUITY
-      if (line.startsWith("#EXT-X-DISCONTINUITY")) {
-        // 如果没有 #EXT-X-KEY，认为是广告分隔符
-        if (isInMainContent) {
-          // 如果正文已开始，后面是广告
-          isAdSegment = true;
-        }
-        continue; // 跳过该广告标记
-      }
-
-      // 处理 EXTINF 片段
-      if (line.startsWith("#EXTINF")) {
-        if (!isAdSegment) {
-          // 不是广告片段才加入
-          newM3U8.add(line);
-        }
-      }
-      // 处理 .ts 片段
-      else if (line.isNotEmpty && !line.startsWith("#")) {
-        if (!isAdSegment) {
-          newM3U8.add(processTsUri(line, baseUri)); // 添加 TS 文件链接
-        }
-      }
-      // 处理 #EXT-X-ENDLIST
-      else if (line.startsWith("#EXT-X-ENDLIST")) {
-        newM3U8.add(line);
-        break; // 结束处理
-      }
-    }
-
-    // 添加 M3U8 头部信息
-    newM3U8.insert(0, "#EXTM3U");
-    newM3U8.insert(1, "#EXT-X-VERSION:3");
-    newM3U8.insert(2, "#EXT-X-TARGETDURATION:6");
-    newM3U8.insert(3, "#EXT-X-MEDIA-SEQUENCE:0");
-    newM3U8.insert(4, "#EXT-X-PLAYLIST-TYPE:VOD");
-
-    return await saveM3U8File(newM3U8);
-  }
-
-  String processKeyUri(String line, Uri baseUri) {
-    RegExp keyPattern = RegExp(r'URI="([^"]+)"');
-    Match? match = keyPattern.firstMatch(line);
-
-    if (match != null) {
-      String keyUri = match.group(1)!;
-      if (!keyUri.startsWith("http")) {
-        keyUri = baseUri.resolve(keyUri).toString(); // 拼接完整 URL
-      }
-      return line.replaceAll(
-          RegExp(r'URI="([^"]+)"'), 'URI="$keyUri"'); // 替换原 URL
-    }
-    return line;
-  }
-
-  String processTsUri(String line, Uri baseUri) {
-    if (!line.startsWith("http")) {
-      return baseUri.resolve(line).toString(); // 拼接完整 URL
-    }
-    return line;
-  }
-
-// 保存 M3U8 到本地
-  Future<String> saveM3U8File(List<String> content) async {
-    Directory dir = await getApplicationDocumentsDirectory();
-    String filePath = "${dir.path}/filtered_video.m3u8";
-    File file = File(filePath);
-    await file.writeAsString(content.join("\n"));
-    print("过滤后的 M3U8 已保存: $filePath");
-    return filePath;
-  }
-
   Future<void> _initializePlayer() async {
     setState(() {
       isParesFail = false;
@@ -213,16 +89,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
       isLoading = true;
     });
     videoList =
-    CommonUtil
-        .getPlayListAndForm(widget.video)
-        .playList[widget.fromIndex];
+        CommonUtil.getPlayListAndForm(widget.video).playList[widget.fromIndex];
     playUrl = videoList[_currentIndex]['url'] ?? "";
     print("sourse play url = $playUrl");
-    if (playUrl.endsWith("m3u8")) {
-      playUrl = await processM3U8(playUrl);
-    }
-    isLoading = false;
-    print("play url = $playUrl");
     _controller = VideoPlayerController.network(playUrl);
     try {
       await _controller.initialize();
@@ -251,8 +120,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     _controller.setPlaybackSpeed(playSpeed);
     _controller.addListener(() {
       if (_controller.value.hasError) {
-        isParesFail = true;
-        setState(() {});
+        setState(() {
+          isLoading = false;
+          isParesFail = true;
+        });
         print("play error = ${_controller.value.errorDescription}");
       }
       if (_controller.value.duration > Duration.zero && !_isLoadVideoPlayed) {
@@ -424,15 +295,34 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     if (isParesFail) {
       return Center(
         child: Container(
-          color: Colors.black.withOpacity(0.7), // 可以设置背景颜色，给提示区域加个遮罩
-          child: const Center(
-            child: Text(
-              '视频解析失败，换个线路试试', // 错误信息
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
+          color: Colors.black.withOpacity(0.7), // 背景半透明遮罩
+          padding: EdgeInsets.all(16), // 增加内边距
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // 让内容居中
+            children: [
+              GestureDetector(
+                onTap: () {
+                  _initializePlayer();
+                },
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.refresh, // 重试图标
+                      color: Colors.white,
+                      size: 36,
+                    ),
+                    SizedBox(height: 8), // 间距
+                    Text(
+                      '视频解析失败',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       );
@@ -467,10 +357,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
       return;
     }
     double delta = details.primaryDelta ?? 0;
-    if (details.localPosition.dx < MediaQuery
-        .of(context)
-        .size
-        .width / 2) {
+    if (details.localPosition.dx < MediaQuery.of(context).size.width / 2) {
       // 左侧滑动 - 调节亮度
       if (delta.abs() > 1) {
         _adjustBrightness(delta / 2);
@@ -497,8 +384,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     Duration newPosition =
         _controller.value.position + Duration(minutes: delta);
     _playPositonTips =
-    "${CommonUtil.formatDuration(newPosition)}/${CommonUtil.formatDuration(
-        _controller.value.duration)}";
+        "${CommonUtil.formatDuration(newPosition)}/${CommonUtil.formatDuration(_controller.value.duration)}";
     _seekToPosition(newPosition);
     _showSkipFeedback = true;
   }
@@ -567,8 +453,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
       );
     }
     return RawKeyboardListener(
-        focusNode: FocusNode()
-          ..requestFocus(), // 自动获取焦点以监听按键
+        focusNode: FocusNode()..requestFocus(), // 自动获取焦点以监听按键
         autofocus: true,
         onKey: (RawKeyEvent event) {
           if (event is RawKeyDownEvent) {
@@ -611,9 +496,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                 VoiceAndLightFeedbackPositoned(
                   isAdjustingBrightness: _isAdjustingBrightness,
                   text:
-                  "${((_isAdjustingBrightness
-                      ? _currentBrightness
-                      : _currentVolume) * 100).toInt()}%",
+                      "${((_isAdjustingBrightness ? _currentBrightness : _currentVolume) * 100).toInt()}%",
                   videoPlayerHeight: widget.videoPlayerHeight,
                 ),
               if (_showSkipFeedback)
@@ -625,8 +508,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                 MenuContainer(
                   videoId: videoId,
                   videoTitle:
-                  "${widget.video
-                      .vodName} ${videoList[_currentIndex]['title']!}",
+                      "${widget.video.vodName} ${videoList[_currentIndex]['title']!}",
                   controller: _controller,
                   showSkipFeedback: showSkipFeedback,
                   playPositonTips: playPositonTips,
