@@ -95,6 +95,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     _controller = VideoPlayerController.network(playUrl);
     try {
       await _controller.initialize();
+      setState(() {
+        isLoading = false;
+      });
     } catch (e) {
       print("play error = $e");
     }
