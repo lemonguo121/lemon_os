@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:lemon_tv/subscrip/SubscriptionPage.dart';
+import 'package:lemon_tv/util/AppColors.dart';
 import 'package:lemon_tv/util/SubscriptionsUtil.dart';
 import 'package:xml/xml.dart';
 
@@ -143,6 +144,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             indicatorSize: TabBarIndicatorSize.tab,
             dividerHeight: 0,
             indicatorPadding: EdgeInsets.zero,
+            labelColor: AppColors.selectColor,
+            unselectedLabelColor: Colors.green,
             labelStyle:
                 const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             unselectedLabelStyle: const TextStyle(fontSize: 16),
@@ -296,8 +299,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               height: 35,
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.grey),
+                color: AppColors.themeColor,
+                border: Border.all(color: Colors.white),
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Row(
@@ -335,11 +338,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
     );
   }
+
   //站点不可用
   Widget _buildSiteInvileView() {
     return Center(
       child: GestureDetector(
-        onTap: (){
+        onTap: () {
           _loadData();
         },
         child: const Column(

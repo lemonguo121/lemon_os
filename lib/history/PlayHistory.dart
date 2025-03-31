@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../detail/DetailScreen.dart';
 import '../http/data/RealVideo.dart';
 import '../mywidget/VodForamTag.dart';
+import 'HistoryController.dart';
 import '../util/SPManager.dart';
 import '../util/CommonUtil.dart';
 import '../util/LoadingImage.dart';
 
 class PlayHistory extends StatefulWidget {
-  const PlayHistory({super.key});
-
   @override
   State<PlayHistory> createState() => _PlayHistoryState();
 }
 
 class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
-  List<RealVideo>? _historyList;
+  final HistoryController historyController =
+      Get.put(HistoryController()); // 依赖注入
   int _playIndex = 0;
   int _fromIndex = 0;
   bool _isLoading = true;
@@ -24,30 +25,11 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _loadHistoryList();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _refreshHistoryList(); // 应用恢复时刷新数据
-    }
-  }
-
-  Future<void> _loadHistoryList() async {
-    try {
-      final list = await _getHistoryList();
+    historyController.initList().then((_) {
       setState(() {
-        _historyList = list;
-        _isLoading = false;
+        _isLoading = false; // 数据加载完毕后再更新状态
       });
-    } catch (e) {
-      setState(() {
-        print("lemon Error = ${e.toString()}");
-        _isLoading = false;
-        CommonUtil.showToast("加载失败");
-      });
-    }
+    });
   }
 
   Future<void> _getIndex(int videoId) async {
@@ -61,19 +43,14 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
 
   Future<void> getVideoRec(RealVideo video) async {
     try {
-      // 异步获取播放索引
       await _getIndex(video.vodId);
       var playList = CommonUtil.getPlayListAndForm(video).playList;
-
-      if (_fromIndex >= 0 && _fromIndex < playList.length) {
-        setState(() {
-          _videoTitles[video.vodId] = playList[_fromIndex][_playIndex]['title']!;
-        });
-      } else {
-        setState(() {
-          _videoTitles[video.vodId] = "";
-        });
-      }
+      setState(() {
+        _videoTitles[video.vodId] =
+        (_fromIndex >= 0 && _fromIndex < playList.length)
+            ? playList[_fromIndex][_playIndex]['title']!
+            : "";
+      });
     } catch (e) {
       setState(() {
         _videoTitles[video.vodId] = "";
@@ -90,25 +67,16 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
         actions: [
           IconButton(
             onPressed: () {
-              SPManager.clearHistory();
-              _refreshHistoryList();
+              historyController.cleanHistory();
+              setState(() {});
               CommonUtil.showToast("清理成功");
             },
             icon: const Icon(Icons.cleaning_services_outlined),
           ),
         ],
       ),
-      body: _buildBody(isVertical),
+      body: Obx(() => _buildBody(isVertical)),
     );
-  }
-
-  Future<void> _refreshHistoryList() async {
-    setState(() => _isLoading = true);
-    await _loadHistoryList();
-  }
-
-  Future<List<RealVideo>> _getHistoryList() {
-    return SPManager.getHistoryList();
   }
 
   Widget _buildBody(bool isVertical) {
@@ -116,7 +84,7 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
       return const Center(
         child: CircularProgressIndicator(),
       );
-    } else if (_historyList == null || _historyList!.isEmpty) {
+    } else if (historyController.historyList.isEmpty) {
       return const Center(
         child: Text('暂无历史记录'),
       );
@@ -126,23 +94,25 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
   }
 
   Widget _buildGrid(bool isVertical) {
-    return GridView.builder(
-      padding: const EdgeInsets.all(8.0),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: isVertical ? 3 : 6, // 一行三个
-        crossAxisSpacing: 8.0, // 水平方向间距
-        mainAxisSpacing: 8.0, // 垂直方向间距
-        childAspectRatio: 0.75, // 调整宽高比
-      ),
-      itemCount: _historyList!.length,
-      itemBuilder: (context, index) {
-        return _buildGridItem(index);
-      },
-    );
+    return Obx(() => GridView.builder(
+          padding: const EdgeInsets.all(8.0),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: isVertical ? 3 : 6, // 一行三个
+            crossAxisSpacing: 8.0, // 水平方向间距
+            mainAxisSpacing: 8.0, // 垂直方向间距
+            childAspectRatio: 0.75, // 调整宽高比
+          ),
+          itemCount: historyController.historyList.length,
+          itemBuilder: (context, index) {
+            return _buildGridItem(index);
+          },
+        ));
   }
 
   Widget _buildGridItem(int index) {
-    var realVideo = _historyList![index];
+    var historyList = historyController.historyList;
+    print("_buildGridItem historyList = ${historyList.length}");
+    var realVideo = historyList[index];
     // print("_buildGridItem   title = ${realVideo.typeName}  domain = ${realVideo.subscriptionDomain} ");
     // 确保每个视频的标题加载完成
     if (!_videoTitles.containsKey(realVideo.vodId)) {
@@ -157,14 +127,11 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
                 vodId: realVideo.vodId,
                 site: realVideo.site,
               ), // 动态传递vodId
-            )).then((value) => _refreshHistoryList());
+            ));
       },
       onLongPress: () {
-        SPManager.removeSingleHistory(realVideo);
-        setState(() {
-          _loadHistoryList();
-          CommonUtil.showToast("删除成功");
-        });
+        historyController.removeHistoryItem(realVideo);
+        CommonUtil.showToast("删除成功");
       },
       child: Stack(
         children: [

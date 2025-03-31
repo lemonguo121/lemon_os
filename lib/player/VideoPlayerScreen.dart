@@ -4,6 +4,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:lemon_tv/history/HistoryController.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
@@ -47,6 +49,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   late VideoPlayerController _controller;
   late int _currentIndex;
   late List<Map<String, String>> videoList; // 确保类型为 List<Map<String, String>>
+  final HistoryController historyController = Get.put(HistoryController());
   String playUrl = ""; // 确保类型为 List<Map<String, String>>
   int videoId = 0;
   bool _isControllerVisible = true;
@@ -148,9 +151,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
         }
       }
 
-      setState(() {
-        _isBuffering = _controller.value.isBuffering;
-      });
+      if (!mounted) {
+        setState(() {
+          _isBuffering = _controller.value.isBuffering;
+        });
+      }
     });
     _toggleFullScreen;
     setState(() {});
@@ -164,7 +169,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     SPManager.saveProgress(playUrl, _controller.value.position);
     SPManager.saveIndex(videoId, _currentIndex);
     SPManager.saveFromIndex(videoId, widget.fromIndex);
-    SPManager.saveHistory(widget.video);
     SystemChrome.setPreferredOrientations([]);
     _controller.dispose();
     super.dispose();
@@ -244,7 +248,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
         await _controller.dispose();
         _initializePlayer();
         widget.onChangePlayPositon(_currentIndex);
-        SPManager.saveHistory(widget.video);
       });
     }
   }

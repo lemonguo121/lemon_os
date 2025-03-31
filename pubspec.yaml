@@ -33,13 +33,28 @@ dependencies:
   json5: ^0.8.2
   path_provider: ^2.1.5
   flutter_vlc_player: ^7.4.2
+  get: ^4.7.2
 
 dev_dependencies:
   build_runner: ^2.3.0
   json_serializable: ^6.5.1
+  launcher_name: ^1.0.2
+  flutter_launcher_icons: "^0.14.3"
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
 flutter:
   uses-material-design: true
+
+launcher_name:
+  default: "LMPlayer"
+#  dart run launcher_name:main
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/app_icon.png"  # 你的图标路径
+#  插件会自动生成所有尺寸的图标：
+#  flutter pub run flutter_launcher_icons:main
+
 

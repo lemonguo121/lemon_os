@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:lemon_tv/util/AppColors.dart';
 import '../history/PlayHistory.dart';
 
 import 'home/HomeScreen.dart';
@@ -17,7 +18,7 @@ class ElectronicsStoreApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var color = Colors.white;
+    var color = Color(0xFFFFD414);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -44,7 +45,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     HomeScreen(),
-    PlayHistory(key: UniqueKey()),
+    PlayHistory(),
     ProfileScreen(key: UniqueKey()),
   ];
 
@@ -53,13 +54,12 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex, // 当前选中的页面
-        children: [
-          HomeScreen(),
-          PlayHistory(key: UniqueKey()),
-          ProfileScreen(),
-        ],
+        children: _pages,
       ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: AppColors.themeColor,
+        selectedItemColor: AppColors.selectColor,
+        unselectedItemColor:Colors.green ,
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {

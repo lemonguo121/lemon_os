@@ -7,6 +7,7 @@ import '../detail/DetailScreen.dart';
 import '../http/HttpService.dart';
 import '../http/data/RealVideo.dart';
 import '../http/data/storehouse_bean_entity.dart';
+import '../util/AppColors.dart';
 import '../util/SPManager.dart';
 import 'SearchHistoryList.dart';
 import 'SearchResultList.dart';
@@ -233,6 +234,8 @@ class _SearchScreenState extends State<SearchScreen>
                 },
                 onSubmitted: (value) => _searchVideos(),
                 decoration: const InputDecoration(
+                  focusColor: AppColors.selectColor,
+                  hoverColor:Colors.white,
                   hintText: "输入搜索内容",
                   prefixIcon: Icon(Icons.search),
                   border: OutlineInputBorder(),

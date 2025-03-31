@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:lemon_tv/home/VideoInfoWidget.dart';
 import 'package:xml/xml.dart';
 
@@ -13,6 +14,7 @@ import '../http/data/storehouse_bean_entity.dart';
 import '../mywidget/MyLoadingIndicator.dart';
 import '../player/VideoPlayerScreen.dart';
 import '../util/CommonUtil.dart';
+import '../history/HistoryController.dart';
 import '../util/SPManager.dart';
 
 class DetailScreen extends StatefulWidget {
@@ -26,6 +28,7 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
+  final HistoryController historyController = Get.put(HistoryController()); // 依赖注入
   final HttpService _httpService = HttpService();
   late RealVideo video; // 存储详情数据
   RealResponseData responseData = RealResponseData(
@@ -90,7 +93,7 @@ class _DetailScreenState extends State<DetailScreen> {
         var videos = responseData.videos;
         video = videos[0];
         isLoading = false; // 数据加载完成
-        SPManager.saveHistory(video);
+        historyController.saveHistory(video);
       });
     } catch (e) {
       setState(() {
@@ -123,6 +126,7 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   void _onChangePlayPositon(int currentPosition) {
+    historyController.saveHistory(video);
     setState(() {
       _selectedIndex = currentPosition;
       _selectedPlayFromIndex = _selectFromIndex;
@@ -140,7 +144,6 @@ class _DetailScreenState extends State<DetailScreen> {
         .playList[_selectedPlayFromIndex][index];
     SPManager.saveIndex(videoId, index);
     SPManager.saveFromIndex(videoId, _selectedPlayFromIndex);
-    SPManager.saveHistory(video);
     VideoPlayerScreen.of(context)
         ?.playVideo(playItem["url"] ?? "", _selectedIndex);
   }

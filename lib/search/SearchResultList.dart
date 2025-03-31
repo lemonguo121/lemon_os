@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lemon_tv/util/AppColors.dart';
 
 import '../detail/DetailScreen.dart';
 import '../http/data/RealVideo.dart';
@@ -81,7 +82,7 @@ class _SearchResultListState extends State<SearchResultList> {
               style: TextStyle(
                   fontSize: 13.0,
                   color: (siteName == widget.selectSite)
-                      ? Colors.red
+                      ? AppColors.selectColor
                       : Colors.black,
                   fontWeight: (siteName == widget.selectSite)
                       ? FontWeight.bold
@@ -126,7 +127,7 @@ class _SearchResultListState extends State<SearchResultList> {
                       Text(
                         video.vodName,
                         style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold),
+                            fontSize: 14, fontWeight: FontWeight.bold,color: Colors.black),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -134,7 +135,7 @@ class _SearchResultListState extends State<SearchResultList> {
                       Text(
                         video.vodRemarks,
                         style:
-                            const TextStyle(fontSize: 12, color: Colors.grey),
+                            const TextStyle(fontSize: 12, color: Colors.black),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -144,7 +145,7 @@ class _SearchResultListState extends State<SearchResultList> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style:
-                            const TextStyle(fontSize: 12, color: Colors.grey),
+                            const TextStyle(fontSize: 12, color: Colors.black),
                       ),
                       const SizedBox(height: 2.0),
                       Text(
@@ -152,7 +153,7 @@ class _SearchResultListState extends State<SearchResultList> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style:
-                            const TextStyle(fontSize: 12, color: Colors.grey),
+                            const TextStyle(fontSize: 12, color: Colors.black),
                       ),
                       const SizedBox(height: 2.0),
                       Text(
@@ -160,7 +161,7 @@ class _SearchResultListState extends State<SearchResultList> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style:
-                            const TextStyle(fontSize: 12, color: Colors.grey),
+                            const TextStyle(fontSize: 12, color: Colors.black),
                       )
                     ],
                   ),

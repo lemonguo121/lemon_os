@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lemon_tv/util/SubscriptionsUtil.dart';
 import 'package:xml/xml.dart';
 
+import '../util/AppColors.dart';
 import 'HomeCateforyListItem.dart';
 import '../http/HttpService.dart';
 import '../http/data/CategoryBean.dart';
@@ -178,7 +179,7 @@ class _HomeFragmentState extends State<HomeFragment>
           padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
           child: Text(
             _getTypeContent(typePid),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color:AppColors.selectColor),
           ),
         ),
         Container(
@@ -186,7 +187,7 @@ class _HomeFragmentState extends State<HomeFragment>
           padding: const EdgeInsets.only(top: 10.0),
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Colors.grey[100],
+            // color: Colors.grey[100],
             borderRadius: BorderRadius.circular(12), // 圆角半径
           ),
           child: IntrinsicHeight(
