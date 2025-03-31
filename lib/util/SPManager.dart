@@ -7,6 +7,7 @@ import '../http/data/SubscripBean.dart';
 import '../http/data/storehouse_bean_entity.dart';
 
 class SPManager {
+  static const String _isrealfun = "isrealfun";
   static const String _progressKey = "video_progress";
   static const String _videoFromProgress = "video_from_progress";
   static const String _playSpeedKey = "_play_speedKey";
@@ -19,6 +20,16 @@ class SPManager {
   static const String _currentSubscriptinKey = "_currentSubscriptinKey";
   static const String _currentSitetinKey = "_currentSitetinKey";
 
+
+  static Future<bool> isRealFun() async{
+    final prefs = await SharedPreferences.getInstance();
+   return prefs.getBool(_isrealfun)??false;
+  }
+
+  static Future<bool> saveRealFun() async{
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setBool(_isrealfun,true);
+  }
   // 保存播放进度
   static Future<void> saveProgress(String videoUrl, Duration position) async {
     final prefs = await SharedPreferences.getInstance();

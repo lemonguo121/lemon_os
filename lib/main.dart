@@ -2,33 +2,37 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:lemon_tv/util/AppColors.dart';
+import 'package:lemon_tv/util/SPManager.dart';
 import '../history/PlayHistory.dart';
 
+import 'local/VideoGalleryPage.dart';
 import 'home/HomeScreen.dart';
 import 'http/data/MyHttpOverrides.dart';
 import 'mine/ProfileScreen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
-  runApp(ElectronicsStoreApp());
+  var isRealFun = await SPManager.isRealFun();
+  runApp(ElectronicsStoreApp(isRealFun:isRealFun));
 }
 
 class ElectronicsStoreApp extends StatelessWidget {
-  const ElectronicsStoreApp({super.key});
+  final bool isRealFun;
+
+  const ElectronicsStoreApp({ super.key, required this.isRealFun});
 
   @override
   Widget build(BuildContext context) {
-    var color = Color(0xFFFFD414);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        scaffoldBackgroundColor: color, // 统一设置整个 App 的背景颜色
+          scaffoldBackgroundColor: AppColors.themeColor, // 统一设置整个 App 的背景颜色
           appBarTheme: AppBarTheme(
-            backgroundColor: color, // 设置 AppBar 颜色
+            backgroundColor: AppColors.themeColor, // 设置 AppBar 颜色
             elevation: 0, // 去除阴影
-          )
-      ),
-      home: HomePage(),
+          )),
+      home: isRealFun ? HomePage() : VideoGalleryPage(),
     );
   }
 }
@@ -59,7 +63,7 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: AppColors.themeColor,
         selectedItemColor: AppColors.selectColor,
-        unselectedItemColor:Colors.green ,
+        unselectedItemColor: Colors.green,
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
