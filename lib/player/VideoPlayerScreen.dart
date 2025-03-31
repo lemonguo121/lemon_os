@@ -150,12 +150,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
           _playNextVideo();
         }
       }
-
-      if (!mounted) {
-        setState(() {
-          _isBuffering = _controller.value.isBuffering;
-        });
-      }
+      // if (!mounted) {
+      setState(() {
+        _isBuffering = _controller.value.isBuffering;
+      });
+      // }
     });
     _toggleFullScreen;
     setState(() {});
@@ -388,7 +387,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
 
   void _seekPlayProgress(int delta) {
     Duration newPosition =
-        _controller.value.position + Duration(minutes: delta);
+        _controller.value.position + Duration(seconds: delta);
     _playPositonTips =
         "${CommonUtil.formatDuration(newPosition)}/${CommonUtil.formatDuration(_controller.value.duration)}";
     _seekToPosition(newPosition);

@@ -32,7 +32,7 @@ class ElectronicsStoreApp extends StatelessWidget {
             backgroundColor: AppColors.themeColor, // 设置 AppBar 颜色
             elevation: 0, // 去除阴影
           )),
-      home: isRealFun ? HomePage() : VideoGalleryPage(),
+      home: HomePage()/*isRealFun ? HomePage() : VideoGalleryPage()*/,
     );
   }
 }

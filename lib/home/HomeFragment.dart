@@ -179,7 +179,7 @@ class _HomeFragmentState extends State<HomeFragment>
           padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
           child: Text(
             _getTypeContent(typePid),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color:AppColors.selectColor),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color:Colors.black),
           ),
         ),
         Container(
