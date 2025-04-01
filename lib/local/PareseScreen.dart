@@ -31,7 +31,8 @@ class _PareseScreenState extends State<PareseScreen> {
     //    https://vt.tiktok.com/ZSrrjQ6AJ/
     //    https://youtu.be/cC2uInPZA-M?si=2DS6wYjvXk6tY4b7
     //    https://vt.tiktok.com/ZSrMv2TA1/
-    _urlController.text = "https://youtu.be/cC2uInPZA-M?si=2DS6wYjvXk6tY4b7";
+    //    https://v.douyin.com/smUSOoNmFug/
+    _urlController.text = "https://v.douyin.com/smUSOoNmFug/";
   }
 
   Future<void> getParesHisList() async {
