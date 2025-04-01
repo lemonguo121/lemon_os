@@ -5,6 +5,7 @@ import 'package:lemon_tv/util/AppColors.dart';
 import 'package:lemon_tv/util/SPManager.dart';
 import '../history/PlayHistory.dart';
 
+import 'home/SecendHomePage.dart';
 import 'local/VideoGalleryPage.dart';
 import 'home/HomeScreen.dart';
 import 'http/data/MyHttpOverrides.dart';
@@ -32,7 +33,7 @@ class ElectronicsStoreApp extends StatelessWidget {
             backgroundColor: AppColors.themeColor, // 设置 AppBar 颜色
             elevation: 0, // 去除阴影
           )),
-      home: HomePage()/*isRealFun ? HomePage() : VideoGalleryPage()*/,
+      home: (!isRealFun && Platform.isIOS) ? SecendHomePage() : HomePage(),
     );
   }
 }
@@ -64,6 +65,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: AppColors.themeColor,
         selectedItemColor: AppColors.selectColor,
         unselectedItemColor: Colors.green,
+        elevation: 1.0,
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {

@@ -142,8 +142,8 @@ class _DetailScreenState extends State<DetailScreen> {
     final videoId = widget.vodId;
     final playItem = CommonUtil.getPlayListAndForm(video)
         .playList[_selectedPlayFromIndex][index];
-    SPManager.saveIndex(videoId, index);
-    SPManager.saveFromIndex(videoId, _selectedPlayFromIndex);
+    SPManager.saveIndex("$videoId", index);
+    SPManager.saveFromIndex("$videoId", _selectedPlayFromIndex);
     VideoPlayerScreen.of(context)
         ?.playVideo(playItem["url"] ?? "", _selectedIndex);
   }

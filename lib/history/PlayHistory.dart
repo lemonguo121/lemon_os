@@ -111,7 +111,6 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
 
   Widget _buildGridItem(int index) {
     var historyList = historyController.historyList;
-    print("_buildGridItem historyList = ${historyList.length}");
     var realVideo = historyList[index];
     // print("_buildGridItem   title = ${realVideo.typeName}  domain = ${realVideo.subscriptionDomain} ");
     // 确保每个视频的标题加载完成

@@ -49,5 +49,7 @@
     <string>App 需要访问您的相册来显示视频列表</string>
     <key>NSPhotoLibraryAddUsageDescription</key>
     <string>App 需要访问您的相册来读取视频</string>
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>允许此应用访问本地网络以进行调试</string>
 </dict>
 </plist>

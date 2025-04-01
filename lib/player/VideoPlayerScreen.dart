@@ -108,10 +108,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     var isSkipTail = false;
     final savedPosition = await SPManager.getProgress(playUrl);
     videoId = widget.video.vodId;
-    SPManager.saveIndex(videoId, _currentIndex);
-    SPManager.saveFromIndex(videoId, widget.fromIndex);
+    SPManager.saveIndex("$videoId", _currentIndex);
+    SPManager.saveFromIndex("$videoId", widget.fromIndex);
     // 获取跳过时间
-    headTime = await SPManager.getSkipHeadTimes(videoId);
+    headTime = await SPManager.getSkipHeadTimes("$videoId");
 
     if (savedPosition > Duration.zero && savedPosition > headTime) {
       _controller.seekTo(savedPosition);
@@ -121,7 +121,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
       _controller.seekTo(headTime);
     }
 
-    tailTime = await SPManager.getSkipTailTimes(videoId);
+    tailTime = await SPManager.getSkipTailTimes("$videoId");
     var playSpeed = await SPManager.getPlaySpeed();
     _controller.setPlaybackSpeed(playSpeed);
     _controller.addListener(() {
@@ -164,10 +164,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
 
   @override
   void dispose() {
+    _controller.removeListener(() {});
     WidgetsBinding.instance.removeObserver(this);
     SPManager.saveProgress(playUrl, _controller.value.position);
-    SPManager.saveIndex(videoId, _currentIndex);
-    SPManager.saveFromIndex(videoId, widget.fromIndex);
+    SPManager.saveIndex("$videoId", _currentIndex);
+    SPManager.saveFromIndex("$videoId", widget.fromIndex);
     SystemChrome.setPreferredOrientations([]);
     _controller.dispose();
     super.dispose();
@@ -267,27 +268,27 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
 
   Future<void> _setSkipHead() async {
     headTime = _controller.value.position;
-    await SPManager.saveSkipHeadTimes(videoId, headTime);
+    await SPManager.saveSkipHeadTimes("$videoId", headTime);
     setState(() {});
   }
 
   Future<void> _cleanSkipHead() async {
-    await SPManager.clearSkipHeadTimes(videoId);
+    await SPManager.clearSkipHeadTimes("$videoId");
     setState(() {});
   }
 
   Future<void> _setSkipTail() async {
     tailTime = _controller.value.position;
     await SPManager.saveSkipTailTimes(
-      videoId,
-      (await SPManager.getSkipTailTimes(videoId)),
+        "$videoId",
+      (await SPManager.getSkipTailTimes("$videoId")),
       tailTime,
     );
     setState(() {});
   }
 
   Future<void> _cleanSkipTail() async {
-    await SPManager.clearSkipTailTimes(videoId);
+    await SPManager.clearSkipTailTimes("$videoId");
     setState(() {});
   }
 
@@ -511,7 +512,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                 ),
               if (_isControllerVisible)
                 MenuContainer(
-                  videoId: videoId,
+                  videoId: "$videoId",
                   videoTitle:
                       "${widget.video.vodName} ${videoList[_currentIndex]['title']!}",
                   controller: _controller,

@@ -28,5 +28,9 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+    <string>应用需要访问您的照片库以获取视频文件。</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>应用需要访问您的照片库以保存视频文件。</string>
 </dict>
 </plist>

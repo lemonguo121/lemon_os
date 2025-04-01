@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 
-import 'VideoPlayerPage.dart';
+import '../player/LocalVideoPlayerPage.dart';
 
 
 class VideoGalleryPage extends StatefulWidget {
@@ -48,7 +48,7 @@ class _VideoGalleryPageState extends State<VideoGalleryPage> {
   void playVideo(AssetEntity video) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => VideoPlayerPage(video: video)),
+      MaterialPageRoute(builder: (context) => LocalVideoPlayerPage(video: video)),
     );
   }
 

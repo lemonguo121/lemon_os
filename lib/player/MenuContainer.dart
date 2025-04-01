@@ -6,7 +6,7 @@ import '../util/SPManager.dart';
 import 'BatteryTimeWidget.dart';
 
 class MenuContainer extends StatefulWidget {
-  final int videoId;
+  final String videoId;
   final String videoTitle;
   final VideoPlayerController controller;
   final ValueChanged<bool> showSkipFeedback;

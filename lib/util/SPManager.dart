@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:lemon_tv/http/data/ParesVideo.dart';
+
 import '../http/data/RealVideo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,17 +21,18 @@ class SPManager {
   static const String _subscriptinKey = "_subscriptinKey";
   static const String _currentSubscriptinKey = "_currentSubscriptinKey";
   static const String _currentSitetinKey = "_currentSitetinKey";
+  static const String _pares_url_video = "pares_url_video";
 
-
-  static Future<bool> isRealFun() async{
+  static Future<bool> isRealFun() async {
     final prefs = await SharedPreferences.getInstance();
-   return prefs.getBool(_isrealfun)??false;
+    return prefs.getBool(_isrealfun) ?? false;
   }
 
-  static Future<bool> saveRealFun() async{
+  static Future<bool> saveRealFun() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.setBool(_isrealfun,true);
+    return prefs.setBool(_isrealfun, true);
   }
+
   // 保存播放进度
   static Future<void> saveProgress(String videoUrl, Duration position) async {
     final prefs = await SharedPreferences.getInstance();
@@ -55,7 +58,7 @@ class SPManager {
   }
 
   // 保存播放到多少集
-  static Future<void> saveIndex(int videoId, int position) async {
+  static Future<void> saveIndex(String videoId, int position) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setInt("$_progressKey$videoId", position);
   }
@@ -67,7 +70,7 @@ class SPManager {
   }
 
   // 保存播放的来源索引
-  static Future<void> saveFromIndex(int videoId, int position) async {
+  static Future<void> saveFromIndex(String videoId, int position) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setInt("$_videoFromProgress$videoId", position);
   }
@@ -91,40 +94,41 @@ class SPManager {
   }
 
   // 记录跳过片头
-  static Future<void> saveSkipHeadTimes(int videoId, Duration headTime) async {
+  static Future<void> saveSkipHeadTimes(
+      String videoId, Duration headTime) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setInt("$_skipHeadKey-$videoId", headTime.inMilliseconds);
   }
 
   // 记录跳过片尾
   static Future<void> saveSkipTailTimes(
-      int videoId, Duration headTime, Duration tailTime) async {
+      String videoId, Duration headTime, Duration tailTime) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setInt("$_skipTailKey-$videoId", tailTime.inMilliseconds);
   }
 
   // 获取跳过片头
-  static Future<Duration> getSkipHeadTimes(int videoId) async {
+  static Future<Duration> getSkipHeadTimes(String videoId) async {
     final prefs = await SharedPreferences.getInstance();
     int? headTime = prefs.getInt("$_skipHeadKey-$videoId");
     return Duration(milliseconds: headTime ?? 0);
   }
 
   // 获取跳过片尾
-  static Future<Duration> getSkipTailTimes(int videoId) async {
+  static Future<Duration> getSkipTailTimes(String videoId) async {
     final prefs = await SharedPreferences.getInstance();
     int? tailTime = prefs.getInt("$_skipTailKey-$videoId");
     return Duration(milliseconds: tailTime ?? 0);
   }
 
   // 清除跳过片头
-  static Future<void> clearSkipHeadTimes(int videoId) async {
+  static Future<void> clearSkipHeadTimes(String videoId) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.remove("$_skipHeadKey-$videoId");
   }
 
   // 清除跳过片尾
-  static Future<void> clearSkipTailTimes(int videoId) async {
+  static Future<void> clearSkipTailTimes(String videoId) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.remove("$_skipTailKey-$videoId");
   }
@@ -254,5 +258,34 @@ class SPManager {
   static Future<void> cleanCurrentSite() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove(_currentSitetinKey);
+  }
+
+  // 保存解析的视频资源
+  static Future<void> saveParesVideo(ParesVideo videoData) async {
+    final prefs = await SharedPreferences.getInstance();
+    var pareHisList = await getParesVideoHisList();
+    pareHisList.removeWhere((item) => item.vodRemarks== videoData.vodRemarks);
+    pareHisList.insert(0, videoData); // 新记录放在列表的最前面
+    await prefs.setString(_pares_url_video, jsonEncode(pareHisList));
+  }
+
+  //  获取解析的视频资源集合
+  static Future<List<ParesVideo>> getParesVideoHisList() async {
+    final prefs = await SharedPreferences.getInstance();
+    final paresHisList = prefs.getString(_pares_url_video);
+    if (paresHisList == null) {
+      return [];
+    }
+    final history = List<Map<String, dynamic>>.from(jsonDecode(paresHisList));
+    return history.map((item) => ParesVideo.fromJson2(item)).toList();
+  }
+
+  //  删除单条记录
+  static Future<void> removeParesItem(ParesVideo videoData) async {
+    final prefs = await SharedPreferences.getInstance();
+    var pareHisList = await getParesVideoHisList();
+    pareHisList
+        .removeWhere((item) => videoData.vodPlayUrl == item.vodPlayUrl);
+    await prefs.setString(_pares_url_video, jsonEncode(pareHisList));
   }
 }
