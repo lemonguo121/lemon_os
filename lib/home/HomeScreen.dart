@@ -144,8 +144,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             indicatorSize: TabBarIndicatorSize.tab,
             dividerHeight: 0,
             indicatorPadding: EdgeInsets.zero,
-            labelColor: AppColors.selectColor,
-            unselectedLabelColor: Colors.green,
+            unselectedLabelColor: AppColors.selectColor,
+            labelColor: Colors.green,
             labelStyle:
                 const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             unselectedLabelStyle: const TextStyle(fontSize: 16),
@@ -300,12 +300,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               decoration: BoxDecoration(
                 color: AppColors.themeColor,
-                border: Border.all(color: Colors.white),
+                border: Border.all(color: Colors.green),
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.search, color: Colors.grey),
+                  const Icon(Icons.search, color: Colors.green),
                   const SizedBox(width: 8.0),
                   Text("输入搜索内容",
                       style:
@@ -329,10 +329,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add, size: 64, color: Colors.grey),
+            Icon(Icons.add, size: 64, color: AppColors.selectColor),
             SizedBox(height: 16),
             Text('暂无数据，点击添加',
-                style: TextStyle(color: Colors.grey, fontSize: 16)),
+                style: TextStyle(color: AppColors.selectColor, fontSize: 16)),
           ],
         ),
       ),
@@ -349,10 +349,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.refresh, size: 64, color: Colors.grey),
+            Icon(Icons.refresh, size: 64, color: AppColors.selectColor),
             SizedBox(height: 16),
             Text('站点不可用，点击重试，或切换订阅',
-                style: TextStyle(color: Colors.grey, fontSize: 16)),
+                style: TextStyle(color:AppColors.selectColor, fontSize: 16)),
           ],
         ),
       ),
@@ -366,10 +366,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.refresh, size: 64, color: Colors.grey),
+            Icon(Icons.refresh, size: 64, color: Colors.green),
             SizedBox(height: 16),
             Text('暂无数据，点击刷新',
-                style: TextStyle(color: Colors.grey, fontSize: 16)),
+                style: TextStyle(color: Colors.green, fontSize: 16)),
           ],
         ),
       ),

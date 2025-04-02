@@ -25,6 +25,7 @@ class MenuContainer extends StatefulWidget {
   final VoidCallback cleanSkipHead;
   final bool isFullScreen;
   final bool isScreenLocked;
+  final bool isAlsoShowTime;
 
   const MenuContainer({
     super.key,
@@ -47,6 +48,7 @@ class MenuContainer extends StatefulWidget {
     required this.cleanSkipHead,
     required this.isFullScreen,
     required this.isScreenLocked,
+    required this.isAlsoShowTime,
   });
 
   @override
@@ -77,7 +79,7 @@ class _MenuContainerState extends State<MenuContainer> {
     var bufferedProgress = widget.controller.value.buffered.isNotEmpty
         ? widget.controller.value.buffered.last.end.inMilliseconds.toDouble()
         : 0.0;
-    double bottomBarHeight = widget.isFullScreen ? 80.0 : 70.0;
+    double bottomBarHeight = widget.isFullScreen ? 90.0 : 80.0;
     return Stack(
       children: [
         if (!widget.isScreenLocked)
@@ -134,7 +136,7 @@ class _MenuContainerState extends State<MenuContainer> {
                     child: Padding(
                       padding: EdgeInsets.only(top: 10.0,right: 16),
                       child:
-                          BatteryTimeWidget(isFullScreen: widget.isFullScreen),
+                          BatteryTimeWidget(isFullScreen: widget.isFullScreen||widget.isAlsoShowTime),
                     ),
                   ),
                 ],

@@ -15,13 +15,13 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
   var isRealFun = await SPManager.isRealFun();
-  runApp(ElectronicsStoreApp(isRealFun:isRealFun));
+  runApp(ElectronicsStoreApp(isRealFun: isRealFun));
 }
 
 class ElectronicsStoreApp extends StatelessWidget {
   final bool isRealFun;
 
-  const ElectronicsStoreApp({ super.key, required this.isRealFun});
+  const ElectronicsStoreApp({super.key, required this.isRealFun});
 
   @override
   Widget build(BuildContext context) {
@@ -63,8 +63,8 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: AppColors.themeColor,
-        selectedItemColor: AppColors.selectColor,
-        unselectedItemColor: Colors.green,
+        unselectedItemColor: AppColors.selectColor,
+        selectedItemColor: Colors.green,
         elevation: 1.0,
         currentIndex: _currentIndex,
         onTap: (index) {

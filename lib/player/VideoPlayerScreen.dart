@@ -532,6 +532,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                   toggleFullScreen: _toggleFullScreen,
                   isFullScreen: _isFullScreen,
                   isScreenLocked: isScreenLocked,
+                  isAlsoShowTime: false,
                 ),
               if (!_isPlaying && _controller.value.isInitialized)
                 Center(

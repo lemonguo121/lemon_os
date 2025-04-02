@@ -22,15 +22,26 @@ class SPManager {
   static const String _currentSubscriptinKey = "_currentSubscriptinKey";
   static const String _currentSitetinKey = "_currentSitetinKey";
   static const String _pares_url_video = "pares_url_video";
+  static const String is_agree = "is_agree";
 
   static Future<bool> isRealFun() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_isrealfun) ?? false;
   }
 
-  static Future<bool> saveRealFun() async {
+  static Future<void> saveRealFun() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.setBool(_isrealfun, true);
+    prefs.setBool(_isrealfun, true);
+  }
+
+  static Future<bool> isAgree() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(is_agree) ?? false;
+  }
+
+  static Future<void> saveIsAgree() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool(is_agree, true);
   }
 
   // 保存播放进度
@@ -264,7 +275,7 @@ class SPManager {
   static Future<void> saveParesVideo(ParesVideo videoData) async {
     final prefs = await SharedPreferences.getInstance();
     var pareHisList = await getParesVideoHisList();
-    pareHisList.removeWhere((item) => item.vodRemarks== videoData.vodRemarks);
+    pareHisList.removeWhere((item) => item.vodPlayUrl == videoData.vodPlayUrl);
     pareHisList.insert(0, videoData); // 新记录放在列表的最前面
     await prefs.setString(_pares_url_video, jsonEncode(pareHisList));
   }
@@ -284,8 +295,7 @@ class SPManager {
   static Future<void> removeParesItem(ParesVideo videoData) async {
     final prefs = await SharedPreferences.getInstance();
     var pareHisList = await getParesVideoHisList();
-    pareHisList
-        .removeWhere((item) => videoData.vodPlayUrl == item.vodPlayUrl);
+    pareHisList.removeWhere((item) => videoData.vodPlayUrl == item.vodPlayUrl);
     await prefs.setString(_pares_url_video, jsonEncode(pareHisList));
   }
 }

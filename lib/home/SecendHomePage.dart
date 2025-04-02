@@ -17,8 +17,8 @@ class _SecendHomePageState extends State<SecendHomePage> {
   final List<Widget> _pages = [
     PareseScreen(),
     VideoGalleryPage(),
-
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,8 +28,8 @@ class _SecendHomePageState extends State<SecendHomePage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: AppColors.themeColor,
-        selectedItemColor: AppColors.selectColor,
-        unselectedItemColor: Colors.green,
+        unselectedItemColor: AppColors.selectColor,
+        selectedItemColor: Colors.green,
         elevation: 1.0,
         currentIndex: _currentIndex,
         onTap: (index) {

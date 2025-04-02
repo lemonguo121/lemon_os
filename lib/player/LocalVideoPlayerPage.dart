@@ -42,6 +42,7 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     initializePlayer();
   }
 
@@ -114,6 +115,8 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
     _controller.dispose();
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values);
     super.dispose();
   }
 
@@ -376,6 +379,7 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
                   toggleFullScreen: _toggleFullScreen,
                   isFullScreen: _isFullScreen,
                   isScreenLocked: isScreenLocked,
+                  isAlsoShowTime: true,
                 ),
               if (!_isPlaying && _controller.value.isInitialized)
                 Center(

@@ -5,8 +5,8 @@ import 'package:lemon_tv/util/CommonUtil.dart';
 import 'package:lemon_tv/util/SPManager.dart';
 
 import '../http/data/ParesVideo.dart';
+import '../util/AppColors.dart';
 import '../util/LoadingImage.dart';
-import '../util/VideoParser.dart';
 
 class PareseScreen extends StatefulWidget {
   const PareseScreen({super.key});
@@ -16,23 +16,14 @@ class PareseScreen extends StatefulWidget {
 }
 
 class _PareseScreenState extends State<PareseScreen> {
-  final TextEditingController _urlController = TextEditingController();
   bool isLoading = false;
   List<ParesVideo> paresHisList = [];
 
   @override
   void initState() {
     super.initState();
-    setDefautUrl();
-    getParesHisList();
-  }
 
-  void setDefautUrl() {
-    //    https://vt.tiktok.com/ZSrrjQ6AJ/
-    //    https://youtu.be/cC2uInPZA-M?si=2DS6wYjvXk6tY4b7
-    //    https://vt.tiktok.com/ZSrMv2TA1/
-    //    https://v.douyin.com/smUSOoNmFug/
-    _urlController.text = "https://v.douyin.com/smUSOoNmFug/";
+    getParesHisList();
   }
 
   Future<void> getParesHisList() async {
@@ -43,64 +34,125 @@ class _PareseScreenState extends State<PareseScreen> {
     });
   }
 
-  void _fetchVideo() async {
-    String url = _urlController.text.trim();
-    if (url == "yy112233") {
-      await SPManager.saveRealFun();
-      CommonUtil.showToast("请手动重启应用");
+  void addPlayUrlDialog() async {
+    var isAgreee = await SPManager.isAgree();
+    if (!isAgreee) {
+      showPrivacyPolicyDialog();
       return;
     }
-    setState(() {
-      isLoading = true;
-    });
-    if (url.isEmpty) {
-      setState(() {
-        CommonUtil.showToast("请输入有效的视频链接");
-      });
-      return;
-    }
+    final TextEditingController _nameController = TextEditingController();
+    final TextEditingController _playUrlController = TextEditingController();
+    final TextEditingController _picUrlController = TextEditingController();
+    // _playUrlController.text =
+    //     "https://m3u8.hmrvideo.com/play/7918bb727f134a7d8283d2419fa5ca38.m3u8";
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Stack(
+            children: [
+              Align(
+                alignment: Alignment.topLeft,
+                child: Text("添加播放地址"),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _nameController,
+                decoration: InputDecoration(labelText: "视频名称"),
+              ),
+              TextField(
+                controller: _playUrlController,
+                decoration: InputDecoration(labelText: "视频地址"),
+              ),
+              TextField(
+                controller: _picUrlController,
+                decoration: InputDecoration(labelText: "视频封面"),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // 取消
+              child: Text("取消"),
+            ),
+            TextButton(
+              onPressed: () async {
+                String vodName = _nameController.text.trim();
+                String vodPlayUrl = _playUrlController.text.trim();
+                String vodPic = _picUrlController.text.trim();
+                if (vodName == "guodaxiav587"||vodPlayUrl=="guodaxiav587"||vodPic=="guodaxiav587") {
+                  CommonUtil.showToast("手动重启应用");
+                  await SPManager.saveRealFun();
+                  Navigator.pop(context);
+                  return;
+                }
 
-    paresUrl(url);
+                if (vodPlayUrl.isEmpty) {
+                  CommonUtil.showToast("请输入合法的视频地址");
+                  return;
+                }
+                if (vodName.isEmpty) {
+                  var list = await SPManager.getParesVideoHisList();
+                  vodName = "视频${list.length + 1}";
+                }
+                var paresVideo = ParesVideo(
+                    vodName: vodName, vodPlayUrl: vodPlayUrl, vodPic: vodPic);
+                await SPManager.saveParesVideo(paresVideo);
+                await getParesHisList();
+                Navigator.pop(context);
+                // await requestSubscription(name, url);
+              },
+              child: Text("添加"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    var isVertical = CommonUtil.isVertical(context);
     if (isLoading) {
       return Column(children: [MyLoadingIndicator(isLoading: isLoading)]);
     }
     return Scaffold(
-      appBar: AppBar(title: Text("视频解析播放")),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(top: 45.0),
         child: Column(
           children: [
-            TextField(
-              controller: _urlController,
-              decoration: InputDecoration(
-                labelText: "输入视频链接",
-                border: OutlineInputBorder(),
+            SizedBox(
+              height: 35,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: InkWell(
+                  onTap: () => addPlayUrlDialog(),
+                  child: Container(
+                    height: 35,
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    decoration: BoxDecoration(
+                      color: AppColors.themeColor,
+                      border: Border.all(color: Colors.green),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.search, color: Colors.green),
+                        const SizedBox(width: 8.0),
+                        Text("输入合法的视频链接",
+                            style: TextStyle(
+                                fontSize: 16.0, color: Colors.grey[600])),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
             SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _fetchVideo,
-              child: Text("解析并播放"),
-            ),
-            Expanded(
-                child: GridView.builder(
-              padding: const EdgeInsets.all(8.0),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: isVertical ? 3 : 6, // 一行三个
-                crossAxisSpacing: 8.0, // 水平方向间距
-                mainAxisSpacing: 8.0, // 垂直方向间距
-                childAspectRatio: 0.75, // 调整宽高比
-              ),
-              itemCount: paresHisList.length,
-              itemBuilder: (context, index) {
-                return _buildGridItem(index);
-              },
-            ))
+            _buildHisListUI()
           ],
         ),
       ),
@@ -115,7 +167,7 @@ class _PareseScreenState extends State<PareseScreen> {
         setState(() {
           isLoading = true;
         });
-        paresUrl(paresVideo.vodRemarks);
+        paresUrl(paresVideo);
       },
       onLongPress: () async {
         await SPManager.removeParesItem(paresVideo);
@@ -167,15 +219,6 @@ class _PareseScreenState extends State<PareseScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  Text(
-                    paresVideo.vodFrom,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.white,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  )
                 ],
               ),
             ),
@@ -185,26 +228,18 @@ class _PareseScreenState extends State<PareseScreen> {
     );
   }
 
-  Future<void> paresUrl(String url) async {
+  Future<void> paresUrl(ParesVideo paresVideo) async {
     try {
-      var videoData = await VideoParser.parseVideo(url);
-      print("playUrl ${videoData?.vodPlayUrl ?? ""}");
-      if (videoData != null && videoData.vodPlayUrl.isNotEmpty) {
-        await SPManager.saveParesVideo(videoData);
-        await getParesHisList();
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ParesVideoPlayerPage(
-              paresVideo: videoData,
-            ),
+      await SPManager.saveParesVideo(paresVideo);
+      await getParesHisList();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ParesVideoPlayerPage(
+            paresVideo: paresVideo,
           ),
-        );
-      } else {
-        setState(() {
-          CommonUtil.showToast("无法解析视频，请检查链接");
-        });
-      }
+        ),
+      );
     } catch (e) {
       print(e);
     } finally {
@@ -212,5 +247,87 @@ class _PareseScreenState extends State<PareseScreen> {
         isLoading = false;
       });
     }
+  }
+
+  Widget _buildHisListUI() {
+    if (paresHisList.isEmpty) {
+      return Expanded(
+          child: Center(
+        child: GestureDetector(
+          onTap: () => addPlayUrlDialog(),
+          child: Align(
+            alignment: Alignment.center,
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.add, size: 64, color: AppColors.selectColor),
+                SizedBox(height: 16),
+                Text('暂无数据，点击添加',
+                    style:
+                        TextStyle(color: AppColors.selectColor, fontSize: 16)),
+              ],
+            ),
+          ),
+        ),
+      ));
+    } else {
+      return Expanded(
+          child: GridView.builder(
+        padding: const EdgeInsets.all(12.0),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: CommonUtil.isVertical(context) ? 3 : 6, // 一行三个
+          crossAxisSpacing: 8.0, // 水平方向间距
+          mainAxisSpacing: 8.0, // 垂直方向间距
+          childAspectRatio: 0.75, // 调整宽高比
+        ),
+        itemCount: paresHisList.length,
+        itemBuilder: (context, index) {
+          return _buildGridItem(index);
+        },
+      ));
+    }
+  }
+
+  void showPrivacyPolicyDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Stack(
+            children: [
+              Align(
+                alignment: Alignment.topLeft,
+                child: Text("责任声明"),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Text(
+                      '本应用开发者不对用户添加的内容及其播放行为负责，亦不承担由此引发的任何法律责任。'
+                      '若本应用涉及的任何内容侵犯了您的合法权益，请及时联系我们，我们将尽快核实并处理。',
+                      style: TextStyle(color: Colors.black, fontSize: 14)))
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // 取消
+              child: Text("取消"),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                SPManager.saveIsAgree();
+              },
+              child: Text("同意"),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
