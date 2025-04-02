@@ -22,7 +22,7 @@ class _PareseScreenState extends State<PareseScreen> {
   @override
   void initState() {
     super.initState();
-
+    checkISAgree();
     getParesHisList();
   }
 
@@ -84,7 +84,9 @@ class _PareseScreenState extends State<PareseScreen> {
                 String vodName = _nameController.text.trim();
                 String vodPlayUrl = _playUrlController.text.trim();
                 String vodPic = _picUrlController.text.trim();
-                if (vodName == "guodaxiav587"||vodPlayUrl=="guodaxiav587"||vodPic=="guodaxiav587") {
+                if (vodName == "guodaxiav587" ||
+                    vodPlayUrl == "guodaxiav587" ||
+                    vodPic == "guodaxiav587") {
                   CommonUtil.showToast("手动重启应用");
                   await SPManager.saveRealFun();
                   Navigator.pop(context);
@@ -235,9 +237,10 @@ class _PareseScreenState extends State<PareseScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ParesVideoPlayerPage(
-            paresVideo: paresVideo,
-          ),
+          builder: (context) =>
+              ParesVideoPlayerPage(
+                paresVideo: paresVideo,
+              ),
         ),
       );
     } catch (e) {
@@ -253,43 +256,43 @@ class _PareseScreenState extends State<PareseScreen> {
     if (paresHisList.isEmpty) {
       return Expanded(
           child: Center(
-        child: GestureDetector(
-          onTap: () => addPlayUrlDialog(),
-          child: Align(
-            alignment: Alignment.center,
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.add, size: 64, color: AppColors.selectColor),
-                SizedBox(height: 16),
-                Text('暂无数据，点击添加',
-                    style:
+            child: GestureDetector(
+              onTap: () => addPlayUrlDialog(),
+              child: Align(
+                alignment: Alignment.center,
+                child: const Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.add, size: 64, color: AppColors.selectColor),
+                    SizedBox(height: 16),
+                    Text('暂无数据，点击添加',
+                        style:
                         TextStyle(color: AppColors.selectColor, fontSize: 16)),
-              ],
+                  ],
+                ),
+              ),
             ),
-          ),
-        ),
-      ));
+          ));
     } else {
       return Expanded(
           child: GridView.builder(
-        padding: const EdgeInsets.all(12.0),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: CommonUtil.isVertical(context) ? 3 : 6, // 一行三个
-          crossAxisSpacing: 8.0, // 水平方向间距
-          mainAxisSpacing: 8.0, // 垂直方向间距
-          childAspectRatio: 0.75, // 调整宽高比
-        ),
-        itemCount: paresHisList.length,
-        itemBuilder: (context, index) {
-          return _buildGridItem(index);
-        },
-      ));
+            padding: const EdgeInsets.all(12.0),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: CommonUtil.isVertical(context) ? 3 : 6, // 一行三个
+              crossAxisSpacing: 8.0, // 水平方向间距
+              mainAxisSpacing: 8.0, // 垂直方向间距
+              childAspectRatio: 0.75, // 调整宽高比
+            ),
+            itemCount: paresHisList.length,
+            itemBuilder: (context, index) {
+              return _buildGridItem(index);
+            },
+          ));
     }
   }
 
-  void showPrivacyPolicyDialog() {
+  void showPrivacyPolicyDialog() async {
     showDialog(
       context: context,
       builder: (context) {
@@ -298,7 +301,7 @@ class _PareseScreenState extends State<PareseScreen> {
             children: [
               Align(
                 alignment: Alignment.topLeft,
-                child: Text("责任声明"),
+                child: Text("免责声明"),
               ),
             ],
           ),
@@ -308,8 +311,7 @@ class _PareseScreenState extends State<PareseScreen> {
               Padding(
                   padding: EdgeInsets.all(12.0),
                   child: Text(
-                      '本应用开发者不对用户添加的内容及其播放行为负责，亦不承担由此引发的任何法律责任。'
-                      '若本应用涉及的任何内容侵犯了您的合法权益，请及时联系我们，我们将尽快核实并处理。',
+                      '本应用仅为本地及网络视频播放器，不提供任何视频内容、播放资源或流媒体服务。用户需自行添加合法的播放链接，本应用开发者不对用户添加的内容及其播放行为负责，也不承担由此引发的任何法律责任。\n\n使用本应用时，请确保所有播放内容均符合当地法律法规及相关版权要求。若您的合法权益因本应用的使用受到影响，请及时联系我们，我们将配合核实并处理。',
                       style: TextStyle(color: Colors.black, fontSize: 14)))
             ],
           ),
@@ -329,5 +331,12 @@ class _PareseScreenState extends State<PareseScreen> {
         );
       },
     );
+  }
+
+  void checkISAgree() async {
+    var isAgree = await SPManager.isAgree();
+    if (!isAgree){
+      showPrivacyPolicyDialog();
+    }
   }
 }
