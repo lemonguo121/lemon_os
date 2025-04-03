@@ -234,6 +234,9 @@ class _MenuContainerState extends State<MenuContainer> {
                                   width: 12.0,
                                 ),
                                 GestureDetector(
+                                  onLongPress: (){
+                                    widget.changePlaySpeed(1.0);
+                                  },
                                     onTap: () {
                                       var speed = widget
                                               .controller.value.playbackSpeed +
