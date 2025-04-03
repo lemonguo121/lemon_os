@@ -43,8 +43,6 @@ class _PareseScreenState extends State<PareseScreen> {
     final TextEditingController _nameController = TextEditingController();
     final TextEditingController _playUrlController = TextEditingController();
     final TextEditingController _picUrlController = TextEditingController();
-    // _playUrlController.text =
-    //     "https://m3u8.hmrvideo.com/play/7918bb727f134a7d8283d2419fa5ca38.m3u8";
     showDialog(
       context: context,
       builder: (context) {

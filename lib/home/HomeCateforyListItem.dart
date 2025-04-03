@@ -24,11 +24,11 @@ class _HomecateforylistitemState extends State<Homecateforylistitem> {
 
   Widget _buildItem(RealVideo video) {
     var isVertical = CommonUtil.isVertical(context);
-    var itemCount = isVertical ? 3 : 6;
+    var itemCount = isVertical ? 3.2 : 6.5;
     var screenWidth = CommonUtil.getScreenWidth(context);
     var itemMargin = 8.0;
     var itemWidth =
-        (screenWidth - 16 - ((itemCount+1) * itemMargin)) / itemCount;
+        (screenWidth  - ((itemCount+1) * itemMargin)) / itemCount;
     var itemHeight = itemWidth / 3 * 4;
     return Container(
         height: itemHeight, // 图片高度

@@ -1,12 +1,9 @@
-import 'dart:convert';
-import 'dart:io';
-import 'dart:ui';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/history/HistoryController.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
 
@@ -52,7 +49,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   final HistoryController historyController = Get.put(HistoryController());
   String playUrl = ""; // 确保类型为 List<Map<String, String>>
   int videoId = 0;
-  bool _isControllerVisible = true;
+  bool _isControllerVisible = true; //是否显示控制器菜单
   bool _isPlaying = false;
   bool _isFullScreen = false;
   bool _isLoadVideoPlayed = false; // 新增的标志，确保下一集只跳转一次
@@ -69,6 +66,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   Duration headTime = Duration(milliseconds: 0);
   Duration tailTime = Duration(milliseconds: 0);
   bool isLoading = true;
+  Timer? _timer;
 
   @override
   void initState() {
@@ -77,6 +75,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     _currentIndex = widget.initialIndex;
     _initializeSystemSettings();
     _initializePlayer();
+    autoCloseMenuTimer();
   }
 
   Future<void> _initializeSystemSettings() async {
@@ -132,7 +131,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
         });
         print("play error = ${_controller.value.errorDescription}");
       }
-      if (_controller.value.duration > Duration.zero && !_isLoadVideoPlayed) {
+      var currentDuration = _controller.value.duration;
+      if (currentDuration > Duration.zero && !_isLoadVideoPlayed) {
         var skipTime = const Duration(milliseconds: 0);
         if (tailTime >= const Duration(milliseconds: 1000)) {
           isSkipTail = true;
@@ -150,11 +150,16 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
           _playNextVideo();
         }
       }
-      // if (!mounted) {
-      setState(() {
-        _isBuffering = _controller.value.isBuffering;
-      });
-      // }
+        setState(() {
+          var isPlaying = _controller.value.isPlaying;
+          var bufferedProgress = _controller.value.buffered.isNotEmpty
+              ? _controller.value.buffered.last.end.inMilliseconds.toDouble()
+              : 0.0;
+          var currentPosition =
+              _controller.value.position.inMilliseconds.toDouble();
+          _isBuffering = _controller.value.isBuffering &&
+              (!isPlaying || currentPosition >= bufferedProgress);
+        });
     });
     _toggleFullScreen;
     setState(() {});
@@ -198,6 +203,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   void _toggleFullScreen() {
+    autoCloseMenuTimer();
     setState(() {
       _isFullScreen = !_isFullScreen;
       if (!isVerticalVideo()) {
@@ -225,6 +231,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   void _togglePlayPause() {
+    autoCloseMenuTimer();
     if (isScreenLocked) {
       return;
     }
@@ -239,6 +246,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   void _playPreviousVideo() {
+    autoCloseMenuTimer();
     if (_currentIndex > 0) {
       setState(() async {
         await SPManager.saveProgress(playUrl, _controller.value.position);
@@ -253,6 +261,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   void _playNextVideo() {
+    autoCloseMenuTimer();
     if (_currentIndex < videoList.length - 1) {
       setState(() async {
         await SPManager.saveProgress(playUrl, _controller.value.position);
@@ -267,20 +276,23 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   Future<void> _setSkipHead() async {
+    autoCloseMenuTimer();
     headTime = _controller.value.position;
     await SPManager.saveSkipHeadTimes("$videoId", headTime);
     setState(() {});
   }
 
   Future<void> _cleanSkipHead() async {
+    autoCloseMenuTimer();
     await SPManager.clearSkipHeadTimes("$videoId");
     setState(() {});
   }
 
   Future<void> _setSkipTail() async {
+    autoCloseMenuTimer();
     tailTime = _controller.value.position;
     await SPManager.saveSkipTailTimes(
-        "$videoId",
+      "$videoId",
       (await SPManager.getSkipTailTimes("$videoId")),
       tailTime,
     );
@@ -288,6 +300,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   Future<void> _cleanSkipTail() async {
+    autoCloseMenuTimer();
     await SPManager.clearSkipTailTimes("$videoId");
     setState(() {});
   }
@@ -431,6 +444,18 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     });
   }
 
+  void autoCloseMenuTimer() {
+    if (_isControllerVisible) {
+      _timer?.cancel();
+      // 重新启动 5 秒计时
+      _timer = Timer(Duration(seconds: 5), () {
+        setState(() {
+          _isControllerVisible = false;
+        });
+      });
+    }
+  }
+
   void showSkipFeedback(bool showSkipFeedback) {
     setState(() {
       _showSkipFeedback = showSkipFeedback;
@@ -487,6 +512,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                 onTap: () {
                   setState(() {
                     _isControllerVisible = !_isControllerVisible;
+                    autoCloseMenuTimer();
                   });
                 },
                 // 监听双击事件
@@ -559,15 +585,18 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
 
   void _seekToPosition(Duration position) {
     _controller.seekTo(position);
+    autoCloseMenuTimer();
   }
 
   void _changePlaySpeed(double speed) {
     _controller.setPlaybackSpeed(speed);
     SPManager.savePlaySpeed(speed);
+    autoCloseMenuTimer();
     setState(() {});
   }
 
   void _toggleScreenLock() {
+    autoCloseMenuTimer();
     setState(() {
       isScreenLocked = !isScreenLocked;
     });

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lemon_tv/http/data/ParesVideo.dart';
@@ -38,12 +40,14 @@ class _LocalVideoPlayerPagesState extends State<ParesVideoPlayerPage> {
   bool isParesFail = false; //是否解析失败
   bool _isLoadVideoPlayed = false; // 新增的标志，确保下一集只跳转一次
   String videoId = ""; // 新增的标志，确保下一集只跳转一次
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     initializePlayer();
+    autoCloseMenuTimer();
   }
 
   @override
@@ -59,11 +63,9 @@ class _LocalVideoPlayerPagesState extends State<ParesVideoPlayerPage> {
 
   void initializePlayer() async {
     isParesFail = false;
-    var url =
-        "https://v3-web-prime.douyinvod.com/video/tos/cn/tos-cn-ve-15c000-ce/oUtF00GTDEPo3WxgAZFQeJ95eCfpnNEIE0wDAk/?a=6383&br=577&bt=577&btag=80000e00028000&cd=0%7C0%7C0%7C3&ch=5&cquery=100x_100z_100o_101s_100B&cr=3&cs=0&cv=1&dr=0&ds=6&dy_q=1743519793&expire=1743530787&feature_id=0ea98fd3bdc3c6c14a3d0804cc272721&ft=L~zg4YX1D.ENhHVQ9w2C~gahd.3gQOIR3-ApQX&is_ssr=1&l=202504012303119A0517236D92682C112D&lr=all&mime_type=video_mp4&ply_type=4&policy=4&qs=12&rc=ZTs4NGkzNGQ8aDs0ZTY3NEBpanhkcnI5cmhueDMzbGkzNEBjXjA2L2FhXjUxNl8uNmExYSNvbWBoMmRjZDZgLS1kLWJzcw%3D%3D&signature=875ef3ea2cbc480cee8581965a87229b&temp=1&tk=webid&__vid=7463388899046329657&webid=37c879f32637ebc5496b02d59029bbf7616da5849e10d44e1e2ee2dac28cdd6b9c43f7f7f0b0abb22538eb13190536a3cc1abaf79e41d19ed342cf76e704b563fd9c3ff850d77981304288689bada492-302a54658e8d0833a1ce2a195cb50495";
     try {
       _controller = VideoPlayerController.network(widget.paresVideo.vodPlayUrl,
-          formatHint: VideoFormat.other,httpHeaders: {'Range': 'bytes=0-'} );
+          formatHint: VideoFormat.other, httpHeaders: {'Range': 'bytes=0-'});
       await _controller.initialize();
       setState(() {
         isLoading = false;
@@ -120,34 +122,56 @@ class _LocalVideoPlayerPagesState extends State<ParesVideoPlayerPage> {
           _playNextVideo();
         }
       }
-      // if (!mounted) {
       setState(() {
-        _isBuffering = _controller.value.isBuffering;
+        var isPlaying = _controller.value.isPlaying;
+        var bufferedProgress = _controller.value.buffered.isNotEmpty
+            ? _controller.value.buffered.last.end.inMilliseconds.toDouble()
+            : 0.0;
+        var currentPosition =
+            _controller.value.position.inMilliseconds.toDouble();
+        _isBuffering = _controller.value.isBuffering &&
+            (!isPlaying || currentPosition >= bufferedProgress);
       });
-      // }
     });
   }
 
+  void autoCloseMenuTimer() {
+    if (_isControllerVisible) {
+      _timer?.cancel();
+      // 重新启动 5 秒计时
+      _timer = Timer(Duration(seconds: 5), () {
+        setState(() {
+          _isControllerVisible = false;
+        });
+      });
+    }
+  }
+
   void _playPreviousVideo() {
+    autoCloseMenuTimer();
     CommonUtil.showToast("已经是第一集");
   }
 
   void _playNextVideo() {
+    autoCloseMenuTimer();
     CommonUtil.showToast("已经是最后一集");
   }
 
   Future<void> _setSkipHead() async {
+    autoCloseMenuTimer();
     headTime = _controller.value.position;
     await SPManager.saveSkipHeadTimes(widget.paresVideo.vodPlayUrl, headTime);
     setState(() {});
   }
 
   Future<void> _cleanSkipHead() async {
+    autoCloseMenuTimer();
     await SPManager.clearSkipHeadTimes(widget.paresVideo.vodPlayUrl);
     setState(() {});
   }
 
   Future<void> _setSkipTail() async {
+    autoCloseMenuTimer();
     tailTime = _controller.value.position;
     await SPManager.saveSkipTailTimes(
       widget.paresVideo.vodPlayUrl,
@@ -158,11 +182,13 @@ class _LocalVideoPlayerPagesState extends State<ParesVideoPlayerPage> {
   }
 
   Future<void> _cleanSkipTail() async {
+    autoCloseMenuTimer();
     await SPManager.clearSkipTailTimes(widget.paresVideo.vodPlayUrl);
     setState(() {});
   }
 
   void _togglePlayPause() {
+    autoCloseMenuTimer();
     if (isScreenLocked) {
       return;
     }
@@ -205,16 +231,19 @@ class _LocalVideoPlayerPagesState extends State<ParesVideoPlayerPage> {
   }
 
   void _seekToPosition(Duration position) {
+    autoCloseMenuTimer();
     _controller.seekTo(position);
   }
 
   void _changePlaySpeed(double speed) {
+    autoCloseMenuTimer();
     _controller.setPlaybackSpeed(speed);
     SPManager.savePlaySpeed(speed);
     setState(() {});
   }
 
   void _toggleScreenLock() {
+    autoCloseMenuTimer();
     setState(() {
       isScreenLocked = !isScreenLocked;
     });
@@ -283,6 +312,7 @@ class _LocalVideoPlayerPagesState extends State<ParesVideoPlayerPage> {
   }
 
   void _toggleFullScreen() {
+    autoCloseMenuTimer();
     setState(() {
       _isFullScreen = !_isFullScreen;
       if (!isVerticalVideo()) {
@@ -343,6 +373,7 @@ class _LocalVideoPlayerPagesState extends State<ParesVideoPlayerPage> {
                 onTap: () {
                   setState(() {
                     _isControllerVisible = !_isControllerVisible;
+                    autoCloseMenuTimer();
                   });
                 },
                 // 监听双击事件

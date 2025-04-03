@@ -176,14 +176,14 @@ class _HomeFragmentState extends State<HomeFragment>
           height: 12,
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
+          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
           child: Text(
             _getTypeContent(typePid),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color:Colors.black),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color:AppColors.selectColor),
           ),
         ),
         Container(
-          margin: EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
+          margin: EdgeInsets.only(top: 8.0, left: 8.0, ),
           padding: const EdgeInsets.only(top: 10.0),
           width: double.infinity,
           decoration: BoxDecoration(

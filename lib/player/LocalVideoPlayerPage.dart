@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -38,12 +40,13 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
   bool isParesFail = false; //是否解析失败
   bool _isLoadVideoPlayed = false; // 新增的标志，确保下一集只跳转一次
   String videoId =""; // 新增的标志，确保下一集只跳转一次
-
+  Timer? _timer;
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     initializePlayer();
+    autoCloseMenuTimer();
   }
 
   Future<void> initializePlayer() async {
@@ -99,13 +102,29 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
                 _playNextVideo();
               }
             }
-            // if (!mounted) {
             setState(() {
-              _isBuffering = _controller.value.isBuffering;
+              var isPlaying = _controller.value.isPlaying;
+              var bufferedProgress = _controller.value.buffered.isNotEmpty
+                  ? _controller.value.buffered.last.end.inMilliseconds.toDouble()
+                  : 0.0;
+              var currentPosition =
+              _controller.value.position.inMilliseconds.toDouble();
+              _isBuffering = _controller.value.isBuffering &&
+                  (!isPlaying || currentPosition >= bufferedProgress);
             });
-            // }
           });
         });
+    }
+  }
+  void autoCloseMenuTimer() {
+    if (_isControllerVisible) {
+      _timer?.cancel();
+      // 重新启动 5 秒计时
+      _timer = Timer(Duration(seconds: 5), () {
+        setState(() {
+          _isControllerVisible = false;
+        });
+      });
     }
   }
 
@@ -121,25 +140,30 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
   }
 
   void _playPreviousVideo() {
+    autoCloseMenuTimer();
     CommonUtil.showToast("已经是第一集");
   }
 
   void _playNextVideo() {
+    autoCloseMenuTimer();
     CommonUtil.showToast("已经是最后一集");
   }
 
   Future<void> _setSkipHead() async {
+    autoCloseMenuTimer();
     headTime = _controller.value.position;
     await SPManager.saveSkipHeadTimes(widget.video.id, headTime);
     setState(() {});
   }
 
   Future<void> _cleanSkipHead() async {
+    autoCloseMenuTimer();
     await SPManager.clearSkipHeadTimes(widget.video.id);
     setState(() {});
   }
 
   Future<void> _setSkipTail() async {
+    autoCloseMenuTimer();
     tailTime = _controller.value.position;
     await SPManager.saveSkipTailTimes(
       widget.video.id,
@@ -150,11 +174,13 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
   }
 
   Future<void> _cleanSkipTail() async {
+    autoCloseMenuTimer();
     await SPManager.clearSkipTailTimes(widget.video.id);
     setState(() {});
   }
 
   void _togglePlayPause() {
+    autoCloseMenuTimer();
     if (isScreenLocked) {
       return;
     }
@@ -197,22 +223,26 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
   }
 
   void _seekToPosition(Duration position) {
+    autoCloseMenuTimer();
     _controller.seekTo(position);
   }
 
   void _changePlaySpeed(double speed) {
+    autoCloseMenuTimer();
     _controller.setPlaybackSpeed(speed);
     SPManager.savePlaySpeed(speed);
     setState(() {});
   }
 
   void _toggleScreenLock() {
+    autoCloseMenuTimer();
     setState(() {
       isScreenLocked = !isScreenLocked;
     });
   }
 
   void _seekPlayProgress(int delta) {
+    autoCloseMenuTimer();
     Duration newPosition =
         _controller.value.position + Duration(seconds: delta);
     _playPositonTips =
@@ -275,6 +305,7 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
   }
 
   void _toggleFullScreen() {
+    autoCloseMenuTimer();
     setState(() {
       _isFullScreen = !_isFullScreen;
       if (!isVerticalVideo()) {
