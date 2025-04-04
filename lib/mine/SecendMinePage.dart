@@ -13,7 +13,7 @@ class SecendMinePage extends StatefulWidget {
 }
 
 class _SecendMinePageState extends State<SecendMinePage> {
-  final ThemeController  themeController = Get.find();
+  final ThemeController themeController = Get.find();
   double _cacheSize = 0;
 
   @override
@@ -39,38 +39,62 @@ class _SecendMinePageState extends State<SecendMinePage> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("我的"),
-      ),
-      body:Obx(()=>Column(
-        children: [
-          ListTile(
-            leading: Icon(Icons.settings,color:themeController.currentAppTheme.selectedTextColor ,),
-            title: Text("设置",style: TextStyle(color:themeController.currentAppTheme.selectedTextColor),),
-            onTap: () {},
+    return Obx(() => Scaffold(
+          appBar: AppBar(
+            iconTheme: IconThemeData(
+                color: themeController.currentAppTheme.normalTextColor),
+            title: Text(
+              "我的",
+              style: TextStyle(
+                  color: themeController.currentAppTheme.normalTextColor),
+            ),
           ),
-          ListTile(
-            leading: Icon(Icons.clear_all,color:themeController.currentAppTheme.selectedTextColor), // 清理缓存图标
-            title: Text("清理缓存",style: TextStyle(color:themeController.currentAppTheme.selectedTextColor)),
-            trailing: Text("${_cacheSize.toStringAsFixed(2)} MB"), // 显示缓存大小
-            onTap: _clearCache, // 点击清理缓存
-          ),
-          ListTile(
-            leading: Icon(Icons.palette,color:themeController.currentAppTheme.selectedTextColor), // 清理缓存图标
-            title: Text("主题切换",style: TextStyle(color:themeController.currentAppTheme.selectedTextColor)),
-            onTap: (){
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ThemeSettingsPage()),
-              );
-            }, // 点击清理缓存
-          ),
-        ],
-      )) ,
-    );
+          body: Obx(() => Column(
+                children: [
+                  ListTile(
+                    leading: Icon(
+                      Icons.settings,
+                      color:
+                          themeController.currentAppTheme.unselectedTextColor,
+                    ),
+                    title: Text(
+                      "设置",
+                      style: TextStyle(
+                          color: themeController.currentAppTheme.titleColr),
+                    ),
+                    onTap: () {},
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.clear_all,
+                        color: themeController
+                            .currentAppTheme.unselectedTextColor),
+                    // 清理缓存图标
+                    title: Text("清理缓存",
+                        style: TextStyle(
+                            color: themeController.currentAppTheme.titleColr)),
+                    trailing: Text("${_cacheSize.toStringAsFixed(2)} MB"),
+                    // 显示缓存大小
+                    onTap: _clearCache, // 点击清理缓存
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.palette,
+                        color: themeController
+                            .currentAppTheme.unselectedTextColor), // 清理缓存图标
+                    title: Text("主题切换",
+                        style: TextStyle(
+                            color: themeController.currentAppTheme.titleColr)),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ThemeSettingsPage()),
+                      );
+                    }, // 点击清理缓存
+                  ),
+                ],
+              )),
+        ));
   }
 }

@@ -34,7 +34,7 @@ class _SecendHomePageState extends State<SecendHomePage> {
           backgroundColor: themeController.currentAppTheme.backgroundColor,
           unselectedItemColor:
               themeController.currentAppTheme.selectedTextColor,
-          selectedItemColor: Colors.green,
+          selectedItemColor: themeController.currentAppTheme.unselectedTextColor,
           elevation: 1.0,
           currentIndex: _currentIndex,
           onTap: (index) {
