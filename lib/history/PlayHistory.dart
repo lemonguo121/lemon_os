@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lemon_tv/util/ThemeController.dart';
 
 import '../detail/DetailScreen.dart';
 import '../http/data/RealVideo.dart';
@@ -17,6 +18,7 @@ class PlayHistory extends StatefulWidget {
 class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
   final HistoryController historyController =
       Get.put(HistoryController()); // 依赖注入
+  final ThemeController themeController = Get.find();
   int _playIndex = 0;
   int _fromIndex = 0;
   bool _isLoading = true;
@@ -47,9 +49,9 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
       var playList = CommonUtil.getPlayListAndForm(video).playList;
       setState(() {
         _videoTitles[video.vodId] =
-        (_fromIndex >= 0 && _fromIndex < playList.length)
-            ? playList[_fromIndex][_playIndex]['title']!
-            : "";
+            (_fromIndex >= 0 && _fromIndex < playList.length)
+                ? playList[_fromIndex][_playIndex]['title']!
+                : "";
       });
     } catch (e) {
       setState(() {
@@ -61,22 +63,27 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     var isVertical = CommonUtil.isVertical(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("历史记录"),
-        actions: [
-          IconButton(
-            onPressed: () {
-              historyController.cleanHistory();
-              setState(() {});
-              CommonUtil.showToast("清理成功");
-            },
-            icon: const Icon(Icons.cleaning_services_outlined),
+    return Obx(() => Scaffold(
+          appBar: AppBar(
+            title: Text(
+              "历史记录",
+              style: TextStyle(
+                  color: themeController.currentAppTheme.normalTextColor),
+            ),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  historyController.cleanHistory();
+                  setState(() {});
+                  CommonUtil.showToast("清理成功");
+                },
+                icon: Icon(Icons.cleaning_services_outlined,
+                    color: themeController.currentAppTheme.selectedTextColor),
+              ),
+            ],
           ),
-        ],
-      ),
-      body: Obx(() => _buildBody(isVertical)),
-    );
+          body: _buildBody(isVertical),
+        ));
   }
 
   Widget _buildBody(bool isVertical) {
@@ -85,8 +92,8 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
         child: CircularProgressIndicator(),
       );
     } else if (historyController.historyList.isEmpty) {
-      return const Center(
-        child: Text('暂无历史记录'),
+      return  Center(
+        child: Text('暂无历史记录',style: TextStyle(color: themeController.currentAppTheme.selectedTextColor),),
       );
     } else {
       return _buildGrid(isVertical);

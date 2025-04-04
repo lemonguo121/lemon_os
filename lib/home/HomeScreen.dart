@@ -1,12 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:lemon_tv/subscrip/SubscriptionPage.dart';
-import 'package:lemon_tv/util/AppColors.dart';
 import 'package:lemon_tv/util/SubscriptionsUtil.dart';
 import 'package:xml/xml.dart';
 
 import '../category/CategoryFragment.dart';
+import '../util/ThemeController.dart';
 import 'HomeFragment.dart';
 import '../http/HttpService.dart';
 import '../http/data/CategoryBean.dart';
@@ -36,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool isLoading = true;
   StorehouseBeanSites? currentSite;
   final ScrollController _scrollController = ScrollController();
+  final ThemeController themeController = Get.find();
 
   // String paresType = "1";
 
@@ -144,8 +146,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             indicatorSize: TabBarIndicatorSize.tab,
             dividerHeight: 0,
             indicatorPadding: EdgeInsets.zero,
-            unselectedLabelColor: AppColors.selectColor,
-            labelColor: Colors.green,
+            unselectedLabelColor:
+                themeController.currentAppTheme.unselectedTextColor,
+            labelColor: themeController.currentAppTheme.selectedTextColor,
             labelStyle:
                 const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             unselectedLabelStyle: const TextStyle(fontSize: 16),
@@ -174,16 +177,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       return Column(children: [MyLoadingIndicator(isLoading: isLoading)]);
     }
     var isVertical = CommonUtil.isVertical(context);
-    return Scaffold(
-      body: Column(
-        children: [
-          SizedBox(height: isVertical ? 55.0 : 40),
-          _buildSearch(),
-          Expanded(child: getErrorView() // 否则，显示分类选择视图
-              ),
-        ],
-      ),
-    );
+    return Obx(() {
+      return Scaffold(
+        body: Column(
+          children: [
+            SizedBox(height: isVertical ? 55.0 : 40),
+            _buildSearch(),
+            Expanded(child: getErrorView() // 否则，显示分类选择视图
+                ),
+          ],
+        ),
+      );
+    });
   }
 
   void _scrollToSelectedItem(int index) {
@@ -242,7 +247,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     children: [
                       Text("请选择首页数据源",
                           style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold)),
+                              fontSize: 16, fontWeight: FontWeight.bold,color: Colors.black)),
                       SizedBox(height: 16),
                       // 将 GridView 放入 SingleChildScrollView 或 Expanded
                       Expanded(
@@ -273,13 +278,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.public, size: 16, color: Colors.blue),
+              Icon(Icons.public,
+                  size: 16,
+                  color: themeController.currentAppTheme.selectedTextColor),
               const SizedBox(width: 4),
               SizedBox(
                 width: 40,
                 child: Text(
                   currentSite?.name ?? "未订阅",
-                  style: const TextStyle(fontSize: 12, color: Colors.black87),
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: themeController.currentAppTheme.titleColr),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -299,17 +308,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               height: 35,
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               decoration: BoxDecoration(
-                color: AppColors.themeColor,
-                border: Border.all(color: Colors.green),
+                color: themeController.currentAppTheme.backgroundColor,
+                border: Border.all(
+                    color: themeController.currentAppTheme.selectedTextColor),
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.search, color: Colors.green),
+                  Icon(Icons.search,
+                      color: themeController.currentAppTheme.contentColor),
                   const SizedBox(width: 8.0),
                   Text("输入搜索内容",
                       style:
-                          TextStyle(fontSize: 16.0, color: Colors.grey[600])),
+                          TextStyle(fontSize: 16.0, color: themeController.currentAppTheme.contentColor)),
                 ],
               ),
             ),
@@ -326,13 +337,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: GestureDetector(
         onTap: () => Navigator.push(context,
             MaterialPageRoute(builder: (context) => SubscriptionPage())),
-        child: const Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add, size: 64, color: AppColors.selectColor),
-            SizedBox(height: 16),
+            Icon(Icons.add,
+                size: 64,
+                color: themeController.currentAppTheme.selectedTextColor),
+            const SizedBox(height: 16),
             Text('暂无数据，点击添加',
-                style: TextStyle(color: AppColors.selectColor, fontSize: 16)),
+                style: TextStyle(
+                    color: themeController.currentAppTheme.selectedTextColor,
+                    fontSize: 16)),
           ],
         ),
       ),
@@ -346,13 +361,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         onTap: () {
           _loadData();
         },
-        child: const Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.refresh, size: 64, color: AppColors.selectColor),
+            Icon(Icons.refresh,
+                size: 64,
+                color: themeController.currentAppTheme.selectedTextColor),
             SizedBox(height: 16),
             Text('站点不可用，点击重试，或切换订阅',
-                style: TextStyle(color:AppColors.selectColor, fontSize: 16)),
+                style: TextStyle(
+                    color: themeController.currentAppTheme.selectedTextColor,
+                    fontSize: 16)),
           ],
         ),
       ),
@@ -363,13 +382,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Center(
       child: GestureDetector(
         onTap: _loadData,
-        child: const Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.refresh, size: 64, color: Colors.green),
+            Icon(Icons.refresh,
+                size: 64,
+                color: themeController.currentAppTheme.selectedTextColor),
             SizedBox(height: 16),
             Text('暂无数据，点击刷新',
-                style: TextStyle(color: Colors.green, fontSize: 16)),
+                style: TextStyle(
+                    color: themeController.currentAppTheme.selectedTextColor,
+                    fontSize: 16)),
           ],
         ),
       ),

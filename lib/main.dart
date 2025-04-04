@@ -1,13 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:lemon_tv/util/AppColors.dart';
+import 'package:get/get.dart';
 import 'package:lemon_tv/util/SPManager.dart';
-import '../history/PlayHistory.dart';
+import 'package:lemon_tv/util/ThemeController.dart';
 
-import 'home/SecendHomePage.dart';
-import 'local/VideoGalleryPage.dart';
+import '../history/PlayHistory.dart';
 import 'home/HomeScreen.dart';
+import 'home/SecendHomePage.dart';
 import 'http/data/MyHttpOverrides.dart';
 import 'mine/ProfileScreen.dart';
 
@@ -15,6 +15,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
   var isRealFun = await SPManager.isRealFun();
+  final ThemeController themeController =
+      Get.put(ThemeController()); // 初始化主题控制器
   runApp(ElectronicsStoreApp(isRealFun: isRealFun));
 }
 
@@ -25,16 +27,29 @@ class ElectronicsStoreApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-          scaffoldBackgroundColor: AppColors.themeColor, // 统一设置整个 App 的背景颜色
+    final ThemeController themeController = Get.find();
+
+    return Obx(() {
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          scaffoldBackgroundColor:
+              themeController.currentAppTheme.backgroundColor,
           appBarTheme: AppBarTheme(
-            backgroundColor: AppColors.themeColor, // 设置 AppBar 颜色
-            elevation: 0, // 去除阴影
-          )),
-      home: (!isRealFun && Platform.isIOS) ? SecendHomePage() : HomePage(),
-    );
+            backgroundColor: themeController.currentAppTheme.backgroundColor,
+            elevation: 0,
+          ),
+          textTheme: TextTheme(
+            bodyMedium: TextStyle(
+                color: themeController.currentAppTheme.normalTextColor),
+          ),
+          iconTheme:
+              IconThemeData(color: themeController.currentAppTheme.iconColor),
+          primaryColor: themeController.currentAppTheme.buttonColor,
+        ),
+        home: (!isRealFun && Platform.isIOS) ? SecendHomePage() : HomePage(),
+      );
+    });
   }
 }
 
@@ -47,7 +62,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
-
+  final ThemeController themeController = Get.find();
   final List<Widget> _pages = [
     HomeScreen(),
     PlayHistory(),
@@ -56,28 +71,30 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex, // 当前选中的页面
-        children: _pages,
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: AppColors.themeColor,
-        unselectedItemColor: AppColors.selectColor,
-        selectedItemColor: Colors.green,
-        elevation: 1.0,
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "首页"),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: "记录"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "我的"),
-        ],
-      ),
-    );
+    return Obx(() {
+      return Scaffold(
+        body: IndexedStack(
+          index: _currentIndex, // 当前选中的页面
+          children: _pages,
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: themeController.currentAppTheme.backgroundColor,
+          unselectedItemColor: themeController.currentAppTheme.unselectedTextColor,
+          selectedItemColor: themeController.currentAppTheme.selectedTextColor,
+          elevation: 1.0,
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: "首页"),
+            BottomNavigationBarItem(icon: Icon(Icons.history), label: "记录"),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: "我的"),
+          ],
+        ),
+      );
+    });
   }
 }

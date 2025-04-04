@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:lemon_tv/util/ThemeController.dart';
 
 import '../util/SPManager.dart';
 
@@ -20,6 +22,7 @@ class SearchHistoryList extends StatefulWidget {
 }
 
 class _SearchHistoryListState extends State<SearchHistoryList> {
+  final ThemeController themeController = Get.find();
   @override
   void initState() {
     super.initState();
@@ -39,11 +42,11 @@ class _SearchHistoryListState extends State<SearchHistoryList> {
           children: [
             Text(
               '搜索历史',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold,color: themeController.currentAppTheme.normalTextColor),
             ),
             TextButton(
               onPressed: widget.clearSearchHistory,
-              child: Text("清空"),
+              child: Text("清空",style: TextStyle(color: themeController.currentAppTheme.normalTextColor),),
             ),
           ],
         ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:lemon_tv/http/data/SubscripBean.dart';
 import 'package:lemon_tv/mywidget/MyLoadingIndicator.dart';
+import 'package:lemon_tv/util/ThemeController.dart';
 
 import '../main.dart';
 import '../util/SPManager.dart';
@@ -17,6 +19,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   StorehouseBean? _currentstorehouse;
   SubscriptionsUtil _subscriptionsUtil = SubscriptionsUtil();
   bool isLoading = false;
+  final ThemeController themeController = Get.find();
 
   @override
   void initState() {
@@ -229,56 +232,80 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("订阅管理"),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: addSubscriptionDialog,
-          ),
-          IconButton(
-            icon: Icon(Icons.check),
-            onPressed: _onConfirm,
-          ),
-        ],
-      ),
-      body: isLoading
-          ? Column(
-              children: [MyLoadingIndicator(isLoading: isLoading)],
-            )
-          : ListView.builder(
-              itemCount: _storehouses.length,
-              itemBuilder: (context, index) {
-                final storehouseBean = _storehouses[index];
-                return ListTile(
-                  leading: Radio<int>(
-                    value: index,
-                    groupValue: _selectedIndex,
-                    onChanged: (int? value) {
-                      setState(() {
-                        _selectedIndex = value;
-                      });
-                    },
-                  ),
-                  title: Text(storehouseBean.name ?? ''),
-                  subtitle: Text(storehouseBean.url ?? ''),
-                  trailing: IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () =>
-                        _deleteSubscription(storehouseBean.name ?? ''),
-                  ),
-                  onTap: () {
-                    setState(() {
-                      _selectedIndex = index;
-                    });
-                  },
-                  onLongPress: () {
-                    _editSubscription(index); // 长按编辑
-                  },
-                );
-              },
+    return Obx(() => Scaffold(
+          appBar: AppBar(
+            iconTheme: IconThemeData(
+                color: themeController.currentAppTheme.normalTextColor),
+            title: Text(
+              "订阅管理",
+              style: TextStyle(
+                  color: themeController.currentAppTheme.normalTextColor),
             ),
-    );
+            actions: [
+              IconButton(
+                icon: Icon(Icons.add,
+                    color: themeController.currentAppTheme.normalTextColor),
+                onPressed: addSubscriptionDialog,
+              ),
+              IconButton(
+                icon: Icon(Icons.check,
+                    color: themeController.currentAppTheme.normalTextColor),
+                onPressed: _onConfirm,
+              ),
+            ],
+          ),
+          body: isLoading
+              ? Column(
+                  children: [MyLoadingIndicator(isLoading: isLoading)],
+                )
+              : ListView.builder(
+                  itemCount: _storehouses.length,
+                  itemBuilder: (context, index) {
+                    final storehouseBean = _storehouses[index];
+                    return ListTile(
+                      leading: Radio<int>(
+                        value: index,
+                        groupValue: _selectedIndex,
+                        activeColor: themeController.currentAppTheme.iconColor,
+                        focusColor:
+                            themeController.currentAppTheme.unselectedTextColor,
+                        onChanged: (int? value) {
+                          setState(() {
+                            _selectedIndex = value;
+                          });
+                        },
+                      ),
+                      title: Text(
+                        storehouseBean.name ?? '',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: themeController
+                                .currentAppTheme.titleColr),
+                      ),
+                      subtitle: Text(
+                        storehouseBean.url ?? '',
+                        style: TextStyle(
+                            color: themeController
+                                .currentAppTheme.contentColor),
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(Icons.delete,
+                            color: themeController
+                                .currentAppTheme.normalTextColor),
+                        onPressed: () =>
+                            _deleteSubscription(storehouseBean.name ?? ''),
+                      ),
+                      onTap: () {
+                        setState(() {
+                          _selectedIndex = index;
+                        });
+                      },
+                      onLongPress: () {
+                        _editSubscription(index); // 长按编辑
+                      },
+                    );
+                  },
+                ),
+        ));
   }
 }

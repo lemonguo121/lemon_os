@@ -2,11 +2,10 @@ import 'dart:async';
 
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import 'package:lemon_tv/util/SubscriptionsUtil.dart';
-
+import 'package:get/get.dart';
+import 'package:lemon_tv/util/ThemeController.dart';
 import 'package:xml/xml.dart';
 
-import '../home/HomeListItem.dart';
 import '../http/HttpService.dart';
 import '../http/data/CategoryBean.dart';
 import '../http/data/CategoryChildBean.dart';
@@ -50,6 +49,8 @@ class _CategoryState extends State<CategoryFragment>
   bool hasMore = true;
   int currentPage = 1;
   int selectedCategoryPosition = 0; // 默认没有选中的分类
+  final ThemeController themeController = Get.find();
+
   @override
   void initState() {
     super.initState();
@@ -158,27 +159,30 @@ class _CategoryState extends State<CategoryFragment>
   Widget build(BuildContext context) {
     var isVertical = CommonUtil.isVertical(context);
     return Center(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ExpandablePanel(
-              theme: ExpandableThemeData(
-                headerAlignment: ExpandablePanelHeaderAlignment.center,
-                iconPadding: EdgeInsets.symmetric(horizontal: 12),
-              ),
-              collapsed: Text(
-                "",
-                softWrap: true,
-                maxLines: 1,
-                style: TextStyle(fontSize: 2),
-              ),
-              header: Text("",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-              expanded: _buildSecendCategory()),
-          // 视频列表
-          _buildListView(isVertical),
-        ],
-      ),
+      child: Obx(() => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ExpandablePanel(
+                  theme: ExpandableThemeData(
+                    headerAlignment: ExpandablePanelHeaderAlignment.center,
+                    iconPadding: EdgeInsets.symmetric(horizontal: 12),
+                    iconColor:
+                        themeController.currentAppTheme.unselectedTextColor,
+                  ),
+                  collapsed: Text(
+                    "",
+                    softWrap: true,
+                    maxLines: 1,
+                    style: TextStyle(fontSize: 2),
+                  ),
+                  header: Text("",
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                  expanded: _buildSecendCategory()),
+              // 视频列表
+              _buildListView(isVertical),
+            ],
+          )),
     );
   }
 

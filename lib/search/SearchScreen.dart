@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:lemon_tv/util/CommonUtil.dart';
 import 'package:lemon_tv/util/SubscriptionsUtil.dart';
 import 'package:xml/xml.dart';
@@ -7,8 +8,8 @@ import '../detail/DetailScreen.dart';
 import '../http/HttpService.dart';
 import '../http/data/RealVideo.dart';
 import '../http/data/storehouse_bean_entity.dart';
-import '../util/AppColors.dart';
 import '../util/SPManager.dart';
+import '../util/ThemeController.dart';
 import 'SearchHistoryList.dart';
 import 'SearchResultList.dart';
 
@@ -36,6 +37,7 @@ class _SearchScreenState extends State<SearchScreen>
   List<String> suggestions = [];
   OverlayEntry? _overlayEntry;
   final LayerLink _layerLink = LayerLink();
+  final ThemeController themeController = Get.find();
 
   @override
   void initState() {
@@ -222,37 +224,37 @@ class _SearchScreenState extends State<SearchScreen>
   Widget _buildSearchInput() {
     return CompositedTransformTarget(
       link: _layerLink,
-      child: Row(
-        children: [
-          Expanded(
-            child: SizedBox(
-              height: 40,
-              child: TextField(
-                controller: _searchController,
-                onChanged: (value) {
-                  _performSearch(value);
-                },
-                onSubmitted: (value) => _searchVideos(),
-                decoration: const InputDecoration(
-                  focusColor: AppColors.selectColor,
-                  hoverColor:Colors.white,
-                  hintText: "输入搜索内容",
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(),
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 0.0, horizontal: 12.0),
+      child: Obx(() {
+        return Row(
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 40,
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) {
+                    _performSearch(value);
+                  },
+                  onSubmitted: (value) => _searchVideos(),
+                  decoration: InputDecoration(
+                    focusColor:
+                        themeController.currentAppTheme.selectedTextColor,
+                    hoverColor: themeController.currentAppTheme.selectedTextColor,
+                    hintText: "输入搜索内容",
+                    hintStyle: TextStyle(color: themeController.currentAppTheme.contentColor),
+                    prefixIcon: Icon(Icons.search,color: themeController.currentAppTheme.contentColor,),
+                    border: OutlineInputBorder(),
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 0.0, horizontal: 12.0),
+                  ),
+                  style:  TextStyle(fontSize: 16.0,color: themeController.currentAppTheme.titleColr),
                 ),
-                style: const TextStyle(fontSize: 16.0),
               ),
             ),
-          ),
-          SizedBox(width: 8.0),
-          GestureDetector(
-            onTap: _searchVideos,
-            child: Text("搜索"),
-          ),
-        ],
-      ),
+            SizedBox(width: 8.0),
+          ],
+        );
+      }),
     );
   }
 

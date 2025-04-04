@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:lemon_tv/mywidget/MyLoadingIndicator.dart';
 import 'package:lemon_tv/player/ParesVideoPlayerPage.dart';
 import 'package:lemon_tv/util/CommonUtil.dart';
 import 'package:lemon_tv/util/SPManager.dart';
 
 import '../http/data/ParesVideo.dart';
-import '../util/AppColors.dart';
 import '../util/LoadingImage.dart';
+import '../util/ThemeController.dart';
 
 class PareseScreen extends StatefulWidget {
   const PareseScreen({super.key});
@@ -18,6 +19,7 @@ class PareseScreen extends StatefulWidget {
 class _PareseScreenState extends State<PareseScreen> {
   bool isLoading = false;
   List<ParesVideo> paresHisList = [];
+  final ThemeController themeController = Get.find();
 
   @override
   void initState() {
@@ -119,44 +121,50 @@ class _PareseScreenState extends State<PareseScreen> {
     if (isLoading) {
       return Column(children: [MyLoadingIndicator(isLoading: isLoading)]);
     }
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.only(top: 45.0),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 35,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child: InkWell(
-                  onTap: () => addPlayUrlDialog(),
-                  child: Container(
-                    height: 35,
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    decoration: BoxDecoration(
-                      color: AppColors.themeColor,
-                      border: Border.all(color: Colors.green),
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.search, color: Colors.green),
-                        const SizedBox(width: 8.0),
-                        Text("输入合法的视频链接",
-                            style: TextStyle(
-                                fontSize: 16.0, color: Colors.grey[600])),
-                      ],
+    return Obx(() {
+      return Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.only(top: 45.0),
+          child: Column(
+            children: [
+              SizedBox(
+                height: 35,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: InkWell(
+                    onTap: () => addPlayUrlDialog(),
+                    child: Container(
+                      height: 35,
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      decoration: BoxDecoration(
+                        color: themeController.currentAppTheme.backgroundColor,
+                        border: Border.all(
+                            color: themeController
+                                .currentAppTheme.unselectedTextColor),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.search,
+                              color: themeController
+                                  .currentAppTheme.unselectedTextColor),
+                          const SizedBox(width: 8.0),
+                          Text("输入合法的视频链接",
+                              style: TextStyle(
+                                  fontSize: 16.0, color: Colors.grey[600])),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            SizedBox(height: 10),
-            _buildHisListUI()
-          ],
+              SizedBox(height: 10),
+              _buildHisListUI()
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildGridItem(int index) {
@@ -235,10 +243,9 @@ class _PareseScreenState extends State<PareseScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              ParesVideoPlayerPage(
-                paresVideo: paresVideo,
-              ),
+          builder: (context) => ParesVideoPlayerPage(
+            paresVideo: paresVideo,
+          ),
         ),
       );
     } catch (e) {
@@ -254,39 +261,39 @@ class _PareseScreenState extends State<PareseScreen> {
     if (paresHisList.isEmpty) {
       return Expanded(
           child: Center(
-            child: GestureDetector(
-              onTap: () => addPlayUrlDialog(),
-              child: Align(
-                alignment: Alignment.center,
-                child: const Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.add, size: 64, color: AppColors.selectColor),
-                    SizedBox(height: 16),
-                    Text('暂无数据，点击添加',
-                        style:
-                        TextStyle(color: AppColors.selectColor, fontSize: 16)),
-                  ],
-                ),
-              ),
+        child: GestureDetector(
+          onTap: () => addPlayUrlDialog(),
+          child: Align(
+            alignment: Alignment.center,
+            child:  Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.add, size: 64, color: themeController.currentAppTheme.selectedTextColor),
+                SizedBox(height: 16),
+                Text('暂无数据，点击添加',
+                    style:
+                        TextStyle(color: themeController.currentAppTheme.selectedTextColor, fontSize: 16)),
+              ],
             ),
-          ));
+          ),
+        ),
+      ));
     } else {
       return Expanded(
           child: GridView.builder(
-            padding: const EdgeInsets.all(12.0),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: CommonUtil.isVertical(context) ? 3 : 6, // 一行三个
-              crossAxisSpacing: 8.0, // 水平方向间距
-              mainAxisSpacing: 8.0, // 垂直方向间距
-              childAspectRatio: 0.75, // 调整宽高比
-            ),
-            itemCount: paresHisList.length,
-            itemBuilder: (context, index) {
-              return _buildGridItem(index);
-            },
-          ));
+        padding: const EdgeInsets.all(12.0),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: CommonUtil.isVertical(context) ? 3 : 6, // 一行三个
+          crossAxisSpacing: 8.0, // 水平方向间距
+          mainAxisSpacing: 8.0, // 垂直方向间距
+          childAspectRatio: 0.75, // 调整宽高比
+        ),
+        itemCount: paresHisList.length,
+        itemBuilder: (context, index) {
+          return _buildGridItem(index);
+        },
+      ));
     }
   }
 
@@ -333,7 +340,7 @@ class _PareseScreenState extends State<PareseScreen> {
 
   void checkISAgree() async {
     var isAgree = await SPManager.isAgree();
-    if (!isAgree){
+    if (!isAgree) {
       showPrivacyPolicyDialog();
     }
   }

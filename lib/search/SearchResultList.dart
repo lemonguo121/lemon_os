@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:lemon_tv/util/AppColors.dart';
+import 'package:get/get.dart';
 
-import '../detail/DetailScreen.dart';
 import '../http/data/RealVideo.dart';
 import '../mywidget/MyLoadingIndicator.dart';
 import '../util/LoadingImage.dart';
+import '../util/ThemeController.dart';
 
 class SearchResultList extends StatefulWidget {
   final bool isLoading;
@@ -29,6 +29,8 @@ class SearchResultList extends StatefulWidget {
 }
 
 class _SearchResultListState extends State<SearchResultList> {
+  final ThemeController themeController = Get.find();
+
   @override
   Widget build(BuildContext context) {
     return _buildSearchResult();
@@ -53,7 +55,12 @@ class _SearchResultListState extends State<SearchResultList> {
             flex: 6,
             child: widget.selectResponseData.videos.isEmpty
                 ? Center(
-                    child: Text(widget.hasSearch ? "没有找到相关视频" : ""),
+                    child: Text(
+                      widget.hasSearch ? "没有找到相关视频" : "",
+                      style: TextStyle(
+                          color: themeController
+                              .currentAppTheme.selectedTextColor),
+                    ),
                   )
                 // 视频列表
                 : _buildSearchVideoList(),
@@ -69,27 +76,26 @@ class _SearchResultListState extends State<SearchResultList> {
       itemCount: widget.hasResultSite.length,
       itemBuilder: (context, index) {
         var siteName = widget.hasResultSite[index];
-        return GestureDetector(
-          onTap: () {
-            setState(() {
-              widget.loadSearchResults(siteName);
-            });
-          },
-          child: Padding(
+        return GestureDetector(onTap: () {
+          setState(() {
+            widget.loadSearchResults(siteName);
+          });
+        }, child: Obx(() {
+          return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
               siteName ?? "",
               style: TextStyle(
                   fontSize: 13.0,
                   color: (siteName == widget.selectSite)
-                      ? AppColors.selectColor
-                      : Colors.black,
+                      ? themeController.currentAppTheme.selectedTextColor
+                      : themeController.currentAppTheme.normalTextColor,
                   fontWeight: (siteName == widget.selectSite)
                       ? FontWeight.bold
                       : FontWeight.normal),
             ),
-          ),
-        );
+          );
+        }));
       },
     );
   }
@@ -126,16 +132,21 @@ class _SearchResultListState extends State<SearchResultList> {
                       const SizedBox(height: 4.0),
                       Text(
                         video.vodName,
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold,color: Colors.black),
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: themeController
+                                .currentAppTheme.titleColr),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4.0),
                       Text(
                         video.vodRemarks,
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.black),
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: themeController
+                                .currentAppTheme.contentColor),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -144,24 +155,30 @@ class _SearchResultListState extends State<SearchResultList> {
                         video.vodArea,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.black),
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: themeController
+                                .currentAppTheme.contentColor),
                       ),
                       const SizedBox(height: 2.0),
                       Text(
                         video.typeName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.black),
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: themeController
+                                .currentAppTheme.contentColor),
                       ),
                       const SizedBox(height: 2.0),
                       Text(
                         video.vodPubdate,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.black),
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: themeController
+                                .currentAppTheme.contentColor),
                       )
                     ],
                   ),

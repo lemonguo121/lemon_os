@@ -23,6 +23,7 @@ class SPManager {
   static const String _currentSitetinKey = "_currentSitetinKey";
   static const String _pares_url_video = "pares_url_video";
   static const String is_agree = "is_agree";
+  static const String selectedTheme = "selectedTheme";
 
   static Future<bool> isRealFun() async {
     final prefs = await SharedPreferences.getInstance();
@@ -297,5 +298,15 @@ class SPManager {
     var pareHisList = await getParesVideoHisList();
     pareHisList.removeWhere((item) => videoData.vodPlayUrl == item.vodPlayUrl);
     await prefs.setString(_pares_url_video, jsonEncode(pareHisList));
+  }
+
+  static Future<void> selectThemeData(String themeKey) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(selectedTheme, themeKey);
+  }
+
+  static Future<String> getThemeData() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(selectedTheme)??"浅色";
   }
 }

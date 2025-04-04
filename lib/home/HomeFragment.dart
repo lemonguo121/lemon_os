@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:lemon_tv/util/SubscriptionsUtil.dart';
 import 'package:xml/xml.dart';
 
-import '../util/AppColors.dart';
+import '../util/ThemeController.dart';
 import 'HomeCateforyListItem.dart';
 import '../http/HttpService.dart';
 import '../http/data/CategoryBean.dart';
@@ -38,6 +39,7 @@ class _HomeFragmentState extends State<HomeFragment>
   final HttpService _httpService = HttpService();
   final PageStorageKey _pageStorageKey =
       PageStorageKey('CategoryFragment_${UniqueKey()}');
+  final ThemeController themeController = Get.find();
 
   @override
   bool get wantKeepAlive => true;
@@ -160,53 +162,62 @@ class _HomeFragmentState extends State<HomeFragment>
   }
 
   Widget _buildCategoryListView() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: homeCategoryList.entries.map((entry) {
-        return _buildCategorySection(entry.key, entry.value);
-      }).toList(),
-    );
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: homeCategoryList.entries.map((entry) {
+          return _buildCategorySection(entry.key, entry.value);
+        }).toList(),
+      );
   }
 
   Widget _buildCategorySection(int typePid, List<HomeCategoryData> videos) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: 12,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-          child: Text(
-            _getTypeContent(typePid),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color:AppColors.selectColor),
+    return Obx((){
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 12,
           ),
-        ),
-        Container(
-          margin: EdgeInsets.only(top: 8.0, left: 8.0, ),
-          padding: const EdgeInsets.only(top: 10.0),
-          width: double.infinity,
-          decoration: BoxDecoration(
-            // color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(12), // 圆角半径
-          ),
-          child: IntrinsicHeight(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.only(left: 8.0),
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: videos
-                  .map((video) => SizedBox(
-                        child: Homecateforylistitem(realVideo: video.video),
-                      ))
-                  .toList(),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+            child: Text(
+              _getTypeContent(typePid),
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: themeController.currentAppTheme.titleColr),
             ),
           ),
+          Container(
+            margin: EdgeInsets.only(
+              top: 8.0,
+              left: 8.0,
+            ),
+            padding: const EdgeInsets.only(top: 10.0),
+            width: double.infinity,
+            decoration: BoxDecoration(
+              // color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(12), // 圆角半径
+            ),
+            child: IntrinsicHeight(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(left: 8.0),
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: videos
+                      .map((video) => SizedBox(
+                    child: Homecateforylistitem(realVideo: video.video),
+                  ))
+                      .toList(),
+                ),
+              ),
+            ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
+
   }
 
   String _getTypeContent(int typePid) {
