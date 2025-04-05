@@ -247,7 +247,7 @@ class _MenuContainerState extends State<MenuContainer> {
                                       widget.changePlaySpeed(speed);
                                     },
                                     child: _buildMenuText(
-                                        "${widget.controller.value.playbackSpeed}")),
+                                        "    x${widget.controller.value.playbackSpeed}    ")),
                                 SizedBox(
                                   height: 20.0,
                                   child: IconButton(
