@@ -184,7 +184,7 @@ class _MenuContainerState extends State<MenuContainer> {
                                           milliseconds: value.toInt()));
                                     });
                                   },
-                                  activeColor: Colors.blue,
+                                  activeColor: Colors.white,
                                   // 自定义颜色
                                   inactiveColor: Colors.white54,
                                   // 自定义颜色
@@ -231,7 +231,7 @@ class _MenuContainerState extends State<MenuContainer> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 SizedBox(
-                                  width: 12.0,
+                                  width: 10.0,
                                 ),
                                 GestureDetector(
                                   onLongPress: (){
