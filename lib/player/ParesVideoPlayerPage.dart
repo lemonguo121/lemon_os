@@ -54,11 +54,16 @@ class _LocalVideoPlayerPagesState extends State<ParesVideoPlayerPage> {
   void dispose() {
     _controller.removeListener(() {});
     _controller.dispose();
+    _saveProgressAndIndex();
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: SystemUiOverlay.values);
     super.dispose();
+  }
+
+  Future<void> _saveProgressAndIndex() async {
+    await SPManager.saveProgress(widget.paresVideo.vodPlayUrl, _controller.value.position);
   }
 
   void initializePlayer() async {

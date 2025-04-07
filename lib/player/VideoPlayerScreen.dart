@@ -168,7 +168,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   @override
-  void dispose() async {
+  void dispose() {
     _controller.removeListener(() {});
     WidgetsBinding.instance.removeObserver(this);
     // 调用异步方法，不阻塞 dispose

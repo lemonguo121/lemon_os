@@ -132,11 +132,15 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
   void dispose() {
     _controller.removeListener(() {});
     _controller.dispose();
+    _saveProgressAndIndex();
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: SystemUiOverlay.values);
     super.dispose();
+  }
+  Future<void> _saveProgressAndIndex() async {
+    await SPManager.saveProgress(widget.video.file.toString(), _controller.value.position);
   }
 
   void _playPreviousVideo() {
