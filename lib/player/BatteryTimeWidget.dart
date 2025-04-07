@@ -17,20 +17,30 @@ class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
   final Battery _battery = Battery();
   int _batteryLevel = 100; // 默认100%
   String _timeString = "";
+  late Timer _timer;
 
   @override
   void initState() {
     super.initState();
     _updateTime();
     _getBatteryStatus();
-    Timer.periodic(const Duration(seconds: 30), (timer) {
-      _updateTime();
-      _getBatteryStatus();
+    _timer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      if (mounted) {
+        _updateTime();
+        _getBatteryStatus();
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 
   /// 获取当前时间
   void _updateTime() {
+    if (mounted) {}
     setState(() {
       _timeString = DateFormat('HH:mm').format(DateTime.now());
     });

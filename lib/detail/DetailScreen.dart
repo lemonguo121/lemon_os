@@ -59,7 +59,6 @@ class _DetailScreenState extends State<DetailScreen> {
       _selectedPlayFromIndex = fromIndex;
       _selectFromIndex = fromIndex;
     });
-    _scrollToSelectedItem(progress);
   }
 
   Future<void> _fetchDetail() async {
@@ -94,7 +93,9 @@ class _DetailScreenState extends State<DetailScreen> {
         var videos = responseData.videos;
         video = videos[0];
         isLoading = false; // 数据加载完成
+        _scrollToSelectedItem(_selectedIndex);
         historyController.saveHistory(video);
+
       });
     } catch (e) {
       setState(() {

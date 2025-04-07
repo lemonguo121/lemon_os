@@ -132,6 +132,7 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
   void dispose() {
     _controller.removeListener(() {});
     _controller.dispose();
+    _timer?.cancel();
     _saveProgressAndIndex();
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);

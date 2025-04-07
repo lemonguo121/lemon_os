@@ -150,16 +150,17 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
           _playNextVideo();
         }
       }
-      setState(() {
-        var isPlaying = _controller.value.isPlaying;
-        var bufferedProgress = _controller.value.buffered.isNotEmpty
-            ? _controller.value.buffered.last.end.inMilliseconds.toDouble()
-            : 0.0;
-        var currentPosition =
-            _controller.value.position.inMilliseconds.toDouble();
-        _isBuffering = _controller.value.isBuffering &&
-            (!isPlaying || currentPosition >= bufferedProgress);
-      });
+      if (mounted) {
+        setState(() {
+          var bufferedProgress = _controller.value.buffered.isNotEmpty
+              ? _controller.value.buffered.last.end.inMilliseconds.toDouble()
+              : 0.0;
+          var currentPosition =
+              _controller.value.position.inMilliseconds.toDouble();
+          _isBuffering = _controller.value.isBuffering &&
+              (currentPosition >= bufferedProgress);
+        });
+      }
     });
     _toggleFullScreen;
     setState(() {});
@@ -170,11 +171,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   @override
   void dispose() {
     _controller.removeListener(() {});
+    _controller.dispose();
+    _timer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     // 调用异步方法，不阻塞 dispose
     _saveProgressAndIndex();
     SystemChrome.setPreferredOrientations([]);
-    _controller.dispose();
     super.dispose();
   }
 
