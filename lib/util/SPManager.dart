@@ -70,25 +70,25 @@ class SPManager {
   }
 
   // 保存播放到多少集
-  static Future<void> saveIndex(String videoId, int position) async {
+  static Future<void> saveIndex(RealVideo video, int position) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setInt("$_progressKey$videoId", position);
+    prefs.setInt("$_progressKey${video.vodId}", position);
   }
 
   // 获取播放到多少集
-  static Future<int?> getIndex(int videoId) async {
+  static Future<int?> getIndex(String videoId) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt("$_progressKey$videoId");
   }
 
   // 保存播放的来源索引
-  static Future<void> saveFromIndex(String videoId, int position) async {
+  static Future<void> saveFromIndex(RealVideo video, int position) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setInt("$_videoFromProgress$videoId", position);
+    prefs.setInt("$_videoFromProgress${video.vodId}", position);
   }
 
   // 获取播放的来源索引
-  static Future<int?> getFromIndex(int videoId) async {
+  static Future<int?> getFromIndex(String videoId) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt("$_videoFromProgress$videoId");
   }

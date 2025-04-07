@@ -107,8 +107,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     var isSkipTail = false;
     final savedPosition = await SPManager.getProgress(playUrl);
     videoId = widget.video.vodId;
-    SPManager.saveIndex("$videoId", _currentIndex);
-    SPManager.saveFromIndex("$videoId", widget.fromIndex);
+    await historyController.saveIndex(
+        widget.video, _currentIndex, widget.fromIndex);
     // 获取跳过时间
     headTime = await SPManager.getSkipHeadTimes("$videoId");
 
@@ -150,16 +150,16 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
           _playNextVideo();
         }
       }
-        setState(() {
-          var isPlaying = _controller.value.isPlaying;
-          var bufferedProgress = _controller.value.buffered.isNotEmpty
-              ? _controller.value.buffered.last.end.inMilliseconds.toDouble()
-              : 0.0;
-          var currentPosition =
-              _controller.value.position.inMilliseconds.toDouble();
-          _isBuffering = _controller.value.isBuffering &&
-              (!isPlaying || currentPosition >= bufferedProgress);
-        });
+      setState(() {
+        var isPlaying = _controller.value.isPlaying;
+        var bufferedProgress = _controller.value.buffered.isNotEmpty
+            ? _controller.value.buffered.last.end.inMilliseconds.toDouble()
+            : 0.0;
+        var currentPosition =
+            _controller.value.position.inMilliseconds.toDouble();
+        _isBuffering = _controller.value.isBuffering &&
+            (!isPlaying || currentPosition >= bufferedProgress);
+      });
     });
     _toggleFullScreen;
     setState(() {});
@@ -168,15 +168,20 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   }
 
   @override
-  void dispose() {
+  void dispose() async {
     _controller.removeListener(() {});
     WidgetsBinding.instance.removeObserver(this);
-    SPManager.saveProgress(playUrl, _controller.value.position);
-    SPManager.saveIndex("$videoId", _currentIndex);
-    SPManager.saveFromIndex("$videoId", widget.fromIndex);
+    // 调用异步方法，不阻塞 dispose
+    _saveProgressAndIndex();
     SystemChrome.setPreferredOrientations([]);
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _saveProgressAndIndex() async {
+    await SPManager.saveProgress(playUrl, _controller.value.position);
+    await historyController.saveIndex(
+        widget.video, _currentIndex, widget.fromIndex);
   }
 
   @override

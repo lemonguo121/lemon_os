@@ -19,10 +19,12 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
   final HistoryController historyController =
       Get.put(HistoryController()); // 依赖注入
   final ThemeController themeController = Get.find();
-  int _playIndex = 0;
-  int _fromIndex = 0;
+
+  // int _playIndex = 0;
+  // int _fromIndex = 0;
   bool _isLoading = true;
-  final Map<int, String> _videoTitles = {}; // 缓存每个视频的标题
+
+  // final Map<int, String> _videoTitles = {};
   @override
   void initState() {
     super.initState();
@@ -34,31 +36,23 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
     });
   }
 
-  Future<void> _getIndex(int videoId) async {
-    int? progress = await SPManager.getIndex(videoId) ?? 0;
-    var fromIndex = await SPManager.getFromIndex(videoId) ?? 0;
-    setState(() {
-      _playIndex = progress;
-      _fromIndex = fromIndex;
-    });
-  }
-
-  Future<void> getVideoRec(RealVideo video) async {
-    try {
-      await _getIndex(video.vodId);
-      var playList = CommonUtil.getPlayListAndForm(video).playList;
-      setState(() {
-        _videoTitles[video.vodId] =
-            (_fromIndex >= 0 && _fromIndex < playList.length)
-                ? playList[_fromIndex][_playIndex]['title']!
-                : "";
-      });
-    } catch (e) {
-      setState(() {
-        _videoTitles[video.vodId] = "";
-      });
-    }
-  }
+  // Future<void> getVideoRec(RealVideo video) async {
+  //   try {
+  //     int? _playIndex = await SPManager.getIndex("${video.vodId}") ?? 0;
+  //     var _fromIndex = await SPManager.getFromIndex("${video.vodId}") ?? 0;
+  //     var playList = CommonUtil.getPlayListAndForm(video).playList;
+  //     setState(() {
+  //       _videoTitles[video.vodId] =
+  //           (_fromIndex >= 0 && _fromIndex < playList.length)
+  //               ? playList[_fromIndex][_playIndex]['title']!
+  //               : "";
+  //     });
+  //   } catch (e) {
+  //     setState(() {
+  //       _videoTitles[video.vodId] = "";
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -92,8 +86,12 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
         child: CircularProgressIndicator(),
       );
     } else if (historyController.historyList.isEmpty) {
-      return  Center(
-        child: Text('暂无历史记录',style: TextStyle(color: themeController.currentAppTheme.selectedTextColor),),
+      return Center(
+        child: Text(
+          '暂无历史记录',
+          style: TextStyle(
+              color: themeController.currentAppTheme.selectedTextColor),
+        ),
       );
     } else {
       return _buildGrid(isVertical);
@@ -121,9 +119,9 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
     var realVideo = historyList[index];
     // print("_buildGridItem   title = ${realVideo.typeName}  domain = ${realVideo.subscriptionDomain} ");
     // 确保每个视频的标题加载完成
-    if (!_videoTitles.containsKey(realVideo.vodId)) {
-      getVideoRec(realVideo);
-    }
+    // if (!_videoTitles.containsKey(realVideo.vodId)) {
+    //   getVideoRec(realVideo);
+    // }
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -174,7 +172,7 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    realVideo.vodArea, // 视频标题
+                    realVideo.vodArea,
                     style: const TextStyle(
                       fontSize: 10,
                       color: Colors.white,
@@ -183,7 +181,7 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    _videoTitles[realVideo.vodId] ?? "",
+                    historyController.videoTitles["${realVideo.vodId}"] ?? "",
                     style: const TextStyle(
                       fontSize: 10,
                       color: Colors.white,

@@ -28,7 +28,8 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-  final HistoryController historyController = Get.put(HistoryController()); // 依赖注入
+  final HistoryController historyController =
+      Get.put(HistoryController()); // 依赖注入
   final HttpService _httpService = HttpService();
   late RealVideo video; // 存储详情数据
   RealResponseData responseData = RealResponseData(
@@ -51,8 +52,8 @@ class _DetailScreenState extends State<DetailScreen> {
 
   // 异步加载视频进度
   Future<void> _loadProgress() async {
-    int? progress = await SPManager.getIndex(widget.vodId) ?? 0;
-    int? fromIndex = await SPManager.getFromIndex(widget.vodId) ?? 0;
+    int? progress = await SPManager.getIndex("${widget.vodId}") ?? 0;
+    int? fromIndex = await SPManager.getFromIndex("${widget.vodId}") ?? 0;
     setState(() {
       _selectedIndex = progress;
       _selectedPlayFromIndex = fromIndex;
@@ -134,16 +135,14 @@ class _DetailScreenState extends State<DetailScreen> {
     _scrollToSelectedItem(currentPosition);
   }
 
-  void _changePlayPosition(int index) {
+  void _changePlayPosition(int index) async {
     if (index == _selectedIndex && _selectedPlayFromIndex == _selectFromIndex) {
       return;
     }
     _onChangePlayPositon(index);
-    final videoId = widget.vodId;
     final playItem = CommonUtil.getPlayListAndForm(video)
         .playList[_selectedPlayFromIndex][index];
-    SPManager.saveIndex("$videoId", index);
-    SPManager.saveFromIndex("$videoId", _selectedPlayFromIndex);
+   await historyController.saveIndex(video, index,_selectedPlayFromIndex);
     VideoPlayerScreen.of(context)
         ?.playVideo(playItem["url"] ?? "", _selectedIndex);
   }

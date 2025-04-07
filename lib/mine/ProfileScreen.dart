@@ -5,6 +5,7 @@ import 'package:lemon_tv/util/ThemeController.dart';
 import '../subscrip/SubscriptionPage.dart';
 import '../util/CacheUtil.dart';
 import 'ThemeSettingsPage.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -16,11 +17,21 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   double _cacheSize = 0;
   final ThemeController themeController = Get.find();
+  String _version = '';
 
   @override
   void initState() {
     super.initState();
     _updateCacheSize();
+    _initPackageInfo();
+  }
+
+  Future<void> _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _version = info.version;
+
+    });
   }
 
   /// 更新缓存大小
@@ -103,6 +114,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             themeController.currentAppTheme.titleColr)),
                 // 显示缓存大小
                 onTap: _clearCache, // 点击清理缓存
+              ),
+              ListTile(
+                leading: Icon(Icons.info_outline,
+                    color: themeController.currentAppTheme.unselectedTextColor),
+                // 清理缓存图标
+                title: Text("版本号",
+                    style: TextStyle(
+                        color:
+                        themeController.currentAppTheme.titleColr)),
+                trailing: Text("v $_version" ,
+                    style: TextStyle(
+                        color:
+                        themeController.currentAppTheme.titleColr)),
               ),
             ],
           ),

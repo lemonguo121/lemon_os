@@ -1,19 +1,35 @@
 import 'package:get/get.dart';
+import 'package:lemon_tv/util/CommonUtil.dart';
 import 'package:lemon_tv/util/SPManager.dart';
 
 import '../http/data/RealVideo.dart';
 
-
 class HistoryController extends GetxController {
   final RxList<RealVideo> _historyList = <RealVideo>[].obs;
+  final RxMap<String, String> _videoTitles = <String, String>{}.obs;
 
   // 提供一个 getter，方便 UI 访问
   List<RealVideo> get historyList => _historyList;
 
+  Map<String, String> get videoTitles => _videoTitles;
+
   // 初始化历史记录
   Future<void> initList() async {
     List<RealVideo> list = await SPManager.getHistoryList();
-    _historyList.assignAll(list); // 使用 assignAll() 赋值，保持响应式
+    _historyList.assignAll(list);
+    await Future.wait(list.map((video) => freshVideoIndex(video)));
+  }
+
+  Future<void> freshVideoIndex(RealVideo video) async {
+    int playIndex = await SPManager.getIndex("${video.vodId}") ?? 0;
+    int fromIndex = await SPManager.getFromIndex("${video.vodId}") ?? 0;
+    var playList = CommonUtil.getPlayListAndForm(video).playList;
+
+    _videoTitles["${video.vodId}"] =
+        (fromIndex >= 0 && fromIndex < playList.length)
+            ? playList[fromIndex][playIndex]['title']!
+            : "";
+    _videoTitles.refresh();
   }
 
   // 保存历史记录
@@ -37,5 +53,12 @@ class HistoryController extends GetxController {
     _historyList.removeWhere((element) => element.vodId == video.vodId);
     _historyList.refresh();
     SPManager.removeSingleHistory(video);
+  }
+
+  Future<void> saveIndex(
+      RealVideo video, int position, int selectedPlayFromIndex) async {
+    await SPManager.saveFromIndex(video, selectedPlayFromIndex);
+    await SPManager.saveIndex(video, position);
+    await freshVideoIndex(video);
   }
 }
