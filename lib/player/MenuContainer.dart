@@ -23,6 +23,7 @@ class MenuContainer extends StatefulWidget {
   final VoidCallback cleanSkipTail;
   final VoidCallback setSkipHead;
   final VoidCallback cleanSkipHead;
+  final ValueChanged<bool> changingProgress;
   final bool isFullScreen;
   final bool isScreenLocked;
   final bool isAlsoShowTime;
@@ -46,6 +47,7 @@ class MenuContainer extends StatefulWidget {
     required this.cleanSkipTail,
     required this.setSkipHead,
     required this.cleanSkipHead,
+    required this.changingProgress,
     required this.isFullScreen,
     required this.isScreenLocked,
     required this.isAlsoShowTime,
@@ -56,6 +58,8 @@ class MenuContainer extends StatefulWidget {
 }
 
 class _MenuContainerState extends State<MenuContainer> {
+  bool isAdjustProgress = false;
+  Duration changeProgress = Duration(milliseconds: 0);
   String _playPositonTips = ""; //调节进度时候的文案
   void _showPlayPositionfeedback() {
     setState(() {
@@ -171,17 +175,43 @@ class _MenuContainerState extends State<MenuContainer> {
                           Expanded(
                             child: SizedBox(
                               child: Slider(
-                                  value: widget
-                                      .controller.value.position.inMilliseconds
-                                      .toDouble(),
+                                  value: !isAdjustProgress
+                                      ? widget.controller.value.position
+                                          .inMilliseconds
+                                          .toDouble()
+                                      : changeProgress.inMilliseconds
+                                          .toDouble(),
                                   min: 0.0,
                                   max: widget
                                       .controller.value.duration.inMilliseconds
                                       .toDouble(),
                                   onChanged: (double value) {
                                     setState(() {
-                                      widget.seekToPosition(Duration(
-                                          milliseconds: value.toInt()));
+                                      isAdjustProgress = true;
+                                      widget.changingProgress(isAdjustProgress);
+                                      changeProgress =
+                                          Duration(milliseconds: value.toInt());
+
+                                      widget.playPositonTips(
+                                          "${CommonUtil.formatDuration(changeProgress)}/${CommonUtil.formatDuration(widget.controller.value.duration)}");
+                                    });
+                                  },
+                                  onChangeStart: (double value) {
+                                    setState(() {
+                                      isAdjustProgress = true;
+                                      widget.changingProgress(isAdjustProgress);
+                                      widget.showSkipFeedback(true);
+                                      widget.playPositonTips(
+                                          "${CommonUtil.formatDuration(changeProgress)}/${CommonUtil.formatDuration(widget.controller.value.duration)}");
+                                    });
+                                  },
+                                  onChangeEnd: (double value) {
+                                    widget.seekToPosition(
+                                        Duration(milliseconds: value.toInt()));
+                                    setState(() {
+                                      isAdjustProgress = false;
+                                      widget.changingProgress(isAdjustProgress);
+                                      widget.showSkipFeedback(false);
                                     });
                                   },
                                   activeColor: Colors.white,
@@ -234,9 +264,9 @@ class _MenuContainerState extends State<MenuContainer> {
                                   width: 10.0,
                                 ),
                                 GestureDetector(
-                                  onLongPress: (){
-                                    widget.changePlaySpeed(1.0);
-                                  },
+                                    onLongPress: () {
+                                      widget.changePlaySpeed(1.0);
+                                    },
                                     onTap: () {
                                       var speed = widget
                                               .controller.value.playbackSpeed +
@@ -293,7 +323,9 @@ class _MenuContainerState extends State<MenuContainer> {
                                   ),
                                 ),
                                 _buildMenuText("片头/片尾"),
-                                SizedBox(width: 8.0,),
+                                SizedBox(
+                                  width: 8.0,
+                                ),
                                 // 显示跳过片头时间
                                 GestureDetector(
                                   onTap: () async {

@@ -184,6 +184,17 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
     setState(() {});
   }
 
+  void _changeingProgress(bool isChanging) {
+    setState(() {
+      if (!isChanging) {
+        autoCloseMenuTimer();
+      } else {
+        _timer?.cancel();
+        _isControllerVisible = isChanging;
+      }
+    });
+  }
+
   void _togglePlayPause() {
     autoCloseMenuTimer();
     if (isScreenLocked) {
@@ -413,6 +424,7 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
                   setSkipTail: _setSkipTail,
                   cleanSkipTail: _cleanSkipTail,
                   toggleFullScreen: _toggleFullScreen,
+                  changingProgress: _changeingProgress,
                   isFullScreen: _isFullScreen,
                   isScreenLocked: isScreenLocked,
                   isAlsoShowTime: true,
