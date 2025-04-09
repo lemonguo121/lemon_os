@@ -84,6 +84,8 @@ class _MenuContainerState extends State<MenuContainer> {
         ? widget.controller.value.buffered.last.end.inMilliseconds.toDouble()
         : 0.0;
     double bottomBarHeight = widget.isFullScreen ? 90.0 : 80.0;
+    var size = widget.controller.value.size;
+
     return Stack(
       children: [
         if (!widget.isScreenLocked)
@@ -208,10 +210,14 @@ class _MenuContainerState extends State<MenuContainer> {
                                   onChangeEnd: (double value) {
                                     widget.seekToPosition(
                                         Duration(milliseconds: value.toInt()));
-                                    setState(() {
-                                      isAdjustProgress = false;
-                                      widget.changingProgress(isAdjustProgress);
-                                      widget.showSkipFeedback(false);
+                                    Future.delayed(Duration(seconds: 1),
+                                        () {
+                                      setState(() {
+                                        isAdjustProgress = false;
+                                        widget
+                                            .changingProgress(isAdjustProgress);
+                                        widget.showSkipFeedback(false);
+                                      });
                                     });
                                   },
                                   activeColor: Colors.white,
@@ -397,6 +403,12 @@ class _MenuContainerState extends State<MenuContainer> {
               size: 30,
             ),
           ),
+        ),
+        Positioned(
+          left: 20.0,
+          top: 80.0,
+          child:
+              _buildMenuText("${size.width.toInt()} x ${size.height.toInt()}"),
         ),
       ],
     );
