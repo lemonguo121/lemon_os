@@ -4,7 +4,7 @@ import 'package:lemon_tv/util/SPManager.dart';
 import '../util/AppTheme.dart';
 
 class ThemeController extends GetxController {
-  var currentTheme = SPManager.getThemeData().obs; // 当前主题
+  var currentTheme = '浅色'.obs; // 当前主题
 
   final Map<String, AppTheme> themes = {
     "浅色": AppTheme(
