@@ -13,9 +13,7 @@ class SkipFeedbackPositoned extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      top: videoPlayerHeight / 2 - 50,
-      left: MediaQuery.of(context).size.width / 2 - 50,
+    return Center(
       child: Container(
         width: 120,
         height: 100,
