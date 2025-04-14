@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/util/SPManager.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
@@ -17,7 +18,14 @@ void main() async {
   var isRealFun = await SPManager.isRealFun();
   final ThemeController themeController =
       Get.put(ThemeController()); // 初始化主题控制器
-  runApp(ElectronicsStoreApp(isRealFun: isRealFun));
+  runApp(ScreenUtilInit(
+    designSize: const Size(750, 1334), //物理设备的大小
+    minTextAdapt: true, //是否根据宽度/高度中的最小值适配文字
+    splitScreenMode: true, //支持分屏尺寸
+    builder: (context, child) {
+      return ElectronicsStoreApp(isRealFun: isRealFun);
+    },
+  ));
 }
 
 class ElectronicsStoreApp extends StatelessWidget {
@@ -79,7 +87,8 @@ class _HomePageState extends State<HomePage> {
         ),
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: themeController.currentAppTheme.backgroundColor,
-          unselectedItemColor: themeController.currentAppTheme.unselectedTextColor,
+          unselectedItemColor:
+              themeController.currentAppTheme.unselectedTextColor,
           selectedItemColor: themeController.currentAppTheme.selectedTextColor,
           elevation: 1.0,
           currentIndex: _currentIndex,
