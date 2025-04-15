@@ -17,7 +17,7 @@ class SPManager {
   static const String _skipTailKey = "skip_tail_time";
   static const String _videoHistory = "video_history";
   static const String _current_volume = "_current_volume";
-  static const String _search_key = "_current_volume";
+  static const String _search_key = "_search_key";
   static const String _subscriptinKey = "_subscriptinKey";
   static const String _currentSubscriptinKey = "_currentSubscriptinKey";
   static const String _currentSitetinKey = "_currentSitetinKey";

@@ -258,54 +258,78 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
               ? Column(
                   children: [MyLoadingIndicator(isLoading: isLoading)],
                 )
-              : ListView.builder(
-                  itemCount: _storehouses.length,
-                  itemBuilder: (context, index) {
-                    final storehouseBean = _storehouses[index];
-                    return ListTile(
-                      leading: Radio<int>(
-                        value: index,
-                        groupValue: _selectedIndex,
-                        activeColor: themeController.currentAppTheme.iconColor,
-                        focusColor:
-                            themeController.currentAppTheme.unselectedTextColor,
-                        onChanged: (int? value) {
-                          setState(() {
-                            _selectedIndex = value;
-                          });
-                        },
-                      ),
-                      title: Text(
-                        storehouseBean.name ?? '',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: themeController
-                                .currentAppTheme.titleColr),
-                      ),
-                      subtitle: Text(
-                        storehouseBean.url ?? '',
-                        style: TextStyle(
-                            color: themeController
-                                .currentAppTheme.contentColor),
-                      ),
-                      trailing: IconButton(
-                        icon: Icon(Icons.delete,
-                            color: themeController
-                                .currentAppTheme.normalTextColor),
-                        onPressed: () =>
-                            _deleteSubscription(storehouseBean.name ?? ''),
-                      ),
-                      onTap: () {
-                        setState(() {
-                          _selectedIndex = index;
-                        });
+              : _storehouses.isEmpty
+                  ? _buildNoSubscriptionView()
+                  : ListView.builder(
+                      itemCount: _storehouses.length,
+                      itemBuilder: (context, index) {
+                        final storehouseBean = _storehouses[index];
+                        return ListTile(
+                          leading: Radio<int>(
+                            value: index,
+                            groupValue: _selectedIndex,
+                            activeColor:
+                                themeController.currentAppTheme.iconColor,
+                            focusColor: themeController
+                                .currentAppTheme.unselectedTextColor,
+                            onChanged: (int? value) {
+                              setState(() {
+                                _selectedIndex = value;
+                              });
+                            },
+                          ),
+                          title: Text(
+                            storehouseBean.name ?? '',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color:
+                                    themeController.currentAppTheme.titleColr),
+                          ),
+                          subtitle: Text(
+                            storehouseBean.url ?? '',
+                            style: TextStyle(
+                                color: themeController
+                                    .currentAppTheme.contentColor),
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(Icons.delete,
+                                color: themeController
+                                    .currentAppTheme.normalTextColor),
+                            onPressed: () =>
+                                _deleteSubscription(storehouseBean.name ?? ''),
+                          ),
+                          onTap: () {
+                            setState(() {
+                              _selectedIndex = index;
+                            });
+                          },
+                          onLongPress: () {
+                            _editSubscription(index); // 长按编辑
+                          },
+                        );
                       },
-                      onLongPress: () {
-                        _editSubscription(index); // 长按编辑
-                      },
-                    );
-                  },
-                ),
+                    ),
         ));
+  }
+
+  Widget _buildNoSubscriptionView() {
+    return Center(
+      child: GestureDetector(
+        onTap: () => addSubscriptionDialog(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.add,
+                size: 64,
+                color: themeController.currentAppTheme.selectedTextColor),
+            const SizedBox(height: 16),
+            Text('暂无订阅，点击添加',
+                style: TextStyle(
+                    color: themeController.currentAppTheme.selectedTextColor,
+                    fontSize: 16)),
+          ],
+        ),
+      ),
+    );
   }
 }

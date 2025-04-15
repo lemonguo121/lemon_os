@@ -344,7 +344,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 size: 64,
                 color: themeController.currentAppTheme.selectedTextColor),
             const SizedBox(height: 16),
-            Text('暂无数据，点击添加',
+            Text('暂无订阅，点击添加',
                 style: TextStyle(
                     color: themeController.currentAppTheme.selectedTextColor,
                     fontSize: 16)),

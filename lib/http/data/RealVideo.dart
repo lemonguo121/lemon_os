@@ -80,7 +80,7 @@ class RealVideo {
     return RealVideo(
         vodId: int.parse(element.findElements('id').single.text),
         vodName: element.findElements('name').single.text,
-        vodSub: element.findElements('name').single.text,
+        vodSub: element.findElements('note').single.text,
         vodPic: element.findElements('pic').single.text,
         vodActor: element.findElements('actor').single.text,
         vodDirector: element.findElements('director').single.text,
