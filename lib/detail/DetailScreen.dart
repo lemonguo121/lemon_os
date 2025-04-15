@@ -402,7 +402,6 @@ class _DetailScreenState extends State<DetailScreen> {
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 12.0),
-      controller: _scrollController,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3, // 每行显示 3 个
         mainAxisSpacing: 8.0,
