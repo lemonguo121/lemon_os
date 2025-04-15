@@ -88,7 +88,7 @@ class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
             // 水平电池样式
             Container(
               width: 28.w, // 电池整体宽度
-              height: 30.h, // 电池整体高度
+              height: 32.h, // 电池整体高度
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.white, width: 1.5.w), // 边框
                 borderRadius: BorderRadius.circular(3.r), // 圆角
@@ -118,7 +118,7 @@ class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
                     '$_batteryLevel', // 显示电池百分比
                     style:  TextStyle(
                       color: Colors.white,
-                      fontSize: 9.sp,
+                      fontSize: 8.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
