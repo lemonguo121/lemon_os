@@ -63,8 +63,9 @@ class _LocalVideoPlayerPagesState extends State<ParesVideoPlayerPage> {
     super.dispose();
   }
 
-  Future<void> _saveProgressAndIndex() async {
-    await SPManager.saveProgress(widget.paresVideo.vodPlayUrl, _controller.value.position);
+  _saveProgressAndIndex() {
+    SPManager.saveProgress(
+        widget.paresVideo.vodPlayUrl, _controller.value.position);
   }
 
   void initializePlayer() async {
@@ -179,9 +180,8 @@ class _LocalVideoPlayerPagesState extends State<ParesVideoPlayerPage> {
   Future<void> _setSkipTail() async {
     autoCloseMenuTimer();
     tailTime = _controller.value.position;
-    await SPManager.saveSkipTailTimes(
+    SPManager.saveSkipTailTimes(
       widget.paresVideo.vodPlayUrl,
-      (await SPManager.getSkipTailTimes(widget.paresVideo.vodPlayUrl)),
       tailTime,
     );
     setState(() {});
@@ -284,7 +284,7 @@ class _LocalVideoPlayerPagesState extends State<ParesVideoPlayerPage> {
   void _adjustVolume(double dy) async {
     _currentVolume = (_currentVolume - dy * 0.01).clamp(0.0, 1.0);
     await _controller.setVolume(_currentVolume);
-    await SPManager.saveVolume(_currentVolume);
+    SPManager.saveVolume(_currentVolume);
     _showTemporaryFeedback(false);
   }
 

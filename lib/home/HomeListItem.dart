@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../http/data/RealVideo.dart';
+import '../routes/routes.dart';
 import '../util/LoadingImage.dart';
 
 import '../detail/DetailScreen.dart';
@@ -24,13 +25,7 @@ class _HomeListItemState extends State<HomeListItem> {
       padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 12.0),
       child: InkWell(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  DetailScreen(vodId: video.vodId,site:video.site), // 动态传递vodId
-            ),
-          );
+          Routes.goDetailPage('${video.vodId}', video.site);
         },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,

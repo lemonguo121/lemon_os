@@ -3,8 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:lemon_tv/routes/routes.dart';
+import 'package:lemon_tv/util/Injection.dart';
 import 'package:lemon_tv/util/SPManager.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../history/PlayHistory.dart';
 import 'home/HomeScreen.dart';
@@ -15,9 +18,8 @@ import 'mine/ProfileScreen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
-  var isRealFun = await SPManager.isRealFun();
-  final ThemeController themeController =
-      Get.put(ThemeController()); // 初始化主题控制器
+  await Injection.init();
+  var isRealFun = SPManager.isRealFun();
   runApp(ScreenUtilInit(
     designSize: const Size(750, 1334), //物理设备的大小
     minTextAdapt: true, //是否根据宽度/高度中的最小值适配文字
@@ -38,7 +40,9 @@ class ElectronicsStoreApp extends StatelessWidget {
     final ThemeController themeController = Get.find();
 
     return Obx(() {
-      return MaterialApp(
+      return GetMaterialApp(
+        initialRoute: '/',
+        getPages: Routes.routePage,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           scaffoldBackgroundColor:

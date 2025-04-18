@@ -7,6 +7,7 @@ import 'package:lemon_tv/util/SubscriptionsUtil.dart';
 import 'package:xml/xml.dart';
 
 import '../category/CategoryFragment.dart';
+import '../routes/routes.dart';
 import '../util/ThemeController.dart';
 import 'HomeFragment.dart';
 import '../http/HttpService.dart';
@@ -61,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     setState(() => isLoading = true);
     try {
       // 第一步先检查当前是否有选择的仓库
-      var currentStorehouse = await SPManager.getCurrentSubscription();
+      var currentStorehouse =  SPManager.getCurrentSubscription();
       if (currentStorehouse == null) {
         setState(() {
           errorType = 1;
@@ -247,7 +248,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     children: [
                       Text("请选择首页数据源",
                           style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold,color: Colors.black)),
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black)),
                       SizedBox(height: 16),
                       // 将 GridView 放入 SingleChildScrollView 或 Expanded
                       Expanded(
@@ -298,12 +301,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         const SizedBox(width: 8.0),
         Expanded(
           child: InkWell(
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => SearchScreen(
-                          query: "",
-                        ))),
+            onTap: () => Routes.goSearchPage(""),
             child: Container(
               height: 35,
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -319,8 +317,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       color: themeController.currentAppTheme.contentColor),
                   const SizedBox(width: 8.0),
                   Text("输入搜索内容",
-                      style:
-                          TextStyle(fontSize: 16.0, color: themeController.currentAppTheme.contentColor)),
+                      style: TextStyle(
+                          fontSize: 16.0,
+                          color: themeController.currentAppTheme.contentColor)),
                 ],
               ),
             ),
@@ -335,8 +334,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildNoSubscriptionView() {
     return Center(
       child: GestureDetector(
-        onTap: () => Navigator.push(context,
-            MaterialPageRoute(builder: (context) => SubscriptionPage())),
+        onTap: () =>
+            Routes.goSubscripPage(),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -406,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return GestureDetector(
       onTap: () async {
         _selecteSitedIndex = index;
-        await SPManager.saveCurrentSite(
+        SPManager.saveCurrentSite(
             _subscriptionsUtil.selectStorehouse[_selecteSitedIndex]);
         setState(() {});
         Navigator.pushAndRemoveUntil(

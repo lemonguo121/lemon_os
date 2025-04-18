@@ -84,7 +84,7 @@ class _CategoryState extends State<CategoryFragment>
 
   Future<void> _getData() async {
     try {
-      var currentSite = await SPManager.getCurrentSite();
+      var currentSite =  SPManager.getCurrentSite();
       if (currentSite == null) {
         return;
       }

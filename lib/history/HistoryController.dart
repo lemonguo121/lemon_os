@@ -14,15 +14,16 @@ class HistoryController extends GetxController {
   Map<String, String> get videoTitles => _videoTitles;
 
   // 初始化历史记录
-  Future<void> initList() async {
-    List<RealVideo> list = await SPManager.getHistoryList();
+  initList() {
+    List<RealVideo> list = SPManager.getHistoryList();
     _historyList.assignAll(list);
-    await Future.wait(list.map((video) => freshVideoIndex(video)));
+    list.map((video) => freshVideoIndex(video));
+     // Future.wait(list.map((video) => freshVideoIndex(video)));
   }
 
-  Future<void> freshVideoIndex(RealVideo video) async {
-    int playIndex = await SPManager.getIndex("${video.vodId}") ?? 0;
-    int fromIndex = await SPManager.getFromIndex("${video.vodId}") ?? 0;
+  freshVideoIndex(RealVideo video) {
+    int playIndex = SPManager.getIndex("${video.vodId}") ?? 0;
+    int fromIndex = SPManager.getFromIndex("${video.vodId}") ?? 0;
     var playList = CommonUtil.getPlayListAndForm(video).playList;
 
     _videoTitles["${video.vodId}"] =
@@ -55,10 +56,9 @@ class HistoryController extends GetxController {
     SPManager.removeSingleHistory(video);
   }
 
-  Future<void> saveIndex(
-      RealVideo video, int position, int selectedPlayFromIndex) async {
-    await SPManager.saveFromIndex(video, selectedPlayFromIndex);
-    await SPManager.saveIndex(video, position);
-    await freshVideoIndex(video);
+  void saveIndex(RealVideo video, int position, int selectedPlayFromIndex) {
+    SPManager.saveFromIndex(video, selectedPlayFromIndex);
+    SPManager.saveIndex(video, position);
+    freshVideoIndex(video);
   }
 }

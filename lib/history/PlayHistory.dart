@@ -5,6 +5,7 @@ import 'package:lemon_tv/util/ThemeController.dart';
 import '../detail/DetailScreen.dart';
 import '../http/data/RealVideo.dart';
 import '../mywidget/VodForamTag.dart';
+import '../routes/routes.dart';
 import 'HistoryController.dart';
 import '../util/SPManager.dart';
 import '../util/CommonUtil.dart';
@@ -16,9 +17,8 @@ class PlayHistory extends StatefulWidget {
 }
 
 class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
-  final HistoryController historyController =
-      Get.put(HistoryController()); // 依赖注入
   final ThemeController themeController = Get.find();
+  final HistoryController historyController = Get.find();
 
   // int _playIndex = 0;
   // int _fromIndex = 0;
@@ -29,30 +29,11 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    historyController.initList().then((_) {
-      setState(() {
-        _isLoading = false; // 数据加载完毕后再更新状态
-      });
+    historyController.initList();
+    setState(() {
+      _isLoading = false; // 数据加载完毕后再更新状态
     });
   }
-
-  // Future<void> getVideoRec(RealVideo video) async {
-  //   try {
-  //     int? _playIndex = await SPManager.getIndex("${video.vodId}") ?? 0;
-  //     var _fromIndex = await SPManager.getFromIndex("${video.vodId}") ?? 0;
-  //     var playList = CommonUtil.getPlayListAndForm(video).playList;
-  //     setState(() {
-  //       _videoTitles[video.vodId] =
-  //           (_fromIndex >= 0 && _fromIndex < playList.length)
-  //               ? playList[_fromIndex][_playIndex]['title']!
-  //               : "";
-  //     });
-  //   } catch (e) {
-  //     setState(() {
-  //       _videoTitles[video.vodId] = "";
-  //     });
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -124,14 +105,7 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
     // }
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => DetailScreen(
-                vodId: realVideo.vodId,
-                site: realVideo.site,
-              ), // 动态传递vodId
-            ));
+        Routes.goDetailPage('${realVideo.vodId}', realVideo.site);
       },
       onLongPress: () {
         historyController.removeHistoryItem(realVideo);

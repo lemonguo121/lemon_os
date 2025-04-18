@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../detail/DetailScreen.dart';
 import '../http/data/RealVideo.dart';
 import '../mywidget/VodForamTag.dart';
+import '../routes/routes.dart';
 import '../search/SearchScreen.dart';
 import '../util/LoadingImage.dart';
 
@@ -24,22 +26,11 @@ class _CategoryListItemState extends State<CategoryListItem> {
   Widget _buildGridItem() {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => DetailScreen(
-                vodId: widget.realVideo.vodId,
-                site: widget.realVideo.site,
-              ), // 动态传递vodId
-            ));
+        Routes.goDetailPage('${widget.realVideo.vodId}', widget.realVideo.site);
       },
       onLongPress: () {
         setState(() {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      SearchScreen(query: widget.realVideo.vodName)));
+          Routes.goSearchPage("");
         });
       },
       child: Stack(

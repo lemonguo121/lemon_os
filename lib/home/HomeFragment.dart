@@ -65,7 +65,7 @@ class _HomeFragmentState extends State<HomeFragment>
     try {
       if (isLoading) return;
       setState(() => isLoading = true);
-      var currentSite = await SPManager.getCurrentSite();
+      var currentSite = SPManager.getCurrentSite();
       if (currentSite == null) {
         return;
       }

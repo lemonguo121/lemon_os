@@ -28,7 +28,7 @@ class HttpService {
   // GET 请求
   Future<dynamic> get(String path, {Map<String, dynamic>? params}) async {
     try {
-      var currentSite = await SPManager.getCurrentSite();
+      var currentSite = SPManager.getCurrentSite();
       // 设置选中状态，如果有当前选中的站点
       if (currentSite != null) {
         baseUrl = currentSite.api;

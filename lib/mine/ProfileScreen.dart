@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
 
+import '../routes/routes.dart';
 import '../subscrip/SubscriptionPage.dart';
 import '../util/CacheUtil.dart';
 import 'ThemeSettingsPage.dart';
@@ -30,7 +31,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final info = await PackageInfo.fromPlatform();
     setState(() {
       _version = info.version;
-
     });
   }
 
@@ -66,22 +66,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: themeController.currentAppTheme.unselectedTextColor),
                 title: Text("设置",
                     style: TextStyle(
-                        color:
-                            themeController.currentAppTheme.titleColr)),
-                onTap: () {},
+                        color: themeController.currentAppTheme.titleColr)),
+                onTap: () {
+                  Routes.goSettingPage();
+                },
               ),
               ListTile(
                 leading: Icon(Icons.subscriptions,
                     color: themeController.currentAppTheme.unselectedTextColor),
                 title: Text("订阅管理",
                     style: TextStyle(
-                        color:
-                            themeController.currentAppTheme.titleColr)),
+                        color: themeController.currentAppTheme.titleColr)),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SubscriptionPage()),
-                  );
+                  Routes.goSubscripPage();
                 },
               ),
               ListTile(
@@ -90,8 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         .currentAppTheme.unselectedTextColor), // 清理缓存图标
                 title: Text("主题切换",
                     style: TextStyle(
-                        color:
-                            themeController.currentAppTheme.titleColr)),
+                        color: themeController.currentAppTheme.titleColr)),
                 onTap: () {
                   Navigator.push(
                     context,
@@ -106,12 +102,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // 清理缓存图标
                 title: Text("清理缓存",
                     style: TextStyle(
-                        color:
-                            themeController.currentAppTheme.titleColr)),
+                        color: themeController.currentAppTheme.titleColr)),
                 trailing: Text("${_cacheSize.toStringAsFixed(2)} MB",
                     style: TextStyle(
-                        color:
-                            themeController.currentAppTheme.titleColr)),
+                        color: themeController.currentAppTheme.titleColr)),
                 // 显示缓存大小
                 onTap: _clearCache, // 点击清理缓存
               ),
@@ -121,12 +115,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // 清理缓存图标
                 title: Text("版本号",
                     style: TextStyle(
-                        color:
-                        themeController.currentAppTheme.titleColr)),
-                trailing: Text("v $_version" ,
+                        color: themeController.currentAppTheme.titleColr)),
+                trailing: Text("v $_version",
                     style: TextStyle(
-                        color:
-                        themeController.currentAppTheme.titleColr)),
+                        color: themeController.currentAppTheme.titleColr)),
               ),
             ],
           ),

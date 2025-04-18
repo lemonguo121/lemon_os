@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../detail/DetailScreen.dart';
 import '../http/data/RealVideo.dart';
 import '../mywidget/VodForamTag.dart';
+import '../routes/routes.dart';
 import '../search/SearchScreen.dart';
 import '../util/CommonUtil.dart';
 import '../util/LoadingImage.dart';
@@ -27,34 +29,18 @@ class _HomecateforylistitemState extends State<Homecateforylistitem> {
     var itemCount = isVertical ? 3.2 : 6.5;
     var screenWidth = CommonUtil.getScreenWidth(context);
     var itemMargin = 8.0;
-    var itemWidth =
-        (screenWidth  - ((itemCount+1) * itemMargin)) / itemCount;
+    var itemWidth = (screenWidth - ((itemCount + 1) * itemMargin)) / itemCount;
     var itemHeight = itemWidth / 3 * 4;
     return Container(
         height: itemHeight, // 图片高度
         width: itemWidth, // 图片宽度
-        margin: EdgeInsets.only(right: itemMargin,bottom: 10.0),
+        margin: EdgeInsets.only(right: itemMargin, bottom: 10.0),
         child: GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DetailScreen(
-                  vodId: video.vodId,
-                  site: video.site,
-                ), // 动态传递vodId
-              ),
-            );
+            Routes.goDetailPage('${video.vodId}', video.site);
           },
           onLongPress: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SearchScreen(
-                  query: video.vodName,
-                ), // 动态传递vodId
-              ),
-            );
+            Routes.goSearchPage(video.vodName);
           },
           child: Stack(
             children: [

@@ -18,16 +18,15 @@ import '../history/HistoryController.dart';
 import '../util/SPManager.dart';
 
 class DetailScreen extends StatefulWidget {
-  final int vodId;
-  final StorehouseBeanSites site;
-
-  const DetailScreen({super.key, required this.vodId, required this.site});
-
   @override
   _DetailScreenState createState() => _DetailScreenState();
 }
 
 class _DetailScreenState extends State<DetailScreen> {
+  String vodId = '';
+
+  late StorehouseBeanSites site;
+
   final HistoryController historyController =
       Get.put(HistoryController()); // 依赖注入
   final HttpService _httpService = HttpService();
@@ -47,13 +46,16 @@ class _DetailScreenState extends State<DetailScreen> {
   @override
   void initState() {
     super.initState();
+    final args = Get.arguments;
+    vodId = args['vodId'];
+    site = args['site'];
     _fetchDetail(); // 请求详情数据
   }
 
   // 异步加载视频进度
-  Future<void> _loadProgress() async {
-    int? progress = await SPManager.getIndex("${widget.vodId}") ?? 0;
-    int? fromIndex = await SPManager.getFromIndex("${widget.vodId}") ?? 0;
+  _loadProgress() {
+    int? progress = SPManager.getIndex(vodId) ?? 0;
+    int? fromIndex = SPManager.getFromIndex(vodId) ?? 0;
     setState(() {
       _selectedIndex = progress;
       _selectedPlayFromIndex = fromIndex;
@@ -64,8 +66,8 @@ class _DetailScreenState extends State<DetailScreen> {
   Future<void> _fetchDetail() async {
     try {
       await _loadProgress();
-      var paresType = widget.site.type ?? 1;
-      var subscription = widget.site.api ?? "";
+      var paresType = site.type ?? 1;
+      var subscription = site.api ?? "";
       if (paresType == 1) {
         Map<String, dynamic> jsonMap = await _httpService.getBySubscription(
           subscription,
@@ -73,10 +75,10 @@ class _DetailScreenState extends State<DetailScreen> {
           "",
           params: {
             "ac": "detail",
-            "ids": widget.vodId.toString(), // 使用传递的 vodId
+            "ids": vodId.toString(), // 使用传递的 vodId
           },
         );
-        responseData = RealResponseData.fromJson(jsonMap, widget.site); // 更新状态
+        responseData = RealResponseData.fromJson(jsonMap, site); // 更新状态
       } else {
         XmlDocument jsonMap = await _httpService.getBySubscription(
           subscription,
@@ -84,10 +86,10 @@ class _DetailScreenState extends State<DetailScreen> {
           "",
           params: {
             "ac": "videolist",
-            "ids": widget.vodId.toString(), // 使用传递的 vodId
+            "ids": vodId.toString(), // 使用传递的 vodId
           },
         );
-        responseData = RealResponseData.fromXml(jsonMap, widget.site); // 更新状态
+        responseData = RealResponseData.fromXml(jsonMap, site); // 更新状态
       }
       setState(() {
         var videos = responseData.videos;
@@ -95,7 +97,6 @@ class _DetailScreenState extends State<DetailScreen> {
         isLoading = false; // 数据加载完成
         _scrollToSelectedItem(_selectedIndex);
         historyController.saveHistory(video);
-
       });
     } catch (e) {
       setState(() {
@@ -143,7 +144,7 @@ class _DetailScreenState extends State<DetailScreen> {
     _onChangePlayPositon(index);
     final playItem = CommonUtil.getPlayListAndForm(video)
         .playList[_selectedPlayFromIndex][index];
-   await historyController.saveIndex(video, index,_selectedPlayFromIndex);
+    historyController.saveIndex(video, index, _selectedPlayFromIndex);
     VideoPlayerScreen.of(context)
         ?.playVideo(playItem["url"] ?? "", _selectedIndex);
   }

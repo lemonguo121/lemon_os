@@ -8,16 +8,13 @@ import '../detail/DetailScreen.dart';
 import '../http/HttpService.dart';
 import '../http/data/RealVideo.dart';
 import '../http/data/storehouse_bean_entity.dart';
+import '../routes/routes.dart';
 import '../util/SPManager.dart';
 import '../util/ThemeController.dart';
 import 'SearchHistoryList.dart';
 import 'SearchResultList.dart';
 
 class SearchScreen extends StatefulWidget {
-  final String query;
-
-  const SearchScreen({super.key, required this.query});
-
   @override
   _SearchScreenState createState() => _SearchScreenState();
 }
@@ -38,10 +35,13 @@ class _SearchScreenState extends State<SearchScreen>
   OverlayEntry? _overlayEntry;
   final LayerLink _layerLink = LayerLink();
   final ThemeController themeController = Get.find();
+  String query = '';
 
   @override
   void initState() {
     super.initState();
+    var arguments = Get.arguments;
+    query = arguments['query'];
     _initializeData();
   }
 
@@ -64,18 +64,18 @@ class _SearchScreenState extends State<SearchScreen>
 
   // 加载搜索历史记录
   Future<void> _loadSearchHistory() async {
-    _searchHistory = await SPManager.getSearchHistory() ?? [];
+    _searchHistory = SPManager.getSearchHistory();
     setState(() {});
   }
 
   // 保存搜索历史
-  Future<void> _saveSearchHistory(String query) async {
+  _saveSearchHistory(String query) {
     if (query.isEmpty || _searchHistory.contains(query)) return;
     setState(() {
       _searchHistory.add(query);
       if (_searchHistory.length > 20) _searchHistory.removeAt(0); // 限制最多20条
     });
-    await SPManager.freshSearchHistory(_searchHistory);
+    SPManager.freshSearchHistory(_searchHistory);
   }
 
   // 执行搜索
@@ -239,15 +239,22 @@ class _SearchScreenState extends State<SearchScreen>
                   decoration: InputDecoration(
                     focusColor:
                         themeController.currentAppTheme.selectedTextColor,
-                    hoverColor: themeController.currentAppTheme.selectedTextColor,
+                    hoverColor:
+                        themeController.currentAppTheme.selectedTextColor,
                     hintText: "输入搜索内容",
-                    hintStyle: TextStyle(color: themeController.currentAppTheme.contentColor),
-                    prefixIcon: Icon(Icons.search,color: themeController.currentAppTheme.contentColor,),
+                    hintStyle: TextStyle(
+                        color: themeController.currentAppTheme.contentColor),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: themeController.currentAppTheme.contentColor,
+                    ),
                     border: OutlineInputBorder(),
                     contentPadding:
                         EdgeInsets.symmetric(vertical: 0.0, horizontal: 12.0),
                   ),
-                  style:  TextStyle(fontSize: 16.0,color: themeController.currentAppTheme.titleColr),
+                  style: TextStyle(
+                      fontSize: 16.0,
+                      color: themeController.currentAppTheme.titleColr),
                 ),
               ),
             ),
@@ -259,8 +266,8 @@ class _SearchScreenState extends State<SearchScreen>
   }
 
   void _startQucikSearch() {
-    if (widget.query.isNotEmpty) {
-      _searchController.text = widget.query;
+    if (query.isNotEmpty) {
+      _searchController.text = query;
       _searchVideos();
     }
   }
@@ -350,14 +357,6 @@ class _SearchScreenState extends State<SearchScreen>
 
   void _clickVideoItem(RealVideo video) {
     _hideSuggestions();
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => DetailScreen(
-          vodId: video.vodId,
-          site: video.site,
-        ),
-      ),
-    );
+    Routes.goDetailPage('${video.vodId}', video.site);
   }
 }

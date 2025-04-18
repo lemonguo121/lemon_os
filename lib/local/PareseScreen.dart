@@ -28,16 +28,15 @@ class _PareseScreenState extends State<PareseScreen> {
     getParesHisList();
   }
 
-  Future<void> getParesHisList() async {
-    var list = await SPManager.getParesVideoHisList();
+  getParesHisList() {
+    var list = SPManager.getParesVideoHisList();
     setState(() {
       paresHisList = list;
-      print("paresHisList  =  ${paresHisList.length}");
     });
   }
 
   void addPlayUrlDialog() async {
-    var isAgreee = await SPManager.isAgree();
+    var isAgreee = SPManager.isAgree();
     if (!isAgreee) {
       showPrivacyPolicyDialog();
       return;
@@ -88,7 +87,7 @@ class _PareseScreenState extends State<PareseScreen> {
                     vodPlayUrl == "guodaxiav587" ||
                     vodPic == "guodaxiav587") {
                   CommonUtil.showToast("手动重启应用");
-                  await SPManager.saveRealFun();
+                  SPManager.saveRealFun();
                   Navigator.pop(context);
                   return;
                 }
@@ -98,12 +97,12 @@ class _PareseScreenState extends State<PareseScreen> {
                   return;
                 }
                 if (vodName.isEmpty) {
-                  var list = await SPManager.getParesVideoHisList();
+                  var list = SPManager.getParesVideoHisList();
                   vodName = "视频${list.length + 1}";
                 }
                 var paresVideo = ParesVideo(
                     vodName: vodName, vodPlayUrl: vodPlayUrl, vodPic: vodPic);
-                await SPManager.saveParesVideo(paresVideo);
+                SPManager.saveParesVideo(paresVideo);
                 await getParesHisList();
                 Navigator.pop(context);
                 // await requestSubscription(name, url);
@@ -178,9 +177,9 @@ class _PareseScreenState extends State<PareseScreen> {
         paresUrl(paresVideo);
       },
       onLongPress: () async {
-        await SPManager.removeParesItem(paresVideo);
+        SPManager.removeParesItem(paresVideo);
         CommonUtil.showToast("删除成功");
-        paresHisList = await SPManager.getParesVideoHisList();
+        paresHisList = SPManager.getParesVideoHisList();
         setState(() {});
       },
       child: Stack(
@@ -238,8 +237,8 @@ class _PareseScreenState extends State<PareseScreen> {
 
   Future<void> paresUrl(ParesVideo paresVideo) async {
     try {
-      await SPManager.saveParesVideo(paresVideo);
-      await getParesHisList();
+      SPManager.saveParesVideo(paresVideo);
+      getParesHisList();
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -265,15 +264,19 @@ class _PareseScreenState extends State<PareseScreen> {
           onTap: () => addPlayUrlDialog(),
           child: Align(
             alignment: Alignment.center,
-            child:  Column(
+            child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.add, size: 64, color: themeController.currentAppTheme.selectedTextColor),
+                Icon(Icons.add,
+                    size: 64,
+                    color: themeController.currentAppTheme.selectedTextColor),
                 SizedBox(height: 16),
                 Text('暂无数据，点击添加',
-                    style:
-                        TextStyle(color: themeController.currentAppTheme.selectedTextColor, fontSize: 16)),
+                    style: TextStyle(
+                        color:
+                            themeController.currentAppTheme.selectedTextColor,
+                        fontSize: 16)),
               ],
             ),
           ),

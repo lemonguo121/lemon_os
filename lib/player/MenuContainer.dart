@@ -210,8 +210,7 @@ class _MenuContainerState extends State<MenuContainer> {
                                   onChangeEnd: (double value) {
                                     widget.seekToPosition(
                                         Duration(milliseconds: value.toInt()));
-                                    Future.delayed(Duration(seconds: 1),
-                                        () {
+                                    Future.delayed(Duration(seconds: 1), () {
                                       setState(() {
                                         isAdjustProgress = false;
                                         widget
@@ -277,7 +276,7 @@ class _MenuContainerState extends State<MenuContainer> {
                                       var speed = widget
                                               .controller.value.playbackSpeed +
                                           0.25;
-                                      if (speed > 3.0) {
+                                      if (speed > 5.0) {
                                         speed = 0.25;
                                       }
                                       widget.changePlaySpeed(speed);
@@ -334,28 +333,16 @@ class _MenuContainerState extends State<MenuContainer> {
                                 ),
                                 // 显示跳过片头时间
                                 GestureDetector(
-                                  onTap: () async {
-                                    widget.setSkipHead();
-                                  },
-                                  onLongPress: () async {
-                                    widget.cleanSkipHead();
-                                  },
-                                  child: FutureBuilder<Duration>(
-                                    future: SPManager.getSkipHeadTimes(
-                                        widget.videoId),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasData &&
-                                          snapshot.data != null) {
-                                        final headTime = snapshot.data!;
-                                        return _buildMenuText(
-                                            CommonUtil.formatDuration(
-                                                headTime));
-                                      } else {
-                                        return _buildMenuText("00:00");
-                                      }
+                                    onTap: () async {
+                                      widget.setSkipHead();
                                     },
-                                  ),
-                                ),
+                                    onLongPress: () async {
+                                      widget.cleanSkipHead();
+                                    },
+                                    child: _buildMenuText(
+                                        CommonUtil.formatDuration(
+                                            SPManager.getSkipHeadTimes(
+                                                widget.videoId)))),
                                 const SizedBox(
                                   width: 8,
                                 ),
@@ -367,21 +354,10 @@ class _MenuContainerState extends State<MenuContainer> {
                                   onLongPress: () async {
                                     widget.cleanSkipTail();
                                   },
-                                  child: FutureBuilder<Duration>(
-                                    future: SPManager.getSkipTailTimes(
-                                        widget.videoId),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasData &&
-                                          snapshot.data != null) {
-                                        final headTime = snapshot.data!;
-                                        return _buildMenuText(
-                                            CommonUtil.formatDuration(
-                                                headTime));
-                                      } else {
-                                        return _buildMenuText("00:00");
-                                      }
-                                    },
-                                  ),
+                                  child: _buildMenuText(
+                                      CommonUtil.formatDuration(
+                                          SPManager.getSkipTailTimes(
+                                              widget.videoId))),
                                 ),
                               ],
                             )))

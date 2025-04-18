@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/history/HistoryController.dart';
+import 'package:lemon_tv/player/LongPressOnlyWidget.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
 
@@ -80,11 +82,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
 
   Future<void> _initializeSystemSettings() async {
     _currentBrightness = await ScreenBrightness().current; // 获取系统亮度
-    _currentVolume = await SPManager.getCurrentVolume(); // 获取保存的音量
+    _currentVolume = SPManager.getCurrentVolume(); // 获取保存的音量
     setState(() {});
   }
 
-  Future<void> _initializePlayer() async {
+  _initializePlayer() async {
     setState(() {
       isParesFail = false;
       _isBuffering = true;
@@ -105,12 +107,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     }
     _isLoadVideoPlayed = false; // 确保每次初始化时复位
     var isSkipTail = false;
-    final savedPosition = await SPManager.getProgress(playUrl);
+    final savedPosition = SPManager.getProgress(playUrl);
     videoId = widget.video.vodId;
-    await historyController.saveIndex(
-        widget.video, _currentIndex, widget.fromIndex);
+    historyController.saveIndex(widget.video, _currentIndex, widget.fromIndex);
     // 获取跳过时间
-    headTime = await SPManager.getSkipHeadTimes("$videoId");
+    headTime = SPManager.getSkipHeadTimes("$videoId");
 
     if (savedPosition > Duration.zero && savedPosition > headTime) {
       _controller.seekTo(savedPosition);
@@ -120,8 +121,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
       _controller.seekTo(headTime);
     }
 
-    tailTime = await SPManager.getSkipTailTimes("$videoId");
-    var playSpeed = await SPManager.getPlaySpeed();
+    tailTime = SPManager.getSkipTailTimes("$videoId");
+    var playSpeed = SPManager.getPlaySpeed();
     _controller.setPlaybackSpeed(playSpeed);
     _controller.addListener(() {
       if (_controller.value.hasError) {
@@ -180,10 +181,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     super.dispose();
   }
 
-  Future<void> _saveProgressAndIndex() async {
-    await SPManager.saveProgress(playUrl, _controller.value.position);
-    await historyController.saveIndex(
-        widget.video, _currentIndex, widget.fromIndex);
+  _saveProgressAndIndex() {
+    SPManager.saveProgress(playUrl, _controller.value.position);
+    historyController.saveIndex(widget.video, _currentIndex, widget.fromIndex);
   }
 
   @override
@@ -309,9 +309,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   Future<void> _setSkipTail() async {
     autoCloseMenuTimer();
     tailTime = _controller.value.position;
-    await SPManager.saveSkipTailTimes(
+    SPManager.saveSkipTailTimes(
       "$videoId",
-      (await SPManager.getSkipTailTimes("$videoId")),
       tailTime,
     );
     setState(() {});
@@ -396,12 +395,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     double delta = details.primaryDelta ?? 0;
     if (details.localPosition.dx < MediaQuery.of(context).size.width / 2) {
       // 左侧滑动 - 调节亮度
-      if (delta.abs() > 1) {
+      if (delta.abs() > 2) {
         _adjustBrightness(delta / 2);
       }
     } else {
       // 右侧滑动 - 调节音量
-      if (delta.abs() > 1) {
+      if (delta.abs() > 2) {
         _adjustVolume(delta / 2);
       }
     }
@@ -412,7 +411,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
       return;
     }
     double delta = details.primaryDelta ?? 0;
-    if (delta.abs() > 1) {
+    if (delta.abs() > 2) {
       _seekPlayProgress((delta).toInt());
     }
   }
@@ -435,7 +434,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   void _adjustVolume(double dy) async {
     _currentVolume = (_currentVolume - dy * 0.01).clamp(0.0, 1.0);
     await _controller.setVolume(_currentVolume);
-    await SPManager.saveVolume(_currentVolume);
+    SPManager.saveVolume(_currentVolume);
     _showTemporaryFeedback(false);
   }
 
@@ -526,20 +525,20 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
           backgroundColor: Colors.black,
           body: Stack(
             children: [
-              GestureDetector(
+              LongPressOnlyWidget(
                 onTap: () {
                   setState(() {
                     _isControllerVisible = !_isControllerVisible;
                     autoCloseMenuTimer();
                   });
                 },
-                // 监听双击事件
                 onDoubleTap: _togglePlayPause,
-                // 双击屏幕切换播放/暂停
                 onVerticalDragUpdate: _handleVerticalDrag,
                 onVerticalDragEnd: _cancelDrag,
                 onHorizontalDragUpdate: _handleHorizontalDrag,
                 onHorizontalDragEnd: _cancelDrag,
+                onLongPressStart: () => _fastSpeedPlay(true),
+                onLongPressEnd: () => _fastSpeedPlay(false),
                 child: _buildVideoPlayer(),
               ),
               if (_showFeedback)
@@ -578,6 +577,31 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                   isFullScreen: _isFullScreen,
                   isScreenLocked: isScreenLocked,
                   isAlsoShowTime: false,
+                ),
+              if (_isLongPressing)
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 70.h),
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '${SPManager.getLongPressSpeed()}x 加速中',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          shadows: [
+                            Shadow(color: Colors.black87, blurRadius: 4),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               if (!_isPlaying && _controller.value.isInitialized)
                 Center(
@@ -634,5 +658,20 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
         _initializePlayer();
       });
     }
+  }
+
+  bool _isLongPressing = false;
+
+  void _fastSpeedPlay(bool isStart) {
+    if (isStart) {
+      print('longpress 开始长按');
+      _controller.setPlaybackSpeed(SPManager.getLongPressSpeed());
+    } else {
+      print('longpress 结束长按');
+      _controller.setPlaybackSpeed(SPManager.getPlaySpeed());
+    }
+    setState(() {
+      _isLongPressing = isStart;
+    });
   }
 }

@@ -27,12 +27,9 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     loadSubscriptions();
   }
 
-  Future<void> loadSubscriptions() async {
-    final subscriptionsFuture = SPManager.getSubscriptions();
-    final currentStorehouseFuture = SPManager.getCurrentSubscription();
-
-    final subscriptions = await subscriptionsFuture;
-    final currentStorehouse = await currentStorehouseFuture;
+  loadSubscriptions() {
+    final subscriptions = SPManager.getSubscriptions();
+    final currentStorehouse = SPManager.getCurrentSubscription();
 
     setState(() {
       if (currentStorehouse != null) {
@@ -45,8 +42,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     });
   }
 
-  void _deleteSubscription(String name) async {
-    await SPManager.removeSubscription(name);
+  void _deleteSubscription(String name) {
+    SPManager.removeSubscription(name);
     setState(() {
       _storehouses.removeWhere((item) => item.name == name);
       if (_selectedIndex != null && _selectedIndex! >= _storehouses.length) {
@@ -55,11 +52,6 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
       }
     });
     loadSubscriptions();
-  }
-
-  Future _saveCurrentSubscription(StorehouseBean storehouseBean) async {
-    await SPManager.saveCurrentSubscription(storehouseBean);
-    print("Saved successfully!");
   }
 
   void _onConfirm() async {
@@ -77,8 +69,8 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     final selectedName = selectedSite.name;
     if (_currentstorehouse == null || _currentstorehouse!.url != selectedUrl) {
       var storehouse = StorehouseBean(name: selectedName, url: selectedUrl);
-      await _saveCurrentSubscription(storehouse);
-      await SPManager.cleanCurrentSite();
+      SPManager.saveCurrentSubscription(storehouse);
+      SPManager.cleanCurrentSite();
       await Future.delayed(Duration(milliseconds: 300));
       Navigator.pushAndRemoveUntil(
         context,
@@ -217,7 +209,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                 if (newName.isNotEmpty && newRul.isNotEmpty) {
                   _storehouses[index] =
                       StorehouseBean(url: newRul, name: newName);
-                  await SPManager.saveSubscription(_storehouses);
+                  SPManager.saveSubscription(_storehouses);
                   loadSubscriptions(); // 重新加载数据
                   Navigator.pop(context); // 关闭弹窗
                 }

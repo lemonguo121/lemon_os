@@ -25,7 +25,7 @@ class ThemeController extends GetxController {
       buttonColor: Colors.grey,
       iconColor: Colors.blueAccent,
       titleColr: Colors.white,
-      contentColor:Color(0xFF989494),
+      contentColor: Color(0xFF989494),
     ),
     "樱桃红": AppTheme(
       backgroundColor: Colors.red.shade50,
@@ -57,16 +57,16 @@ class ThemeController extends GetxController {
   }
 
   // 从SP中加载主题
-  Future<void> loadTheme() async {
-    String savedTheme = await SPManager.getThemeData();
+  loadTheme() {
+    String savedTheme = SPManager.getThemeData();
     currentTheme.value = savedTheme;
   }
 
   // 切换主题并存储
-  Future<void> changeTheme(String themeKey) async {
+  changeTheme(String themeKey) {
     if (themes.containsKey(themeKey)) {
       currentTheme.value = themeKey;
-      await SPManager.selectThemeData(themeKey);
+      SPManager.selectThemeData(themeKey);
     }
   }
 

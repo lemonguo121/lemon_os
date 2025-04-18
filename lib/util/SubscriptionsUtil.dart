@@ -30,7 +30,7 @@ class SubscriptionsUtil {
       subscripUrl = _toPunycode(subscripUrl);
     }
     print("subscripUrl result $subscripUrl");
-    List<StorehouseBean> urls = await SPManager.getSubscriptions();
+    List<StorehouseBean> urls = SPManager.getSubscriptions();
     Map<String, dynamic> jsonMap = await _httpService.getUrl(subscripUrl);
     if (jsonMap['urls'] != null) {
       var subscripBean = SubscripBean.fromJson(jsonMap);
@@ -42,13 +42,13 @@ class SubscriptionsUtil {
           })
           .values
           .toList();
-      await SPManager.saveSubscription(urls);
+      SPManager.saveSubscription(urls);
     } else {
       var storehouseBean = StorehouseBean(url: subscripUrl, name: subscripName);
       if (!urls.contains(storehouseBean)) {
         urls.add(storehouseBean);
       }
-      await SPManager.saveSubscription(urls);
+      SPManager.saveSubscription(urls);
     }
 
     return siteMap;
@@ -65,20 +65,20 @@ class SubscriptionsUtil {
     }
     Map<String, dynamic> jsonMap =
         await _httpService.getUrl(url);
-    var newSite = await getSingleSubscription(jsonMap, currentStorehouse.name);
+    var newSite =  getSingleSubscription(jsonMap, currentStorehouse.name);
     return newSite;
   }
 
-  Future<StorehouseBeanSites?> getSingleSubscription(
-      Map<String, dynamic> jsonMap, String name) async {
+  StorehouseBeanSites? getSingleSubscription(
+      Map<String, dynamic> jsonMap, String name)  {
     var storehouseBeanEntity = StorehouseBeanEntity.fromJson(jsonMap);
     var siteList = storehouseBeanEntity.sites;
     selectStorehouse = siteList;
     if (selectStorehouse.isNotEmpty) {
       // 先看有没有缓存的站点，如果没有，是切换活添加仓库；如果不为空，则是切换站点
-      var currentSite = await SPManager.getCurrentSite();
+      var currentSite = SPManager.getCurrentSite();
       if (currentSite == null) {
-        await SPManager.saveCurrentSite(selectStorehouse[0]);
+        SPManager.saveCurrentSite(selectStorehouse[0]);
         return selectStorehouse[0];
       } else {
         return currentSite;
@@ -91,10 +91,6 @@ class SubscriptionsUtil {
     // 正则表达式检查中文字符
     RegExp regExp = RegExp(r'[\u4e00-\u9fff]');
     return regExp.hasMatch(domain);
-  }
-
-  Future<void> setCurrentSite(StorehouseBeanSites site) async {
-    await SPManager.saveCurrentSite(site);
   }
 
   String _toPunycode(String input) {

@@ -39,8 +39,9 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
   Duration tailTime = Duration(milliseconds: 0);
   bool isParesFail = false; //是否解析失败
   bool _isLoadVideoPlayed = false; // 新增的标志，确保下一集只跳转一次
-  String videoId =""; // 新增的标志，确保下一集只跳转一次
+  String videoId = ""; // 新增的标志，确保下一集只跳转一次
   Timer? _timer;
+
   @override
   void initState() {
     super.initState();
@@ -84,7 +85,8 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
               });
               print("play error = ${_controller.value.errorDescription}");
             }
-            if (_controller.value.duration > Duration.zero && !_isLoadVideoPlayed) {
+            if (_controller.value.duration > Duration.zero &&
+                !_isLoadVideoPlayed) {
               var skipTime = const Duration(milliseconds: 0);
               if (tailTime >= const Duration(milliseconds: 1000)) {
                 isSkipTail = true;
@@ -105,10 +107,11 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
             setState(() {
               var isPlaying = _controller.value.isPlaying;
               var bufferedProgress = _controller.value.buffered.isNotEmpty
-                  ? _controller.value.buffered.last.end.inMilliseconds.toDouble()
+                  ? _controller.value.buffered.last.end.inMilliseconds
+                      .toDouble()
                   : 0.0;
               var currentPosition =
-              _controller.value.position.inMilliseconds.toDouble();
+                  _controller.value.position.inMilliseconds.toDouble();
               _isBuffering = _controller.value.isBuffering &&
                   (!isPlaying || currentPosition >= bufferedProgress);
             });
@@ -116,6 +119,7 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
         });
     }
   }
+
   void autoCloseMenuTimer() {
     if (_isControllerVisible) {
       _timer?.cancel();
@@ -140,8 +144,10 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
         overlays: SystemUiOverlay.values);
     super.dispose();
   }
-  Future<void> _saveProgressAndIndex() async {
-    await SPManager.saveProgress(widget.video.file.toString(), _controller.value.position);
+
+  _saveProgressAndIndex() {
+    SPManager.saveProgress(
+        widget.video.file.toString(), _controller.value.position);
   }
 
   void _playPreviousVideo() {
@@ -154,25 +160,24 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
     CommonUtil.showToast("已经是最后一集");
   }
 
-  Future<void> _setSkipHead() async {
+  _setSkipHead() {
     autoCloseMenuTimer();
     headTime = _controller.value.position;
-    await SPManager.saveSkipHeadTimes(widget.video.id, headTime);
+    SPManager.saveSkipHeadTimes(widget.video.id, headTime);
     setState(() {});
   }
 
-  Future<void> _cleanSkipHead() async {
+  _cleanSkipHead() {
     autoCloseMenuTimer();
-    await SPManager.clearSkipHeadTimes(widget.video.id);
+    SPManager.clearSkipHeadTimes(widget.video.id);
     setState(() {});
   }
 
-  Future<void> _setSkipTail() async {
+  _setSkipTail() {
     autoCloseMenuTimer();
     tailTime = _controller.value.position;
-    await SPManager.saveSkipTailTimes(
+    SPManager.saveSkipTailTimes(
       widget.video.id,
-      (await SPManager.getSkipTailTimes(widget.video.id)),
       tailTime,
     );
     setState(() {});
@@ -276,7 +281,7 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
   void _adjustVolume(double dy) async {
     _currentVolume = (_currentVolume - dy * 0.01).clamp(0.0, 1.0);
     await _controller.setVolume(_currentVolume);
-    await SPManager.saveVolume(_currentVolume);
+    SPManager.saveVolume(_currentVolume);
     _showTemporaryFeedback(false);
   }
 
@@ -331,8 +336,8 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
             DeviceOrientation.landscapeLeft
           ]);
         } else {
-            SystemChrome.setPreferredOrientations(
-                [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+          SystemChrome.setPreferredOrientations(
+              [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
         }
       }
     });
