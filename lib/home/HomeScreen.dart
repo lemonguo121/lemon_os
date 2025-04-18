@@ -194,20 +194,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _scrollToSelectedItem(int index) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 根据屏幕宽度和网格配置计算条目高度
-      final double itemHeight = 38;
-      // 每行的条目数
-      const int itemsPerRow = 2;
-      // 计算需要滚动的位置
-      final double scrollPosition = (index ~/ itemsPerRow) * itemHeight;
-
-      // 滚动至计算的位置
-      _scrollController.animateTo(
-        scrollPosition,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+      Future.delayed(Duration(milliseconds: 10), () {
+        if (!_scrollController.hasClients) return;
+        final double itemHeight = 38;
+        const int itemsPerRow = 2;
+        final double scrollPosition = (index ~/ itemsPerRow) * itemHeight;
+        final double maxScrollExtent = _scrollController.position.maxScrollExtent;
+        final double targetScroll = scrollPosition.clamp(0.0, maxScrollExtent);
+        _scrollController.animateTo(
+          targetScroll,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      });
     });
+
   }
 
   Widget _buildSearch() {
