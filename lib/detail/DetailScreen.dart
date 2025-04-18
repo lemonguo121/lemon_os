@@ -156,17 +156,21 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   void _scrollToSelectedItem(int index) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 根据屏幕宽度和网格配置计算条目高度
+    // 延迟一点时间，确保列表尺寸和 maxScrollExtent 是准确的
+    Future.delayed(Duration(milliseconds: 10), () {
+      if (!_scrollController.hasClients) return;
+
       final double itemHeight = 38;
-      // 每行的条目数
       const int itemsPerRow = 3;
-      // 计算需要滚动的位置
+
       final double scrollPosition = (index ~/ itemsPerRow) * itemHeight;
-      print("scrollPosition = $scrollPosition");
-      // 滚动至计算的位置
+      final double maxScrollExtent = _scrollController.position.maxScrollExtent;
+      final double targetScroll = scrollPosition.clamp(0.0, maxScrollExtent);
+
+      print("scrolling to $scrollPosition (clamped: $targetScroll), maxExtent: $maxScrollExtent");
+
       _scrollController.animateTo(
-        scrollPosition,
+        targetScroll,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
