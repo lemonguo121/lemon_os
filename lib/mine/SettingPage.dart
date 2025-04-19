@@ -16,7 +16,7 @@ class SettingPage extends StatefulWidget {
 
 class _SettingPageState extends State<SettingPage> {
   final ScrollController _scrollController = ScrollController();
-  List<double> speedList = [2.0, 3.0, 4.0, 5.0,10.0,20.0];
+  List<double> speedList = [2.0, 3.0, 4.0, 5.0];
   var _selecteIndex = 1;
   double longPressSpeed = 2.0;
 

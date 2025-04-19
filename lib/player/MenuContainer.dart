@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../util/CommonUtil.dart';
 import 'package:video_player/video_player.dart';
 
@@ -83,7 +84,7 @@ class _MenuContainerState extends State<MenuContainer> {
     var bufferedProgress = widget.controller.value.buffered.isNotEmpty
         ? widget.controller.value.buffered.last.end.inMilliseconds.toDouble()
         : 0.0;
-    double bottomBarHeight = widget.isFullScreen ? 90.0 : 80.0;
+    double bottomBarHeight = widget.isFullScreen ? 120.0.h : 100.0.h;
     var size = widget.controller.value.size;
 
     return Stack(
@@ -93,9 +94,9 @@ class _MenuContainerState extends State<MenuContainer> {
             children: [
               // 顶部控制栏
               Container(
-                height: 70.0,
+                height: 90.0.h,
                 color: Colors.black.withOpacity(0.2),
-                padding: const EdgeInsets.only(left: 8, right: 16),
+                padding:  EdgeInsets.only(left: 8.w, right: 16.w),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -106,7 +107,7 @@ class _MenuContainerState extends State<MenuContainer> {
                         // 保证返回按钮和标题垂直对齐
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(top: 35.0),
+                            padding:  EdgeInsets.only(top: 35.h),
                             child: IconButton(
                               padding: EdgeInsets.zero,
                               icon: const Icon(Icons.arrow_back,
@@ -120,13 +121,13 @@ class _MenuContainerState extends State<MenuContainer> {
                               },
                             ),
                           ),
-                          const SizedBox(width: 4), // 按钮和标题之间的间距
+                           SizedBox(width: 4.w), // 按钮和标题之间的间距
                           Expanded(
                             child: Padding(
-                              padding: const EdgeInsets.only(top: 35.0),
+                              padding:  EdgeInsets.only(top: 35.0.h),
                               child: Text(
                                 widget.videoTitle,
-                                style: const TextStyle(
+                                style:  TextStyle(
                                     color: Colors.white, fontSize: 14),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -140,7 +141,7 @@ class _MenuContainerState extends State<MenuContainer> {
                     Align(
                       alignment: Alignment.topCenter,
                       child: Padding(
-                        padding: EdgeInsets.only(top: 10.0, right: 16),
+                        padding: EdgeInsets.only(top: 10.0.h, right: 16.w),
                         child: BatteryTimeWidget(
                             isFullScreen:
                                 widget.isFullScreen || widget.isAlsoShowTime),
@@ -157,7 +158,7 @@ class _MenuContainerState extends State<MenuContainer> {
                 child: Column(
                   children: [
                     SizedBox(
-                      height: 30,
+                      height: 30.h,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -170,7 +171,7 @@ class _MenuContainerState extends State<MenuContainer> {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(top: 2),
+                            padding:  EdgeInsets.only(top: 2.h),
                             child: _buildMenuText(CommonUtil.formatDuration(
                                 widget.controller.value.position)),
                           ),
@@ -228,7 +229,7 @@ class _MenuContainerState extends State<MenuContainer> {
                             ),
                           ),
                           Padding(
-                              padding: const EdgeInsets.only(top: 2),
+                              padding:  EdgeInsets.only(top: 2.h),
                               child: _buildMenuText(CommonUtil.formatDuration(
                                   widget.controller.value.duration))),
                           SizedBox(
@@ -276,7 +277,7 @@ class _MenuContainerState extends State<MenuContainer> {
                                       var speed = widget
                                               .controller.value.playbackSpeed +
                                           0.25;
-                                      if (speed > 5.0) {
+                                      if (speed > 3.0) {
                                         speed = 0.25;
                                       }
                                       widget.changePlaySpeed(speed);
@@ -368,7 +369,7 @@ class _MenuContainerState extends State<MenuContainer> {
           ),
         // 锁屏按钮
         Positioned(
-          right: 40,
+          right: 40.w,
           top: 0,
           bottom: 0,
           child: GestureDetector(
@@ -381,8 +382,8 @@ class _MenuContainerState extends State<MenuContainer> {
           ),
         ),
         Positioned(
-          left: 20.0,
-          top: 80.0,
+          left: 30.0.w,
+          top: 95.0.h,
           child:
               _buildMenuText("${size.width.toInt()} x ${size.height.toInt()}"),
         ),

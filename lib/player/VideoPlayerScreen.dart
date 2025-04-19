@@ -69,6 +69,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   Duration tailTime = Duration(milliseconds: 0);
   bool isLoading = true;
   Timer? _timer;
+  double _lastPosition = 0;
+  int _stillCount = 0;
 
   @override
   void initState() {
@@ -161,12 +163,41 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
           _isBuffering = _controller.value.isBuffering &&
               (currentPosition >= bufferedProgress);
         });
+        // _checkBuffering();
       }
     });
     _toggleFullScreen;
     setState(() {});
     _controller.play();
     _isPlaying = true;
+  }
+
+  void _checkBuffering() {
+    final value = _controller.value;
+    final current = value.position.inMilliseconds.toDouble();
+    final isPlaying = value.isPlaying;
+    final isActuallyMoving = (current - _lastPosition).abs() > 100;
+
+    if (isPlaying) {
+      if (!isActuallyMoving) {
+        _stillCount++;
+      } else {
+        _stillCount = 0;
+      }
+    } else {
+      _stillCount = 0;
+    }
+
+    _lastPosition = current;
+
+    final stuck = _stillCount >= 3;
+    final shouldBuffer = value.isBuffering || stuck;
+
+    if (mounted) {
+      setState(() {
+        _isBuffering = shouldBuffer;
+      });
+    }
   }
 
   @override
@@ -582,25 +613,17 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                 Align(
                   alignment: Alignment.topCenter,
                   child: Padding(
-                    padding: EdgeInsets.only(top: 70.h),
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(20),
+                    padding: EdgeInsets.only(top: 95.h),
+                    child: Text(
+                      '${SPManager.getLongPressSpeed()}x 加速中',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        shadows: [
+                          Shadow(color: Colors.black87, blurRadius: 4),
+                        ],
                       ),
-                      child: Text(
-                        '${SPManager.getLongPressSpeed()}x 加速中',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          shadows: [
-                            Shadow(color: Colors.black87, blurRadius: 4),
-                          ],
-                        ),
-                      ),
-                    ),
+                    )
                   ),
                 ),
               if (!_isPlaying && _controller.value.isInitialized)
