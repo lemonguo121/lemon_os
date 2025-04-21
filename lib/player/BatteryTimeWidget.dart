@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:lemon_tv/util/CommonUtil.dart';
 
 import '../util/NetworkController.dart';
 
@@ -73,22 +74,23 @@ class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
     if (!widget.isFullScreen || !(Platform.isAndroid || Platform.isIOS)) {
       return const SizedBox.shrink(); // 桌面端隐藏
     }
+    var isVertical = CommonUtil.isVertical(context);
     return Obx(() => Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildNetWorkType(),
-             SizedBox(width: 16.w),
+            SizedBox(width: 16.w),
             // 当前时间
             Text(
               _timeString,
-              style:  TextStyle(color: Colors.white, fontSize: 14.sp),
+              style: TextStyle(color: Colors.white, fontSize:isVertical?18.sp: 14.sp,),
             ),
-             SizedBox(width: 16.w),
+            SizedBox(width: 16.w),
 
             // 水平电池样式
             Container(
-              width: 28.w, // 电池整体宽度
-              height: 32.h, // 电池整体高度
+              width: isVertical? 39.w:24.w, // 电池整体宽度
+              height: isVertical? 20.h:28.h, // 电池整体高度
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.white, width: 1.5.w), // 边框
                 borderRadius: BorderRadius.circular(3.r), // 圆角
@@ -116,10 +118,10 @@ class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
                   // 显示电量数值
                   Text(
                     '$_batteryLevel', // 显示电池百分比
-                    style:  TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
-                      fontSize: 8.sp,
-                      fontWeight: FontWeight.bold,
+                      fontSize:isVertical?13.sp: 7.sp,
+                      fontWeight: FontWeight.normal,
                     ),
                   ),
                 ],
@@ -130,7 +132,7 @@ class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
             Container(
               width: 3, // 电池突出部分
               height: 6,
-              margin:  EdgeInsets.only(left: 1.w),
+              margin: EdgeInsets.only(left: 1.w),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(1.r),
