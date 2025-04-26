@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // 导入shared_preferences
 import 'package:lemon_tv/music/libs/music_play.dart';
 import 'package:lemon_tv/routes/routes.dart';
+import '../../util/ThemeController.dart';
 import '../music_http/music_http_rquest.dart';
 
 class MusicSearchPage extends StatefulWidget {
@@ -12,6 +14,7 @@ class MusicSearchPage extends StatefulWidget {
 class _MusicSearchPageState extends State<MusicSearchPage> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  final ThemeController themeController = Get.find();
 
   List<dynamic> _songs = [];
   List<String> _searchHistory = [];
@@ -21,6 +24,7 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
   @override
   void initState() {
     super.initState();
+    _loadSearchHistory(); // 加载本地搜索记录
 
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
@@ -33,6 +37,20 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
         });
       }
     });
+  }
+
+  // 加载历史记录
+  Future<void> _loadSearchHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _searchHistory = prefs.getStringList('search_history') ?? [];
+    });
+  }
+
+  // 保存历史记录
+  Future<void> _saveSearchHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setStringList('search_history', _searchHistory);
   }
 
   Future<void> _searchSongs({String? text}) async {
@@ -56,6 +74,7 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
         // 添加到搜索历史，不重复
         if (!_searchHistory.contains(query)) {
           _searchHistory.insert(0, query);
+          _saveSearchHistory(); // 更新历史记录
         }
       });
     } catch (e) {
@@ -69,8 +88,8 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
 
   Widget _buildSongItem(dynamic song) {
     return ListTile(
-      title: Text(song['title'] ?? '未知歌曲'),
-      subtitle: Text(song['artist'] ?? '未知歌手'),
+      title: Text(song['title'] ?? '未知歌曲', style: TextStyle(color: themeController.currentAppTheme.normalTextColor)),
+      subtitle: Text(song['artist'] ?? '未知歌手', style: TextStyle(color: themeController.currentAppTheme.normalTextColor)),
       onTap: () {
         final songId = song['id'];
         final songName = song['title'];
@@ -89,7 +108,7 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
   Widget _buildHistoryItem(String keyword) {
     return ListTile(
       leading: const Icon(Icons.history),
-      title: Text(keyword),
+      title: Text(keyword, style: TextStyle(color: themeController.currentAppTheme.normalTextColor)),
       onTap: () {
         _controller.text = keyword;
         _searchSongs(text: keyword);
@@ -108,7 +127,7 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('音乐搜索'),
+        title: Text('音乐搜索', style: TextStyle(color: themeController.currentAppTheme.normalTextColor)),
         centerTitle: true,
       ),
       body: Column(
@@ -147,7 +166,7 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
           else if (_isLoading)
             const Expanded(child: Center(child: CircularProgressIndicator()))
           else if (_songs.isEmpty)
-              const Expanded(child: Center(child: Text('暂无搜索结果')))
+              Expanded(child: Center(child: Text('暂无搜索结果', style: TextStyle(color: themeController.currentAppTheme.normalTextColor))))
             else
               Expanded(
                 child: ListView.builder(

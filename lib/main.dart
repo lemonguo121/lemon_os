@@ -14,20 +14,30 @@ import 'home/HomeScreen.dart';
 import 'home/SecendHomePage.dart';
 import 'http/data/MyHttpOverrides.dart';
 import 'mine/ProfileScreen.dart';
+import 'package:provider/provider.dart';
+
+import 'music/libs/music_mini_controller.dart'; // 引入 provider
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
   await Injection.init();
   var isRealFun = SPManager.isRealFun();
-  runApp(ScreenUtilInit(
-    designSize: const Size(750, 1334), //物理设备的大小
-    minTextAdapt: true, //是否根据宽度/高度中的最小值适配文字
-    splitScreenMode: true, //支持分屏尺寸
-    builder: (context, child) {
-      return ElectronicsStoreApp(isRealFun: isRealFun);
-    },
-  ));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => MiniPlayerController()),
+      ],
+      child: ScreenUtilInit(
+        designSize: const Size(750, 1334),
+        minTextAdapt: true,
+        splitScreenMode: true,
+        builder: (context, child) {
+          return ElectronicsStoreApp(isRealFun: isRealFun);
+        },
+      ),
+    ),
+  );
 }
 
 class ElectronicsStoreApp extends StatelessWidget {

@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -56,7 +58,7 @@ class DownloadManager {
 
   // 保存已下载的歌曲到播放列表
   Future<void> saveSongToPlaylist(String songName) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = Get.find<SharedPreferences>();
     final List<String> playlist = prefs.getStringList('playlist') ?? [];
     if (!playlist.contains(songName)) {
       playlist.add(songName);
@@ -66,7 +68,7 @@ class DownloadManager {
 
   // 获取本地播放列表
   Future<List<String>> getPlaylist() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = Get.find<SharedPreferences>();
     return prefs.getStringList('playlist') ?? [];
   }
 }

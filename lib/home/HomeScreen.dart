@@ -282,8 +282,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.public,
-                  size: 16,
+              Icon(Icons.menu,
+                  size: 30,
                   color: themeController.currentAppTheme.selectedTextColor),
               const SizedBox(width: 4),
               SizedBox(

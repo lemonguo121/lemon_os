@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:dio/dio.dart';
@@ -34,7 +36,8 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
   bool _isDownloading = false;
   bool _downloadCompleted = false;
   String _currentSongPath = '';
-
+  List<String> bgImages = ["music_bg1.png", "music_bg2.png", "music_bg3.png"];
+  String bgImageName = '';
   List<LyricLine> _lyrics = [];
   int _currentIndex = 0;
   final _scrollController = ScrollController();
@@ -51,8 +54,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
       _isDownloading = true;
     });
 
-    final audioResp =
-        await Dio().get(_currentSongPath); // 获取歌曲 URL
+    final audioResp = await Dio().get(_currentSongPath); // 获取歌曲 URL
     final audioUrl = audioResp.data['url'];
 
     try {
@@ -79,6 +81,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
   @override
   void initState() {
     super.initState();
+    bgImageName = 'assets/music/${bgImages[Random().nextInt(bgImages.length)]}';
     _rotationController =
         AnimationController(vsync: this, duration: const Duration(seconds: 20))
           ..repeat();
@@ -209,7 +212,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
         children: [
           // 背景图
           Image.asset(
-            'assets/music/music_bg.png', // 你可以替换成自己的背景图路径
+            '$bgImageName', // 你可以替换成自己的背景图路径
             fit: BoxFit.cover,
           ),
           // 半透明遮罩
@@ -220,7 +223,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
               ? const Center(child: CircularProgressIndicator())
               : Column(
                   children: [
-                    const SizedBox(height: 50),
+                    const SizedBox(height: 120),
                     RotationTransition(
                       turns: _rotationController,
                       child: CircleAvatar(
@@ -287,25 +290,34 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
                     ),
                   ],
                 ),
-          // Positioned(
-          //   right: 30,
-          //   top: 70,
-          //   width: 40,
-          //   height: 40,
-          //   child: ElevatedButton(
-          //     onPressed: _downloadCompleted || _isDownloading
-          //         ? null // 禁用按钮
-          //         : _downloadSong,
-          //     child: _isDownloading
-          //         ? CircularProgressIndicator()
-          //         : Center(
-          //       child: Icon(
-          //         _downloadCompleted ? Icons.check_circle : Icons.download,
-          //         color: _downloadCompleted ? Colors.green : Colors.blue,
-          //       ),
-          //     ),
-          //   ),
-          // )
+          Positioned(
+              top: 44,
+              left: 0,
+              right: 0,
+              height: 66,
+              child: Opacity(
+                opacity: 0.2,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ElevatedButton(
+                        onPressed: () {
+                          Get.back();
+                        },
+                        child: Icon(Icons.arrow_back)),
+                    Center(
+                      child: Text(
+                        widget.songName,
+                        style: TextStyle(color: Colors.white, fontSize: 30),
+                      ),
+                    ),
+                    Icon(
+                      Icons.menu,
+                      color: Colors.white,
+                    )
+                  ],
+                ),
+              ))
         ],
       ),
     );

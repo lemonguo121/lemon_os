@@ -5,6 +5,7 @@ import 'package:lemon_tv/music/libs/music_record.dart';
 
 import '../../mine/SecendMinePage.dart';
 import '../../util/ThemeController.dart';
+import '../libs/music_mini_bar.dart';
 import '../libs/music_play.dart';
 import '../libs/music_search.dart';
 
@@ -27,14 +28,28 @@ class _MusicHomePageState extends State<MusicHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex, // 当前选中的页面
-        children: _pages,
+      body: Stack(
+        children: [
+          // 页面内容
+          Positioned.fill(
+            child: IndexedStack(
+              index: _currentIndex,
+              children: _pages,
+            ),
+          ),
+          // Mini 播放器（悬浮在底部导航上面）
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0, // 留出 BottomNavigationBar 的高度
+            child: MiniMusicPlayerBar(), // 替换为你自己的组件
+          ),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: themeController.currentAppTheme.backgroundColor,
         unselectedItemColor:
-            themeController.currentAppTheme.unselectedTextColor,
+        themeController.currentAppTheme.unselectedTextColor,
         selectedItemColor: themeController.currentAppTheme.selectedTextColor,
         elevation: 1.0,
         currentIndex: _currentIndex,
@@ -46,7 +61,6 @@ class _MusicHomePageState extends State<MusicHomePage> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "首页"),
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "记录"),
-          // BottomNavigationBarItem(icon: Icon(Icons.history), label: "记录"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "我的"),
         ],
       ),
