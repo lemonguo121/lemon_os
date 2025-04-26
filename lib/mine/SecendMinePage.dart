@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/mine/ThemeSettingsPage.dart';
+import 'package:lemon_tv/music/music_home/music_home_page.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-
+import 'package:adaptive_action_sheet/adaptive_action_sheet.dart';
 import '../util/CacheUtil.dart';
 
 class SecendMinePage extends StatefulWidget {
@@ -29,7 +30,6 @@ class _SecendMinePageState extends State<SecendMinePage> {
     final info = await PackageInfo.fromPlatform();
     setState(() {
       _version = info.version;
-
     });
   }
 
@@ -49,6 +49,8 @@ class _SecendMinePageState extends State<SecendMinePage> {
       SnackBar(content: Text("缓存已清理")),
     );
   }
+
+  void _showSheet() {}
 
   @override
   Widget build(BuildContext context) {
@@ -106,16 +108,46 @@ class _SecendMinePageState extends State<SecendMinePage> {
                   ),
                   ListTile(
                     leading: Icon(Icons.info_outline,
-                        color: themeController.currentAppTheme.unselectedTextColor),
+                        color: themeController
+                            .currentAppTheme.unselectedTextColor),
                     // 清理缓存图标
                     title: Text("版本号",
                         style: TextStyle(
-                            color:
-                            themeController.currentAppTheme.titleColr)),
-                    trailing: Text("v $_version" ,
+                            color: themeController.currentAppTheme.titleColr)),
+                    trailing: Text("v $_version",
                         style: TextStyle(
-                            color:
-                            themeController.currentAppTheme.titleColr)),
+                            color: themeController.currentAppTheme.titleColr)),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.change_history,
+                        color: themeController
+                            .currentAppTheme.unselectedTextColor),
+                    // 清理缓存图标
+                    title: Text(
+                      "功能切换",
+                      style: TextStyle(
+                          color: themeController.currentAppTheme.titleColr),
+                    ),
+                    onTap: () {
+                      showAdaptiveActionSheet(
+                        context: context,
+                        actions: <BottomSheetAction>[
+                          BottomSheetAction(
+                            leading: Icon(Icons.music_note_rounded),
+                            title: const Text('享音乐'),
+                            onPressed: (_) {
+                              Get.off(MusicHomePage());
+                            },
+                          ),
+                          BottomSheetAction(
+                            leading: Icon(Icons.book_online),
+                            title: const Text('看小说'),
+                            onPressed: (_) {},
+                          ),
+                        ],
+                        cancelAction: CancelAction(title: const Text('Cancel')),
+                      );
+                    },
                   ),
                 ],
               )),

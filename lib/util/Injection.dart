@@ -10,5 +10,6 @@ class Injection {
     await Get.putAsync(() => SharedPreferences.getInstance());
     Get.lazyPut(() => HistoryController(),fenix: true);
     Get.lazyPut(() => ThemeController(),fenix: true);
+    Get.lazyPut(() => ThemeController(),fenix: true);
   }
 }

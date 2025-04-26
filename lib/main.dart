@@ -59,7 +59,7 @@ class ElectronicsStoreApp extends StatelessWidget {
               IconThemeData(color: themeController.currentAppTheme.iconColor),
           primaryColor: themeController.currentAppTheme.buttonColor,
         ),
-        home: (!isRealFun && Platform.isIOS) ? SecendHomePage() : HomePage(),
+        home: HomePage(),
       );
     });
   }

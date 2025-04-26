@@ -10,7 +10,7 @@ class HttpService {
 
   factory HttpService() => _instance;
 //  •	搜索音乐: 通过访问 https://music-plugings.onrender.com/search?query=向天再借五百年
-//  •	获取歌词: 通过访问 https://music-plugings.onrender.com/lyric?id=12345（假设 bWhuZGt2bWg 是一个有效的歌曲 ID）
+//  •	获取歌词: 通过访问 https://music-plugings.onrender.com/lyric?id=bWhuZGt2bWg（假设 bWhuZGt2bWg 是一个有效的歌曲 ID）
 //  •	获取排行榜: 通过访问 https://music-plugings.onrender.com/top-lists
 //  •	获取榜单详情: 通过访问 https://music-plugings.onrender.com/top-list-detail?id=new
 //  •	获取媒体信息: 通过访问 https://music-plugings.onrender.com/getMediaSource?id=bWhuZGt2bWg（假设 bWhuZGt2bWg 是一个有效的歌曲 ID）
