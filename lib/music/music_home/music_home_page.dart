@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:lemon_tv/music/libs/music_record.dart';
 
+import '../../mine/ProfileScreen.dart';
 import '../../mine/SecendMinePage.dart';
 import '../../util/ThemeController.dart';
 import '../libs/music_mini_bar.dart';
@@ -25,7 +26,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
   final List<Widget> _pages = [
     MusicSearchPage(),
     MusicRecord(),
-    SecendMinePage(),
+    ProfileScreen(),
   ];
 
   @override
