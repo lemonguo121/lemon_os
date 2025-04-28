@@ -6,7 +6,7 @@ import 'package:lemon_tv/subscrip/SubscriptionPage.dart';
 
 import '../http/data/storehouse_bean_entity.dart';
 import '../mine/SettingPage.dart';
-import '../music/libs/music_play.dart';
+import '../music/libs/player/widget/music_play.dart';
 
 abstract class Routes {
   /// 详情页

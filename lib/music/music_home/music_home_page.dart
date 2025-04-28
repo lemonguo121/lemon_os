@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:lemon_tv/music/libs/music_controller.dart';
+import 'package:lemon_tv/music/libs/player/music_controller.dart';
 import 'package:lemon_tv/music/libs/music_record.dart';
 
 import '../../mine/ProfileScreen.dart';
 import '../../mine/SecendMinePage.dart';
 import '../../util/ThemeController.dart';
-import '../libs/music_mini_bar.dart';
-import '../libs/music_play.dart';
-import '../libs/music_search.dart';
+import '../libs/player/widget/music_mini_bar.dart';
+import '../libs/search/widget/music_search.dart';
 
 class MusicHomePage extends StatefulWidget {
   const MusicHomePage({super.key});

@@ -2,14 +2,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:audio_session/audio_session.dart';
-import 'package:dio/dio.dart';
-import 'package:lemon_tv/music/libs/music_controller.dart';
-import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
+import 'package:lemon_tv/music/libs/player/music_controller.dart';
+import 'package:lemon_tv/music/libs/player/widget/music_bottom_bar.dart';
+import '../../music_download.dart';
 
-import '../music_http/music_http_rquest.dart';
-import 'music_control.dart';
-import 'music_download.dart';
 
 class LyricLine {
   final Duration time;
@@ -38,7 +34,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
 
   int _currentIndex = 0;
   final _scrollController = ScrollController();
-  bool _isLoading = true;
+
   late AnimationController _rotationController;
   PlayMode _playMode = PlayMode.loop;
   static const double _lineHeight = 37;
@@ -57,42 +53,22 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
   }
 
   Future<void> _initPlayerAndData() async {
-    try {
-
-      _rotationController.repeat();
-
-      ever(playerController.currentPosition, (_) {
-        if(mounted){
-          _onPositionChanged();
-        }
-
-      });
-      playerController.player.playerStateStream.listen((state) {
-        if (mounted) {
-          // 检查 Widget 是否还挂载
-          if (state.playing) {
-            _rotationController.repeat();
-          } else {
-            _rotationController.stop();
-          }
-        }
-      });
-
+    _rotationController.repeat();
+    ever(playerController.currentPosition, (_) {
+      if (mounted) {
+        _onPositionChanged();
+      }
+    });
+    playerController.player.playerStateStream.listen((state) {
       if (mounted) {
         // 检查 Widget 是否还挂载
-        setState(() {
-          _isLoading = false;
-        });
+        if (state.playing) {
+          _rotationController.repeat();
+        } else {
+          _rotationController.stop();
+        }
       }
-    } catch (e) {
-      print('加载失败: $e');
-      if (mounted) {
-        // 检查 Widget 是否还挂载
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
+    });
   }
 
   // Future<void> _downloadSong() async {
@@ -163,34 +139,10 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
   void _handleBackPressed() {
     playerController.isVisible.value = true;
     Navigator.pop(context);
-    // miniController.showMiniPlayer(
-    //   name: widget.songName,
-    //   totalDuration: _totalDuration,
-    //   current: _currentPosition,
-    //   playing:  playerController.player.playing,
-    //   playPause: () {
-    //     if ( playerController.player.playing) {
-    //        playerController.player.pause();
-    //     } else {
-    //        playerController.player.play();
-    //     }
-    //   },
-    //   prev: () {
-    //     // TODO: 上一首逻辑
-    //   },
-    //   next: () {
-    //     // TODO: 下一首逻辑
-    //   },
-    //   close: () {
-    //     miniController.hideMiniPlayer();
-    //   },
-    // );
-    // Navigator.pop(context);
   }
 
   @override
   void dispose() {
-    //  playerController.player.dispose();
     _scrollController.dispose();
     _rotationController.dispose();
     super.dispose();
@@ -198,79 +150,79 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.asset(
-            bgImageName,
-            fit: BoxFit.cover,
-          ),
-          Container(color: Colors.black.withOpacity(0.4)),
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
+    return Obx(() => Scaffold(
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              Image.asset(
+                bgImageName,
+                fit: BoxFit.cover,
+              ),
+              Container(color: Colors.black.withOpacity(0.4)),
+              playerController.isLoading.value
+                  ? const Center(child: CircularProgressIndicator())
+                  : Column(
+                      children: [
+                        const SizedBox(height: 120),
+                        RotationTransition(
+                          turns: _rotationController,
+                          child: CircleAvatar(
+                            radius: 60,
+                            backgroundImage:
+                                AssetImage('assets/music/record.png'),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: _buildLyricList(),
+                        ),
+                        MusicBottomBar(
+                          isPlaying: playerController.player.playing,
+                          position: playerController.currentPosition.value,
+                          total: playerController.totalDuration.value,
+                          playMode: _playMode,
+                          onPlayPause: () {
+                            playerController.player.playing
+                                ? playerController.player.pause()
+                                : playerController.player.play();
+                          },
+                          onPrev: () {
+                            // TODO: 上一首逻辑
+                          },
+                          onNext: () {
+                            // TODO: 下一首逻辑
+                          },
+                          onSeek: (value) {
+                            final newPos = Duration(seconds: value.toInt());
+                            playerController.player.seek(newPos);
+                          },
+                          onModeTap: _togglePlayMode,
+                        ),
+                      ],
+                    ),
+              Positioned(
+                top: 44,
+                left: 0,
+                right: 0,
+                height: 66,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const SizedBox(height: 120),
-                    RotationTransition(
-                      turns: _rotationController,
-                      child: CircleAvatar(
-                        radius: 60,
-                        backgroundImage: AssetImage('assets/music/record.png'),
-                      ),
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: _handleBackPressed,
                     ),
-                    const SizedBox(height: 20),
-                    Expanded(
-                      child: _buildLyricList(),
+                    Text(
+                      playerController.songName.value,
+                      style: const TextStyle(color: Colors.white, fontSize: 22),
                     ),
-                    MusicBottomBar(
-                      isPlaying: playerController.player.playing,
-                      position:playerController.currentPosition.value,
-                      total: playerController.totalDuration.value,
-                      playMode: _playMode,
-                      onPlayPause: () {
-                        playerController.player.playing
-                            ? playerController.player.pause()
-                            : playerController.player.play();
-                      },
-                      onPrev: () {
-                        // TODO: 上一首逻辑
-                      },
-                      onNext: () {
-                        // TODO: 下一首逻辑
-                      },
-                      onSeek: (value) {
-                        final newPos = Duration(seconds: value.toInt());
-                        playerController.player.seek(newPos);
-
-                      },
-                      onModeTap: _togglePlayMode,
-                    ),
+                    const SizedBox(width: 48), // 占位（跟返回按钮宽度对齐）
                   ],
                 ),
-          Positioned(
-            top: 44,
-            left: 0,
-            right: 0,
-            height: 66,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: _handleBackPressed,
-                ),
-                Text(
-                  playerController.songName.value,
-                  style: const TextStyle(color: Colors.white, fontSize: 22),
-                ),
-                const SizedBox(width: 48), // 占位（跟返回按钮宽度对齐）
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        ));
   }
 
   Widget _buildLyricList() {
