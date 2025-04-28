@@ -16,6 +16,7 @@ import 'http/data/MyHttpOverrides.dart';
 import 'mine/ProfileScreen.dart';
 import 'package:provider/provider.dart';
 
+import 'music/libs/music_controller.dart';
 import 'music/libs/music_mini_controller.dart'; // 引入 provider
 
 void main() async {
@@ -23,19 +24,16 @@ void main() async {
   HttpOverrides.global = MyHttpOverrides();
   await Injection.init();
   var isRealFun = SPManager.isRealFun();
+  Get.put(MusicPlayerController()); // 先放进去
+  Get.put(MiniPlayerController()); // 再放这个
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => MiniPlayerController()),
-      ],
-      child: ScreenUtilInit(
-        designSize: const Size(750, 1334),
-        minTextAdapt: true,
-        splitScreenMode: true,
-        builder: (context, child) {
-          return ElectronicsStoreApp(isRealFun: isRealFun);
-        },
-      ),
+      ScreenUtilInit(
+      designSize: const Size(750, 1334),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return ElectronicsStoreApp(isRealFun: isRealFun);
+      },
     ),
   );
 }

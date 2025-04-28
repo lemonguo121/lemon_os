@@ -1,16 +1,24 @@
-import 'package:flutter/material.dart';
+import 'dart:ui';
 
-class MiniPlayerController extends ChangeNotifier {
-  bool isVisible = false;
-  String songName = "";
-  Duration total = Duration.zero;
-  Duration position = Duration.zero;
-  bool isPlaying = false;
+import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
+
+import 'music_controller.dart';
+
+class MiniPlayerController extends GetxController {
+  final MusicPlayerController musicController = Get.find<MusicPlayerController>();
+
+  // 改为 Rx 类型
+  RxBool isVisible = false.obs;
+  RxString songName = "".obs;
+  Rx<Duration> total = Duration.zero.obs;
+  Rx<Duration> position = Duration.zero.obs;
+  RxBool isPlaying = false.obs;
 
   VoidCallback? onPlayPause;
   VoidCallback? onNext;
   VoidCallback? onPrev;
-  VoidCallback? onClose;
+  VoidCallback? onCloseCallback;
 
   void showMiniPlayer({
     required String name,
@@ -22,26 +30,34 @@ class MiniPlayerController extends ChangeNotifier {
     VoidCallback? next,
     VoidCallback? close,
   }) {
-    isVisible = true;
-    songName = name;
-    total = totalDuration;
-    position = current;
-    isPlaying = playing;
+    // 使用 Rx 变量来更新值
+    isVisible.value = true;
+    songName.value = name;
+    total.value = totalDuration;
+    position.value = current;
+    isPlaying.value = playing;
     onPlayPause = playPause;
     onNext = next;
     onPrev = prev;
-    onClose = close;
-    notifyListeners();
+    onCloseCallback = close;
   }
 
   void hideMiniPlayer() {
-    isVisible = false;
-    notifyListeners();
+    isVisible.value = false;
   }
 
   void updateProgress(Duration pos, bool playing) {
-    position = pos;
-    isPlaying = playing;
-    notifyListeners();
+    position.value = pos;
+    isPlaying.value = playing;
+  }
+
+  Future<void> onPlayPauseAction() async {
+    if (isPlaying.value) {
+      await musicController.player.pause();
+      isPlaying.value = false;
+    } else {
+      await musicController.player.play();
+      isPlaying.value = true;
+    }
   }
 }

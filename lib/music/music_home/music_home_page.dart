@@ -6,6 +6,7 @@ import 'package:lemon_tv/music/libs/music_record.dart';
 import '../../mine/SecendMinePage.dart';
 import '../../util/ThemeController.dart';
 import '../libs/music_mini_bar.dart';
+import '../libs/music_mini_controller.dart';
 import '../libs/music_play.dart';
 import '../libs/music_search.dart';
 
@@ -19,6 +20,8 @@ class MusicHomePage extends StatefulWidget {
 class _MusicHomePageState extends State<MusicHomePage> {
   int _currentIndex = 0;
   final ThemeController themeController = Get.find();
+  final MiniPlayerController miniController = Get.find();
+
   final List<Widget> _pages = [
     MusicSearchPage(),
     MusicRecord(),
@@ -37,13 +40,20 @@ class _MusicHomePageState extends State<MusicHomePage> {
               children: _pages,
             ),
           ),
-          // Mini 播放器（悬浮在底部导航上面）
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0, // 留出 BottomNavigationBar 的高度
-            child: MiniMusicPlayerBar(), // 替换为你自己的组件
-          ),
+          // Debug: 简单文本替代 MiniMusicPlayerBar，排查问题
+          Obx(() {
+            if (miniController.isVisible.value) {
+              return Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0, // 留出 BottomNavigationBar 的高度
+                child: MiniMusicPlayerBar(controller: miniController),
+              );
+            }
+            return Center(
+              child: SizedBox.shrink(),
+            ); // 如果播放器不可见，返回空的占位
+          }),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -60,7 +70,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "首页"),
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "记录"),
+          BottomNavigationBarItem(icon: Icon(Icons.record_voice_over), label: "记录"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "我的"),
         ],
       ),
