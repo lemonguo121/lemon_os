@@ -23,6 +23,10 @@ abstract class Routes {
   //
   static const String pluginsPage = '/plugins';
 
+  static const String musicPlayer = '/musicPlayer';
+
+
+
   static goDetailPage(String vodId, StorehouseBeanSites site) {
     Get.toNamed(detailPage, arguments: {'vodId': vodId, 'site': site});
   }
@@ -41,11 +45,17 @@ abstract class Routes {
   static goPluginPage(){
     Get.toNamed(pluginsPage);
   }
+
+  static goMusicPage(){
+    Get.toNamed(musicPlayer);
+  }
+
   static final routePage = [
     GetPage(name: detailPage, page: () => DetailScreen()),
     GetPage(name: searchPage, page: () => SearchScreen()),
     GetPage(name: subscripPage, page: () => SubscriptionPage()),
     GetPage(name: settingPage, page: () => SettingPage()),
     GetPage(name: pluginsPage, page: () => PluginsPage()),
+    GetPage(name: musicPlayer, page: () => MusicPlayerPage()),
   ];
 }

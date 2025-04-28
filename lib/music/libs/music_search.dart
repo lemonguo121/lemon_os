@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lemon_tv/music/libs/music_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // 导入shared_preferences
 import 'package:lemon_tv/music/libs/music_play.dart';
 import 'package:lemon_tv/routes/routes.dart';
@@ -19,6 +20,7 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
   final FocusNode _focusNode = FocusNode();
   final ThemeController themeController = Get.find();
   final SubscriptionsUtil _subscriptionsUtil = SubscriptionsUtil();
+  MusicPlayerController playerController = Get.find();
 
   List<dynamic> _songs = [];
   List<String> _searchHistory = [];
@@ -26,6 +28,7 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
   bool _showHistory = false;
   int errorType = -1; //0:作为成功；1：订阅为空；2:站点不可用；
   PluginInfo? currentSite;
+
   @override
   void initState() {
     super.initState();
@@ -45,10 +48,9 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
     });
   }
 
-
-  void loadSite() async{
+  void loadSite() async {
     // 第一步先检查当前是否有选择的仓库
-    var currentStorehouse =  MusicSPManage.getCurrentSubscription();
+    var currentStorehouse = MusicSPManage.getCurrentSubscription();
     if (currentStorehouse == null) {
       setState(() {
         errorType = 1;
@@ -93,7 +95,8 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
     try {
       var currentSite = MusicSPManage.getCurrentSite();
       final response = await NetworkManager().get('/search', queryParameters: {
-        'query': query,'plugin':currentSite?.platform??""
+        'query': query,
+        'plugin': currentSite?.platform ?? ""
       });
 
       final data = response.data;
@@ -116,18 +119,18 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
 
   Widget _buildSongItem(dynamic song) {
     return ListTile(
-      title: Text(song['title'] ?? '未知歌曲', style: TextStyle(color: themeController.currentAppTheme.normalTextColor)),
-      subtitle: Text(song['artist'] ?? '未知歌手', style: TextStyle(color: themeController.currentAppTheme.normalTextColor)),
+      title: Text(song['title'] ?? '未知歌曲',
+          style: TextStyle(
+              color: themeController.currentAppTheme.normalTextColor)),
+      subtitle: Text(song['artist'] ?? '未知歌手',
+          style: TextStyle(
+              color: themeController.currentAppTheme.normalTextColor)),
       onTap: () {
         final songId = song['id'];
         final songName = song['title'];
         if (songId != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => MusicPlayerPage(id: songId, songName: songName),
-            ),
-          );
+          Routes.goMusicPage();
+          playerController.upDateSong(songId,songName);
         }
       },
     );
@@ -136,7 +139,9 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
   Widget _buildHistoryItem(String keyword) {
     return ListTile(
       leading: const Icon(Icons.history),
-      title: Text(keyword, style: TextStyle(color: themeController.currentAppTheme.normalTextColor)),
+      title: Text(keyword,
+          style: TextStyle(
+              color: themeController.currentAppTheme.normalTextColor)),
       onTap: () {
         _controller.text = keyword;
         _searchSongs(text: keyword);
@@ -155,7 +160,9 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('音乐搜索', style: TextStyle(color: themeController.currentAppTheme.normalTextColor)),
+        title: Text('音乐搜索',
+            style: TextStyle(
+                color: themeController.currentAppTheme.normalTextColor)),
         centerTitle: true,
       ),
       body: Column(
@@ -194,19 +201,23 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
           else if (_isLoading)
             const Expanded(child: Center(child: CircularProgressIndicator()))
           else if (_songs.isEmpty)
-              Expanded(child: Center(child: Text('暂无搜索结果', style: TextStyle(color: themeController.currentAppTheme.normalTextColor))))
-            else
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _songs.length,
-                  itemBuilder: (context, index) {
-                    return _buildSongItem(_songs[index]);
-                  },
-                ),
+            Expanded(
+                child: Center(
+                    child: Text('暂无搜索结果',
+                        style: TextStyle(
+                            color: themeController
+                                .currentAppTheme.normalTextColor))))
+          else
+            Expanded(
+              child: ListView.builder(
+                itemCount: _songs.length,
+                itemBuilder: (context, index) {
+                  return _buildSongItem(_songs[index]);
+                },
               ),
+            ),
         ],
       ),
     );
   }
-
 }

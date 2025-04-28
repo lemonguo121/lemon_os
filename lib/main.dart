@@ -7,27 +7,19 @@ import 'package:lemon_tv/routes/routes.dart';
 import 'package:lemon_tv/util/Injection.dart';
 import 'package:lemon_tv/util/SPManager.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../history/PlayHistory.dart';
 import 'home/HomeScreen.dart';
-import 'home/SecendHomePage.dart';
 import 'http/data/MyHttpOverrides.dart';
 import 'mine/ProfileScreen.dart';
-import 'package:provider/provider.dart';
-
-import 'music/libs/music_controller.dart';
-import 'music/libs/music_mini_controller.dart'; // 引入 provider
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
   await Injection.init();
   var isRealFun = SPManager.isRealFun();
-  Get.put(MusicPlayerController()); // 先放进去
-  Get.put(MiniPlayerController()); // 再放这个
   runApp(
-      ScreenUtilInit(
+    ScreenUtilInit(
       designSize: const Size(750, 1334),
       minTextAdapt: true,
       splitScreenMode: true,

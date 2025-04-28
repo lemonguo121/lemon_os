@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'music_mini_controller.dart';
+import 'package:lemon_tv/music/libs/music_controller.dart';
 
 class MiniMusicPlayerBar extends StatefulWidget {
-  final MiniPlayerController controller;
 
-  const MiniMusicPlayerBar({super.key, required this.controller});
+  const MiniMusicPlayerBar({super.key});
 
   @override
   State<MiniMusicPlayerBar> createState() => _MiniMusicPlayerBarState();
@@ -15,7 +14,7 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _scaleAnim;
-  final MiniPlayerController miniController = Get.find<MiniPlayerController>();
+  final MusicPlayerController miniController = Get.find<MusicPlayerController>();
 
   @override
   void initState() {
@@ -33,13 +32,13 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
   @override
   void dispose() {
     _controller.dispose();
-    miniController.musicController.player.stop();
+    miniController.player.stop();
     super.dispose();
   }
 
   void _closePlayer() async {
     await _controller.reverse();
-    await miniController.musicController.player.stop();
+    await miniController.player.stop();
     miniController.hideMiniPlayer();
     miniController.onClose?.call(); // 加个问号保险，防止 onClose == null
   }
@@ -90,7 +89,7 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "${_formatDuration(miniController.position.value)} / ${_formatDuration(miniController.total.value)}",
+                        "${_formatDuration(miniController.currentPosition.value)} / ${_formatDuration(miniController.totalDuration.value)}",
                         style: const TextStyle(
                           color: Colors.white60,
                           fontSize: 12,
@@ -117,7 +116,7 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
                           miniController.isPlaying.value ? Icons.pause : Icons.play_arrow,
                           color: Colors.white,
                         ),
-                        onPressed: miniController.onPlayPauseAction,
+                        onPressed: miniController.playPause,
                         iconSize: 28,
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
