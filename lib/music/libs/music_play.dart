@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:dio/dio.dart';
+import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 
 import '../music_http/music_http_rquest.dart';
 import 'music_control.dart';
@@ -65,14 +66,14 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
       _player = AudioPlayer();
       final session = await AudioSession.instance;
       await session.configure(const AudioSessionConfiguration.music());
-
+      var currentSite = MusicSPManage.getCurrentSite();
       final rawLrcResp = await NetworkManager()
-          .get('/lyric', queryParameters: {'id': widget.id});
+          .get('/lyric', queryParameters: {'id': widget.id, 'plugin':currentSite?.platform??""});
       final rawLrc = rawLrcResp.data['rawLrc'] ?? '';
       _lyrics = _parseLrc(rawLrc);
 
       final audioResp = await NetworkManager()
-          .get('/getMediaSource', queryParameters: {'id': widget.id});
+          .get('/getMediaSource', queryParameters: {'id': widget.id,'plugin':currentSite?.platform??""});
       final audioUrl = audioResp.data['url'];
       await _player.setUrl(audioUrl);
       _currentSongPath = audioUrl;

@@ -4,7 +4,10 @@ import 'package:shared_preferences/shared_preferences.dart'; // 导入shared_pre
 import 'package:lemon_tv/music/libs/music_play.dart';
 import 'package:lemon_tv/routes/routes.dart';
 import '../../util/ThemeController.dart';
+import '../../util/SubscriptionsUtil.dart';
+import '../music_http/data/PluginBean.dart';
 import '../music_http/music_http_rquest.dart';
+import '../music_utils/MusicSPManage.dart';
 
 class MusicSearchPage extends StatefulWidget {
   @override
@@ -15,15 +18,18 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   final ThemeController themeController = Get.find();
+  final SubscriptionsUtil _subscriptionsUtil = SubscriptionsUtil();
 
   List<dynamic> _songs = [];
   List<String> _searchHistory = [];
   bool _isLoading = false;
   bool _showHistory = false;
-
+  int errorType = -1; //0:作为成功；1：订阅为空；2:站点不可用；
+  PluginInfo? currentSite;
   @override
   void initState() {
     super.initState();
+    loadSite();
     _loadSearchHistory(); // 加载本地搜索记录
 
     _focusNode.addListener(() {
@@ -37,6 +43,27 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
         });
       }
     });
+  }
+
+
+  void loadSite() async{
+    // 第一步先检查当前是否有选择的仓库
+    var currentStorehouse =  MusicSPManage.getCurrentSubscription();
+    if (currentStorehouse == null) {
+      setState(() {
+        errorType = 1;
+      });
+      return;
+    }
+    // 第二步，根据当前的仓库去请求仓库下的站点
+    currentSite =
+        await _subscriptionsUtil.requestMusicCurrentSites(currentStorehouse);
+    if (currentSite == null) {
+      setState(() {
+        errorType = 2;
+      });
+      return;
+    }
   }
 
   // 加载历史记录
@@ -64,8 +91,9 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
     });
 
     try {
+      var currentSite = MusicSPManage.getCurrentSite();
       final response = await NetworkManager().get('/search', queryParameters: {
-        'query': query,
+        'query': query,'plugin':currentSite?.platform??""
       });
 
       final data = response.data;
@@ -180,4 +208,5 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
       ),
     );
   }
+
 }

@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:lemon_tv/detail/DetailScreen.dart';
 import 'package:lemon_tv/search/SearchScreen.dart';
+import 'package:lemon_tv/subscrip/PluginsPage.dart';
 import 'package:lemon_tv/subscrip/SubscriptionPage.dart';
 
 import '../http/data/storehouse_bean_entity.dart';
@@ -19,6 +20,8 @@ abstract class Routes {
 
 //   设置页
   static const String settingPage = '/setting';
+  //
+  static const String pluginsPage = '/plugins';
 
   static goDetailPage(String vodId, StorehouseBeanSites site) {
     Get.toNamed(detailPage, arguments: {'vodId': vodId, 'site': site});
@@ -35,10 +38,14 @@ abstract class Routes {
   static goSettingPage(){
     Get.toNamed(settingPage);
   }
+  static goPluginPage(){
+    Get.toNamed(pluginsPage);
+  }
   static final routePage = [
     GetPage(name: detailPage, page: () => DetailScreen()),
     GetPage(name: searchPage, page: () => SearchScreen()),
     GetPage(name: subscripPage, page: () => SubscriptionPage()),
     GetPage(name: settingPage, page: () => SettingPage()),
+    GetPage(name: pluginsPage, page: () => PluginsPage()),
   ];
 }

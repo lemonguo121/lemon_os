@@ -76,11 +76,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ListTile(
                 leading: Icon(Icons.subscriptions,
                     color: themeController.currentAppTheme.unselectedTextColor),
-                title: Text("订阅管理",
+                title: Text("影视订阅管理",
                     style: TextStyle(
                         color: themeController.currentAppTheme.titleColr)),
                 onTap: () {
                   Routes.goSubscripPage();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.extension,
+                    color: themeController.currentAppTheme.unselectedTextColor),
+                title: Text("音乐插件管理",
+                    style: TextStyle(
+                        color: themeController.currentAppTheme.titleColr)),
+                onTap: () {
+                  Routes.goPluginPage();
                 },
               ),
               ListTile(
