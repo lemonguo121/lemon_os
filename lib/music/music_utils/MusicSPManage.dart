@@ -7,10 +7,10 @@ import '../../http/data/SubscripBean.dart';
 import '../music_http/data/PluginBean.dart';
 
 class MusicSPManage {
-
   static const String music_plugins = "music_plugins";
   static const String music_current_plugins = "music_current_plugins";
   static const String music_currentSitetinKey = "music_currentSitetinKey";
+  static const String music_search_history = "music_search_history";
 
   // 保存指定仓库
   static saveSubscription(List<StorehouseBean> subscriptions) {
@@ -19,7 +19,7 @@ class MusicSPManage {
     final uniqueSubscriptions = subscriptions.toSet().toList();
     // 序列化 JSON 并存储
     String jsonString =
-    jsonEncode(uniqueSubscriptions.map((e) => e.toJson()).toList());
+        jsonEncode(uniqueSubscriptions.map((e) => e.toJson()).toList());
     sp.setString(music_plugins, jsonString);
   }
 
@@ -58,7 +58,7 @@ class MusicSPManage {
   static saveCurrentSubscription(StorehouseBean storehouseBean) {
     SharedPreferences sp = Get.find<SharedPreferences>();
     String storehouseJson =
-    jsonEncode(storehouseBean.toJson()); // 序列化为 JSON 字符串
+        jsonEncode(storehouseBean.toJson()); // 序列化为 JSON 字符串
     sp.setString(music_current_plugins, storehouseJson);
   }
 
@@ -68,6 +68,7 @@ class MusicSPManage {
     String siteJson = jsonEncode(site.toJson()); // 序列化为 JSON 字符串
     sp.setString(music_currentSitetinKey, siteJson);
   }
+
   //
   // // 获取当前的站点
   static PluginInfo? getCurrentSite() {
@@ -79,11 +80,23 @@ class MusicSPManage {
     }
     return null;
   }
+
   //
   // // 清除当前站点
   static cleanCurrentSite() {
     SharedPreferences sp = Get.find<SharedPreferences>();
     sp.remove(music_currentSitetinKey);
   }
-  //
+
+  // 保存搜索历史记录
+  static saveSearchHistory(List<String> searchHistory) {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    sp.setStringList(music_search_history, searchHistory);
+  }
+
+  // 加载搜索历史记录
+  static List<String> getSearchHistory() {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    return sp.getStringList(music_search_history) ?? [];
+  }
 }

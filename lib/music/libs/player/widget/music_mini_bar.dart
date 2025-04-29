@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lemon_tv/music/libs/music_controller.dart';
+import 'package:lemon_tv/music/libs/player/music_controller.dart';
 
 class MiniMusicPlayerBar extends StatefulWidget {
 

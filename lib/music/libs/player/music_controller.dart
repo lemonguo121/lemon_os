@@ -1,10 +1,11 @@
 import 'package:audio_session/audio_session.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:lemon_tv/music/libs/player/widget/music_play.dart';
 
-import '../music_http/music_http_rquest.dart';
-import '../music_utils/MusicSPManage.dart';
-import 'music_play.dart';
+import '../../music_http/music_http_rquest.dart';
+import '../../music_utils/MusicSPManage.dart';
+
 
 class MusicPlayerController extends GetxController {
   final AudioPlayer player = AudioPlayer();
@@ -16,6 +17,7 @@ class MusicPlayerController extends GetxController {
   var songId = ''.obs;
   var lyrics = <LyricLine>[].obs;
   var _currentSongPath = ''.obs;
+  var isLoading = true.obs;
 
   /// 新增的初始化方法
   Future<void> init() async {
@@ -43,15 +45,18 @@ class MusicPlayerController extends GetxController {
     await player.setUrl(url);
     songName.value = songName.value;
     player.play();
+    isLoading.value = false;
   }
 
   void upDateSong(String newSongId, String newSongName) {
+    player.stop();
     songId.value = newSongId;
     songName.value = newSongName;
     getMediaInfo();
   }
 
   Future<void> getMediaInfo() async {
+    isLoading.value = true;
     var currentSite = MusicSPManage.getCurrentSite();
     final rawLrcResp = await NetworkManager().get('/lyric', queryParameters: {
       'id': songId.value,
