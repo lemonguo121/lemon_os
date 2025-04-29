@@ -41,7 +41,7 @@ class _TopListContentViewState extends State<TopListContentView> {
           return GestureDetector(
             onTap:(){
               final songId = item.id;
-              final songName = item.title;
+              final songName = item.artist;
               if (songId != null) {
                 Routes.goMusicPage();
                 playerController.upDateSong(songId, songName);

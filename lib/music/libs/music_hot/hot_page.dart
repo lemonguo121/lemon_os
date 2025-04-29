@@ -19,6 +19,7 @@ class _HotPageState extends State<HotPage> {
     super.initState();
     controller.getHotBannerList();
   }
+
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
@@ -33,28 +34,36 @@ class _HotPageState extends State<HotPage> {
           SizedBox(height: topPadding),
           Container(
             color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: TabBar(
-              isScrollable: true,
-              controller: controller.tabController,
-              indicator: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.redAccent,
-              ),
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.black87,
-              labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-              unselectedLabelStyle: const TextStyle(fontSize: 14),
-              indicatorPadding: const EdgeInsets.symmetric(horizontal: 4),
-              tabs: controller.tabs.map((item) => Tab(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Text(item.title),
+            height: 38,
+            alignment: Alignment.centerLeft,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: TabBar(
+                isScrollable: true,
+                labelPadding: EdgeInsets.only(right: 20),
+                // 去掉 TabBar 的默认内边距
+                controller: controller.tabController,
+                indicator: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.redAccent,
                 ),
-              )).toList(),
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.black87,
+                labelStyle:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                unselectedLabelStyle: const TextStyle(fontSize: 14),
+                indicatorPadding: const EdgeInsets.symmetric(horizontal: 4),
+                tabs: controller.tabs
+                    .map((item) => Tab(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text(item.title),
+                          ),
+                        ))
+                    .toList(),
+              ),
             ),
           ),
-          const Divider(height: 1),
           Expanded(
             child: TabBarView(
               controller: controller.tabController,

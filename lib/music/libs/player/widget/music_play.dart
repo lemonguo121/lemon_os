@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lemon_tv/music/libs/player/music_controller.dart';
 import 'package:lemon_tv/music/libs/player/widget/music_bottom_bar.dart';
+import 'package:marquee/marquee.dart';
 import '../../music_download.dart';
 
 
@@ -212,9 +213,26 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
                       icon: const Icon(Icons.arrow_back, color: Colors.white),
                       onPressed: _handleBackPressed,
                     ),
-                    Text(
-                      playerController.songName.value,
-                      style: const TextStyle(color: Colors.white, fontSize: 22),
+                    SizedBox(
+                      width: 300,
+                      height: 20,
+                      child: Marquee(
+                        text: playerController.songName.value,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        scrollAxis: Axis.horizontal,
+                        blankSpace: 60.0,
+                        velocity: 30.0,
+                        pauseAfterRound:  Duration.zero,
+                        startPadding: 0.0,
+                        accelerationDuration: Duration.zero,
+                        accelerationCurve: Curves.linear,
+                        decelerationDuration: Duration.zero,
+                        decelerationCurve: Curves.easeOut,
+                      ),
                     ),
                     const SizedBox(width: 48), // 占位（跟返回按钮宽度对齐）
                   ],

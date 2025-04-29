@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/music/libs/player/music_controller.dart';
+import 'package:marquee/marquee.dart';
 
 class MiniMusicPlayerBar extends StatefulWidget {
 
@@ -26,6 +27,7 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
     _scaleAnim = Tween<double>(begin: 0.95, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
+    print("音乐名字:${miniController.songName}");
     _controller.forward();
   }
 
@@ -77,15 +79,25 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "正在播放：${miniController.songName}",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                      SizedBox(
+                        height: 20,
+                        child: Marquee(
+                          text: "正在播放：${miniController.songName}",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          scrollAxis: Axis.horizontal,
+                          blankSpace: 60.0,
+                          velocity: 30.0,
+                          pauseAfterRound:  Duration.zero,
+                          startPadding: 0.0,
+                          accelerationDuration: Duration.zero,
+                          accelerationCurve: Curves.linear,
+                          decelerationDuration: Duration.zero,
+                          decelerationCurve: Curves.easeOut,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
                       Text(
