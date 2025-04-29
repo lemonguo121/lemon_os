@@ -3,18 +3,29 @@ import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lemon_tv/music/libs/player/widget/music_play.dart';
 
+import '../../data/SongBean.dart';
 import '../../music_http/music_http_rquest.dart';
 import '../../music_utils/MusicSPManage.dart';
-
 
 class MusicPlayerController extends GetxController {
   final AudioPlayer player = AudioPlayer();
   var isPlaying = false.obs;
   var currentPosition = Duration.zero.obs;
   var totalDuration = Duration.zero.obs;
-  var songName = ''.obs;
+
+  // var songName = ''.obs;
   var isVisible = false.obs;
-  var songId = ''.obs;
+
+  // var songId = ''.obs;
+  var songBean = SongBean(
+          id: '',
+          platform: '',
+          artist: '',
+          title: '',
+          pic: '',
+          duration: '',
+          artwork: '')
+      .obs;
   var lyrics = <LyricLine>[].obs;
   var _currentSongPath = ''.obs;
   var isLoading = true.obs;
@@ -43,15 +54,15 @@ class MusicPlayerController extends GetxController {
   /// 设置歌曲并播放
   Future<void> initPlayer(String url) async {
     await player.setUrl(url);
-    songName.value = songName.value;
     player.play();
+    MusicSPManage.getPlayList(listName)
+    MusicSPManage.savePlayList(playList, listName)
     isLoading.value = false;
   }
 
-  void upDateSong(String newSongId, String newSongName) {
+  void upDateSong(SongBean song) {
     player.stop();
-    songId.value = newSongId;
-    songName.value = newSongName;
+    songBean.value = song;
     getMediaInfo();
   }
 
@@ -59,7 +70,7 @@ class MusicPlayerController extends GetxController {
     isLoading.value = true;
     var currentSite = MusicSPManage.getCurrentSite();
     final rawLrcResp = await NetworkManager().get('/lyric', queryParameters: {
-      'id': songId.value,
+      'id': songBean.value.id,
       'plugin': currentSite?.platform ?? ""
     });
     final rawLrc = rawLrcResp.data['rawLrc'] ?? '';
@@ -67,7 +78,7 @@ class MusicPlayerController extends GetxController {
 
     final audioResp = await NetworkManager().get('/getMediaSource',
         queryParameters: {
-          'id': songId.value,
+          'id': songBean.value.id,
           'plugin': currentSite?.platform ?? ""
         });
     final audioUrl = audioResp.data['url'];

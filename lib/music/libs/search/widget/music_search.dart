@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lemon_tv/music/data/SongBean.dart';
 import 'package:lemon_tv/music/libs/player/music_controller.dart';
 import 'package:lemon_tv/routes/routes.dart';
 
@@ -34,20 +35,32 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
     });
   }
 
+  // required this.id,
+  // required this.platform,
+  // required this.artist,
+  // required this.title,
+  // required this.pic,
+  // required this.duration,
+  // required this.artwork,
+  // required this.rawLrc,
+  // required this.url,
+
   Widget _buildSongItem(dynamic song) {
+    var songBean = SongBean.fromJson(song);
     return ListTile(
-      title: Text(song['title'] ?? '未知歌曲',
+      title: Text(songBean.title ?? '未知歌曲',
           style: TextStyle(
               color: themeController.currentAppTheme.normalTextColor)),
-      subtitle: Text(song['artist'] ?? '未知歌手',
+      subtitle: Text(songBean.artist ?? '未知歌手',
           style: TextStyle(
               color: themeController.currentAppTheme.normalTextColor)),
       onTap: () {
-        final songId = song['id'];
-        final songName = song['title'];
-        if (songId != null) {
+        // final songId = song['id'];
+        // final songName = song['title'];
+        // final platform = song['platform'];
+        if (songBean.id.isNotEmpty) {
           Routes.goMusicPage();
-          playerController.upDateSong(songId, songName);
+          playerController.upDateSong(songBean);
         }
       },
     );

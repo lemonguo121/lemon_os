@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:get/get.dart';
+import 'package:lemon_tv/music/data/MusicBean.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../http/data/SubscripBean.dart';
@@ -11,6 +12,10 @@ class MusicSPManage {
   static const String music_current_plugins = "music_current_plugins";
   static const String music_currentSitetinKey = "music_currentSitetinKey";
   static const String music_search_history = "music_search_history";
+  static const String music_play_list = "music_play_list";//所有记录相关前缀
+  static const String history = "_history";//播放记录名字
+  static const String collect = "_collect";//收藏列表
+
 
   // 保存指定仓库
   static saveSubscription(List<StorehouseBean> subscriptions) {
@@ -98,5 +103,42 @@ class MusicSPManage {
   static List<String> getSearchHistory() {
     SharedPreferences sp = Get.find<SharedPreferences>();
     return sp.getStringList(music_search_history) ?? [];
+  }
+
+  // 存储某个类型播放历史记录
+  static savePlayList(List<MusicBean> playList, String listName) {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    // 使用 Set 过滤掉重复 URL
+    final uniquePlayList = playList.toSet().toList();
+    // 序列化 JSON 并存储
+    String jsonString =
+        jsonEncode(uniquePlayList.map((e) => e.toJson()).toList());
+    sp.setString('$music_play_list$listName', jsonString);
+  }
+
+  // 获取某个类型播放历史记录
+  static List<MusicBean> getPlayList(String listName) {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    String? jsonString = sp.getString('$music_play_list$listName');
+    if (jsonString == null) {
+      return [];
+    }
+    List<dynamic> jsonList = jsonDecode(jsonString);
+    return jsonList.map((e) => MusicBean.fromJson(e)).toList();
+  }
+
+  // 删除某个类型单条记录
+  static deleteSingleSong(String id, String listName) {
+    var playlist = getPlayList(listName);
+    // 根据 id 过滤掉要删除的歌曲
+    playlist.removeWhere((song) => song.songBean.id == id);
+    savePlayList(playlist, listName);
+  }
+
+
+// 删除某个类型所有播放记录
+  static void clearAllSongs(String listName) {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    sp.remove('$music_play_list$listName');
   }
 }
