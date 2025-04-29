@@ -86,6 +86,35 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Obx(() {
       return Scaffold(
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
+                child: Text('菜单头部',
+                    style: TextStyle(color: Colors.white, fontSize: 24)),
+              ),
+              ListTile(
+                leading: Icon(Icons.home),
+                title: Text('主页'),
+                onTap: () {
+                  Navigator.pop(context);
+                  // 处理点击事件
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.settings),
+                title: Text('设置'),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        ),
         body: IndexedStack(
           index: _currentIndex, // 当前选中的页面
           children: _pages,

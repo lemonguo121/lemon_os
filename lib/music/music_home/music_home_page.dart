@@ -7,6 +7,7 @@ import 'package:lemon_tv/music/libs/music_record.dart';
 import '../../mine/ProfileScreen.dart';
 import '../../mine/SecendMinePage.dart';
 import '../../util/ThemeController.dart';
+import '../libs/music_hot/hot_page.dart';
 import '../libs/player/widget/music_mini_bar.dart';
 import '../libs/search/widget/music_search.dart';
 
@@ -23,7 +24,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
   final MusicPlayerController miniController = Get.find();
 
   final List<Widget> _pages = [
-    MusicSearchPage(),
+    HotPage(),
     MusicRecord(),
     ProfileScreen(),
   ];
