@@ -7,6 +7,7 @@ import 'package:lemon_tv/subscrip/SubscriptionPage.dart';
 import '../http/data/storehouse_bean_entity.dart';
 import '../mine/SettingPage.dart';
 import '../music/libs/player/widget/music_play.dart';
+import '../music/libs/search/widget/music_search.dart';
 
 abstract class Routes {
   /// 详情页
@@ -24,6 +25,7 @@ abstract class Routes {
   static const String pluginsPage = '/plugins';
 
   static const String musicPlayer = '/musicPlayer';
+  static const String musicSearchPlayer = '/musicSearchPlayer';
 
 
 
@@ -50,6 +52,9 @@ abstract class Routes {
     Get.toNamed(musicPlayer);
   }
 
+  static goMusicSearchPlayer(){
+    Get.toNamed(musicSearchPlayer);
+  }
   static final routePage = [
     GetPage(name: detailPage, page: () => DetailScreen()),
     GetPage(name: searchPage, page: () => SearchScreen()),
@@ -57,5 +62,6 @@ abstract class Routes {
     GetPage(name: settingPage, page: () => SettingPage()),
     GetPage(name: pluginsPage, page: () => PluginsPage()),
     GetPage(name: musicPlayer, page: () => MusicPlayerPage()),
+    GetPage(name: musicSearchPlayer, page: () => MusicSearchPage()),
   ];
 }

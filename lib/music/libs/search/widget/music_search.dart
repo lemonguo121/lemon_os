@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/music/libs/player/music_controller.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // 导入shared_preferences
 import 'package:lemon_tv/routes/routes.dart';
+
 import '../../../../util/ThemeController.dart';
-import '../../../../util/SubscriptionsUtil.dart';
-import '../../../music_http/data/PluginBean.dart';
-import '../../../music_http/music_http_rquest.dart';
-import '../../../music_utils/MusicSPManage.dart';
 import '../search_controll.dart';
 
 class MusicSearchPage extends StatefulWidget {
@@ -28,7 +24,6 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
   @override
   void initState() {
     super.initState();
-    controller.loadSite();
     controller.loadSearchHistory(); // 加载本地搜索记录
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
@@ -67,7 +62,7 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
       onTap: () {
         print("onTap keyword = $keyword");
         _editController.text = keyword;
-        controller.searchSongs(query: keyword);
+        controller.searchMusic(keyword);
       },
     );
   }
@@ -100,15 +95,14 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
                         controller: _editController,
                         focusNode: _focusNode,
                         onSubmitted: (_) =>
-                            controller.searchSongs(query: _editController.text),
+                            controller.searchMusic(_editController.text),
                         decoration: InputDecoration(
                           hintText: '输入歌曲名、歌手名或专辑名',
                           border: OutlineInputBorder(),
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.search),
                             onPressed: (() {
-                              controller.searchSongs(
-                                  query: _editController.text);
+                              controller.searchMusic(_editController.text);
                             }),
                           ),
                         ),
@@ -116,6 +110,14 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
                     ),
                   ],
                 ),
+              ),
+              Row(
+                children: [
+                  _buildSearchType('音乐', 'music'),
+                  _buildSearchType('专辑', 'album'),
+                  _buildSearchType('作者', 'artist'),
+                  _buildSearchType('歌单', 'sheet'),
+                ],
               ),
               if (controller.showHistory.value)
                 Expanded(
@@ -148,5 +150,20 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
             ],
           )),
     );
+  }
+
+  Widget _buildSearchType(String content, String type) {
+    return Expanded(
+        child: InkWell(
+      onTap: (() {
+        controller.searchType.value = type;
+        controller.searchMusic(_editController.text);
+      }),
+      child: Text(
+        content,
+        style:
+            TextStyle(color: themeController.currentAppTheme.normalTextColor),
+      ),
+    ));
   }
 }

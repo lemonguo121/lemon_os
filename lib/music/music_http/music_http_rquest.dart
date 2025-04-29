@@ -9,7 +9,11 @@ class NetworkManager {
   factory NetworkManager() => _instance;
   late Dio _dio;
 
-//  •	搜索音乐: 通过访问 https://music-plugings.onrender.com/search?query=向天再借五百年
+//  •	搜索: 通过访问 http://192.168.2.1:1000/search?query=周杰伦&plugin=aiting&type=album&page=1
+//  query:内容；
+//  plugin:插件名；
+//  type：搜索类型（music：音乐；album：专辑；artist：作者；sheet：歌单）
+//  page：页码
 //  •	获取歌词: 通过访问 https://music-plugings.onrender.com/lyric?id=bWhuZGt2bWg（假设 bWhuZGt2bWg 是一个有效的歌曲 ID）
 //  •	获取排行榜: 通过访问 https://music-plugings.onrender.com/getTopLists?id=new&plugin=aiting
 //  •	获取榜单详情: 通过访问 https://music-plugings.onrender.com/getTopListDetail?id=djwuqu&plugin=aiting
