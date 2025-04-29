@@ -43,8 +43,8 @@ class _TopListContentViewState extends State<TopListContentView> {
               final songId = item.id;
               final songName = item.artist;
               if (songId != null) {
-                Routes.goMusicPage();
                 playerController.upDateSong(songId, songName);
+                Routes.goMusicPage();
               }
             },
             child: ListTile(
