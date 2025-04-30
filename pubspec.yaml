@@ -41,10 +41,10 @@ dependencies:
   flutter_svg: ^2.0.7
   flutter_screenutil: ^5.9.0
   adaptive_action_sheet: ^2.0.4
-  just_audio: ^0.9.34
+  just_audio: ^0.10.1
   just_audio_background: ^0.0.1-beta.16
   audio_session: ^0.1.10
-  audio_service: ^0.18.9
+  audio_service: ^0.18.18
   scrollable_positioned_list: ^0.3.5
   provider: ^6.1.1
   marquee: ^2.2.3

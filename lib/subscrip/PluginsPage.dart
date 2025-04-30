@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart';
 import 'package:lemon_tv/http/HttpService.dart';
-import 'package:lemon_tv/music/music_http/data/PluginBean.dart';
+import 'package:lemon_tv/music/data/PluginBean.dart';
 
 import '../http/data/SubscripBean.dart';
 import '../main.dart';

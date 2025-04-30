@@ -5,17 +5,19 @@ import 'package:lemon_tv/music/data/MusicBean.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../http/data/SubscripBean.dart';
-import '../music_http/data/PluginBean.dart';
+import '../data/PluginBean.dart';
 
 class MusicSPManage {
   static const String music_plugins = "music_plugins";
   static const String music_current_plugins = "music_current_plugins";
   static const String music_currentSitetinKey = "music_currentSitetinKey";
   static const String music_search_history = "music_search_history";
-  static const String music_play_list = "music_play_list";//所有记录相关前缀
-  static const String history = "_history";//播放记录名字
-  static const String collect = "_collect";//收藏列表
-
+  static const String music_play_list = "music_play_list"; //所有记录相关前缀
+  static const String history = "_history"; //播放记录名字
+  static const String collect = "_collect"; //收藏列表
+  static const String music_play_index = "music_play_index"; //播放索引
+  static const String music_play_type =
+      "music_play_type"; //播放类型  是收藏还是历史 或者自己建的播放列表
 
   // 保存指定仓库
   static saveSubscription(List<StorehouseBean> subscriptions) {
@@ -135,10 +137,33 @@ class MusicSPManage {
     savePlayList(playlist, listName);
   }
 
-
 // 删除某个类型所有播放记录
   static void clearAllSongs(String listName) {
     SharedPreferences sp = Get.find<SharedPreferences>();
     sp.remove('$music_play_list$listName');
+  }
+
+  //记录某个类型列表下的播放索引
+  static void saveCurrentPlayIndex(String listName, int playIndex) {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    sp.setInt('$music_play_index$listName', playIndex);
+  }
+
+  // 获取某个类型下的播放索引
+  static int getCurrentPlayIndex(String listName) {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    return sp.getInt('$music_play_index$listName')??0 ;
+  }
+
+  // 获取当前的播放类型
+  static String getCurrentPlayType() {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    return sp.getString(music_play_type) ?? history;
+  }
+
+  //保存当前的播放类型
+  static void saveCurrentPlayType(String listName) {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    sp.setString(music_play_type, listName);
   }
 }

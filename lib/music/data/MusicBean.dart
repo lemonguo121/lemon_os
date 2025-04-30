@@ -1,8 +1,9 @@
+import 'LyricLine.dart';
 import 'SongBean.dart';
 
 class MusicBean {
   final SongBean songBean;
-  final String rawLrc;
+  final List<LyricLine> rawLrc;
   final String url;
 
   MusicBean({
@@ -14,7 +15,9 @@ class MusicBean {
   factory MusicBean.fromJson(Map<String, dynamic> json) {
     return MusicBean(
       songBean: SongBean.fromJson(json['songBean'] ?? {}),
-      rawLrc: json['rawLrc'] ?? '',
+      rawLrc: (json['rawLrc'] as List<dynamic>? ?? [])
+          .map((e) => LyricLine.fromJson(e as Map<String, dynamic>))
+          .toList(),
       url: json['url'] ?? '',
     );
   }
@@ -22,7 +25,7 @@ class MusicBean {
   Map<String, dynamic> toJson() {
     return {
       'songBean': songBean.toJson(),
-      'rawLrc': rawLrc,
+      'rawLrc': rawLrc.map((e) => e.toJson()).toList(),
       'url': url,
     };
   }

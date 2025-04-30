@@ -55,12 +55,9 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
           style: TextStyle(
               color: themeController.currentAppTheme.normalTextColor)),
       onTap: () {
-        // final songId = song['id'];
-        // final songName = song['title'];
-        // final platform = song['platform'];
         if (songBean.id.isNotEmpty) {
+          playerController.upDataSong(songBean);
           Routes.goMusicPage();
-          playerController.upDateSong(songBean);
         }
       },
     );

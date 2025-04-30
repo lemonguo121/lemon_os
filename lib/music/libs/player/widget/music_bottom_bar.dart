@@ -9,6 +9,7 @@ class MusicBottomBar extends StatelessWidget {
   final VoidCallback onPlayPause;
   final VoidCallback onPrev;
   final VoidCallback onNext;
+  final VoidCallback showMenu;
   final Function(double) onSeek;
   final VoidCallback onModeTap;
   final PlayMode playMode;
@@ -21,6 +22,7 @@ class MusicBottomBar extends StatelessWidget {
     required this.onPlayPause,
     required this.onPrev,
     required this.onNext,
+    required this.showMenu,
     required this.onSeek,
     required this.onModeTap,
     required this.playMode,
@@ -55,20 +57,31 @@ class MusicBottomBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
-                icon: const Icon(Icons.skip_previous, color: Colors.white, size: 28),
+                icon: const Icon(Icons.skip_previous,
+                    color: Colors.white, size: 28),
                 onPressed: onPrev,
               ),
               IconButton(
                 icon: Icon(
-                  isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
+                  isPlaying
+                      ? Icons.pause_circle_filled
+                      : Icons.play_circle_filled,
                   color: Colors.white,
                   size: 42,
                 ),
                 onPressed: onPlayPause,
               ),
               IconButton(
-                icon: const Icon(Icons.skip_next, color: Colors.white, size: 28),
+                icon:
+                    const Icon(Icons.skip_next, color: Colors.white, size: 28),
                 onPressed: onNext,
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white, size: 28),
+                onPressed: showMenu,
               ),
             ],
           ),
@@ -84,7 +97,8 @@ class MusicBottomBar extends StatelessWidget {
               ),
               Expanded(
                 child: Slider(
-                  value: position.inSeconds.clamp(0, total.inSeconds).toDouble(),
+                  value:
+                      position.inSeconds.clamp(0, total.inSeconds).toDouble(),
                   min: 0,
                   max: total.inSeconds.toDouble(),
                   activeColor: Colors.blueAccent,

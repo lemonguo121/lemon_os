@@ -2,18 +2,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:lemon_tv/music/libs/player/PlayListHistory.dart';
 import 'package:lemon_tv/music/libs/player/music_controller.dart';
 import 'package:lemon_tv/music/libs/player/widget/music_bottom_bar.dart';
 import 'package:marquee/marquee.dart';
 import '../../music_download.dart';
-
-
-class LyricLine {
-  final Duration time;
-  final String text;
-
-  LyricLine(this.time, this.text);
-}
 
 enum PlayMode { loop, single }
 
@@ -56,7 +49,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
   Future<void> _initPlayerAndData() async {
     _rotationController.repeat();
     ever(playerController.currentPosition, (_) {
-      if (mounted) {
+      if (mounted && !playerController.isLoading.value) {
         _onPositionChanged();
       }
     });
@@ -104,6 +97,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
   void _onPositionChanged() {
     var _lyrics = playerController.lyrics.value;
     var position = playerController.currentPosition.value;
+
     for (int i = 0; i < _lyrics.length - 1; i++) {
       if (position >= _lyrics[i].time && position < _lyrics[i + 1].time) {
         if (_currentIndex != i) {
@@ -188,10 +182,13 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
                                 : playerController.player.play();
                           },
                           onPrev: () {
-                            // TODO: 上一首逻辑
+                            playerController.onPrev();
                           },
                           onNext: () {
-                            // TODO: 下一首逻辑
+                            playerController.onNext();
+                          },
+                          showMenu: () {
+                            showBottomMenu();
                           },
                           onSeek: (value) {
                             final newPos = Duration(seconds: value.toInt());
@@ -226,7 +223,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
                         scrollAxis: Axis.horizontal,
                         blankSpace: 60.0,
                         velocity: 30.0,
-                        pauseAfterRound:  Duration.zero,
+                        pauseAfterRound: Duration.zero,
                         startPadding: 0.0,
                         accelerationDuration: Duration.zero,
                         accelerationCurve: Curves.linear,
@@ -273,6 +270,15 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
           ),
         );
       },
+    );
+  }
+
+  void showBottomMenu() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => PlayListHistory(),
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../util/SubscriptionsUtil.dart';
-import '../../music_http/data/PluginBean.dart';
+import '../../data/PluginBean.dart';
 import '../../music_http/music_http_rquest.dart';
 import '../../music_utils/MusicSPManage.dart';
 import 'hot_model/hot_Model.dart';

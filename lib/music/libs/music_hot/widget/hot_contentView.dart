@@ -43,7 +43,7 @@ class _TopListContentViewState extends State<TopListContentView> {
               final songId = item.id;
               final songName = item.artist;
               if (songId != null) {
-                playerController.upDateSong(item);
+                playerController.upDataSong(item);
                 Routes.goMusicPage();
               }
             },

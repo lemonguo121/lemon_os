@@ -8,7 +8,7 @@ import 'package:lemon_tv/util/CommonUtil.dart';
 
 import '../http/data/SubscripBean.dart';
 import '../http/data/storehouse_bean_entity.dart';
-import '../music/music_http/data/PluginBean.dart';
+import '../music/data/PluginBean.dart';
 import '../music/music_http/music_http_rquest.dart';
 import 'SPManager.dart';
 import 'AESUtil.dart';
