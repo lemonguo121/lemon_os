@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -12,7 +13,6 @@ import '../history/PlayHistory.dart';
 import 'home/HomeScreen.dart';
 import 'http/data/MyHttpOverrides.dart';
 import 'mine/ProfileScreen.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();

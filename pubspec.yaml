@@ -44,6 +44,7 @@ dependencies:
   just_audio: ^0.9.34
   just_audio_background: ^0.0.1-beta.16
   audio_session: ^0.1.10
+  audio_service: ^0.18.9
   scrollable_positioned_list: ^0.3.5
   provider: ^6.1.1
   marquee: ^2.2.3
