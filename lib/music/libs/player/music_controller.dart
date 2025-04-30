@@ -18,7 +18,6 @@ class MusicPlayerController extends GetxController {
   var currentPosition = Duration.zero.obs;
   var totalDuration = Duration.zero.obs;
   var playIndex = 0.obs;
-  var isVisible = false.obs;
 
   var songBean = SongBean(
           id: '',
@@ -26,7 +25,7 @@ class MusicPlayerController extends GetxController {
           artist: '',
           title: '',
           pic: '',
-          duration: '',
+          duration: '00:00',
           artwork: '')
       .obs;
   var lyrics = <LyricLine>[].obs;
@@ -48,12 +47,19 @@ class MusicPlayerController extends GetxController {
         androidNotificationOngoing: true,
       ),
     );
-    playList.value =
-        MusicSPManage.getPlayList(MusicSPManage.getCurrentPlayType());
+    // 初始化的时候，获取上次播放的类型
+    var currentPlayType = MusicSPManage.getCurrentPlayType();
+    playList.value = MusicSPManage.getPlayList(currentPlayType);
+    playIndex.value = MusicSPManage.getCurrentPlayIndex(currentPlayType);
+    if (playList.isNotEmpty) {
+      songBean.value=  playList[playIndex.value].songBean;
+    }
+
     // 监听播放状态
     player.playerStateStream.listen((state) {
       isPlaying.value = state.playing;
-      if (state == ProcessingState.completed &&
+
+      if (state.processingState == ProcessingState.completed &&
           player.loopMode != LoopMode.one) {
         onNext();
       }
@@ -197,10 +203,6 @@ class MusicPlayerController extends GetxController {
   void onClose() {
     player.dispose();
     super.onClose();
-  }
-
-  void hideMiniPlayer() async {
-    isVisible.value = false;
   }
 
   void onPrev() async {

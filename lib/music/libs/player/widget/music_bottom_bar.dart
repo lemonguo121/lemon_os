@@ -80,7 +80,7 @@ class MusicBottomBar extends StatelessWidget {
                 width: 10,
               ),
               IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white, size: 28),
+                icon: const Icon(Icons.menu, color: Colors.white, size: 24),
                 onPressed: showMenu,
               ),
             ],

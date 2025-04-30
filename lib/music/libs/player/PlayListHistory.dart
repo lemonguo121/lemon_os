@@ -50,7 +50,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                                 horizontal: 16, vertical: 4),
                             leading: Icon(
                               Icons.music_note,
-                              color: index == controller.playIndex.value
+                              color: item.songBean.id == controller.songBean.value.id
                                   ? themeController
                                       .currentAppTheme.selectedTextColor
                                   : themeController
@@ -59,7 +59,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                             title: Text(
                               item.songBean.title,
                               style: TextStyle(
-                                color: index == controller.playIndex.value
+                                color:item.songBean.id == controller.songBean.value.id
                                     ? themeController
                                         .currentAppTheme.selectedTextColor
                                     : themeController
@@ -70,7 +70,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                                 ? Text(
                                     item.songBean.artist!,
                                     style: TextStyle(
-                                      color: index == controller.playIndex.value
+                                      color: item.songBean.id == controller.songBean.value.id
                                           ? themeController
                                               .currentAppTheme.selectedTextColor
                                           : themeController

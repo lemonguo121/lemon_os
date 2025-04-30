@@ -41,27 +41,16 @@ class _MusicHomePageState extends State<MusicHomePage> {
               children: _pages,
             ),
           ),
-          // Debug: 简单文本替代 MiniMusicPlayerBar，排查问题
-          Obx(() {
-            if (miniController.isVisible.value) {
-              return Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0, // 留出 BottomNavigationBar 的高度
-                child: MiniMusicPlayerBar(),
-              );
-            }
-            return Center(
-              child: SizedBox.shrink(),
-            ); // 如果播放器不可见，返回空的占位
-          }),
+          // 小型播放器
+          _buildMiniPlayer(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: themeController.currentAppTheme.backgroundColor,
         unselectedItemColor:
-            themeController.currentAppTheme.unselectedTextColor,
-        selectedItemColor: themeController.currentAppTheme.selectedTextColor,
+        themeController.currentAppTheme.unselectedTextColor,
+        selectedItemColor:
+        themeController.currentAppTheme.selectedTextColor,
         elevation: 1.0,
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -77,5 +66,18 @@ class _MusicHomePageState extends State<MusicHomePage> {
         ],
       ),
     );
+  }
+
+  Widget _buildMiniPlayer() {
+    return Obx(() {
+      return miniController.playList.isNotEmpty
+          ? Positioned(
+        left: 0,
+        right: 0,
+        bottom: 0,
+        child: MiniMusicPlayerBar(),
+      )
+          : const SizedBox.shrink();
+    });
   }
 }

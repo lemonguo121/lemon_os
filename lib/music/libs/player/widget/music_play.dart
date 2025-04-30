@@ -132,7 +132,6 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
   }
 
   void _handleBackPressed() {
-    playerController.isVisible.value = true;
     Navigator.pop(context);
   }
 
@@ -198,43 +197,9 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
                         ),
                       ],
                     ),
-              Positioned(
-                top: 44,
-                left: 0,
-                right: 0,
-                height: 66,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: _handleBackPressed,
-                    ),
-                    SizedBox(
-                      width: 300,
-                      height: 20,
-                      child: Marquee(
-                        text: playerController.songBean.value.title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        scrollAxis: Axis.horizontal,
-                        blankSpace: 60.0,
-                        velocity: 30.0,
-                        pauseAfterRound: Duration.zero,
-                        startPadding: 0.0,
-                        accelerationDuration: Duration.zero,
-                        accelerationCurve: Curves.linear,
-                        decelerationDuration: Duration.zero,
-                        decelerationCurve: Curves.easeOut,
-                      ),
-                    ),
-                    const SizedBox(width: 48), // 占位（跟返回按钮宽度对齐）
-                  ],
-                ),
-              ),
+              playerController.isLoading.value
+                  ? SizedBox.shrink()
+                  : _buildTitle(),
             ],
           ),
         ));
@@ -279,6 +244,47 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => PlayListHistory(),
+    );
+  }
+
+  Widget _buildTitle() {
+    return Positioned(
+      top: 44,
+      left: 0,
+      right: 0,
+      height: 66,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: _handleBackPressed,
+          ),
+          SizedBox(
+            width: 240,
+            height: 20,
+            child: Marquee(
+              text: playerController.songBean.value.artist.isNotEmpty?playerController.songBean.value.artist
+                  : '未知歌曲',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+              scrollAxis: Axis.horizontal,
+              blankSpace: 60.0,
+              velocity: 30.0,
+              pauseAfterRound: Duration.zero,
+              startPadding: 0.0,
+              accelerationDuration: Duration.zero,
+              accelerationCurve: Curves.linear,
+              decelerationDuration: Duration.zero,
+              decelerationCurve: Curves.easeOut,
+            ),
+          ),
+          const SizedBox(width: 48), // 占位（跟返回按钮宽度对齐）
+        ],
+      ),
     );
   }
 }
