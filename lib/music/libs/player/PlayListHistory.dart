@@ -38,39 +38,55 @@ class _PlayListHistoryState extends State<PlayListHistory> {
               if (list.isEmpty)
                 const Text('暂无播放记录')
               else
-                Obx(() => Flexible(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: list.length,
-                        itemBuilder: (context, index) {
-                          final item = list[index];
-                          return ListTile(
-                            leading: Icon(Icons.music_note,
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: list.length,
+                    itemBuilder: (context, index) {
+                      final item = list[index];
+                      return Obx(() => ListTile(
+                            visualDensity: VisualDensity(vertical: -2),
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 4),
+                            leading: Icon(
+                              Icons.music_note,
+                              color: index == controller.playIndex.value
+                                  ? themeController
+                                      .currentAppTheme.selectedTextColor
+                                  : themeController
+                                      .currentAppTheme.normalTextColor,
+                            ),
+                            title: Text(
+                              item.songBean.title,
+                              style: TextStyle(
                                 color: index == controller.playIndex.value
                                     ? themeController
                                         .currentAppTheme.selectedTextColor
                                     : themeController
-                                        .currentAppTheme.normalTextColor),
-                            title: Text(
-                              item.songBean.title,
-                              style: TextStyle(
-                                  color: index == controller.playIndex.value
-                                      ? themeController
-                                          .currentAppTheme.selectedTextColor
-                                      : themeController
-                                          .currentAppTheme.normalTextColor),
+                                        .currentAppTheme.normalTextColor,
+                              ),
                             ),
                             subtitle: item.songBean.artist != null
-                                ? Text(item.songBean.artist!)
+                                ? Text(
+                                    item.songBean.artist!,
+                                    style: TextStyle(
+                                      color: index == controller.playIndex.value
+                                          ? themeController
+                                              .currentAppTheme.selectedTextColor
+                                          : themeController
+                                              .currentAppTheme.normalTextColor,
+                                      fontSize: 12, // 可选：调整字号
+                                    ),
+                                  )
                                 : null,
                             onTap: () {
                               controller.playIndex.value = index;
                               controller.updataMedia(item);
                             },
-                          );
-                        },
-                      ),
-                    )),
+                          ));
+                    },
+                  ),
+                ),
             ],
           );
         }),

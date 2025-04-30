@@ -53,6 +53,10 @@ class MusicPlayerController extends GetxController {
     // 监听播放状态
     player.playerStateStream.listen((state) {
       isPlaying.value = state.playing;
+      if (state == ProcessingState.completed &&
+          player.loopMode != LoopMode.one) {
+        onNext();
+      }
     });
 
     // 监听播放进度
