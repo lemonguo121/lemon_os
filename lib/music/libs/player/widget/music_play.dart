@@ -264,8 +264,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
             width: 240,
             height: 20,
             child: Marquee(
-              text: playerController.songBean.value.artist.isNotEmpty?playerController.songBean.value.artist
-                  : '未知歌曲',
+              text: getTitle(),
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -286,5 +285,14 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
         ],
       ),
     );
+  }
+  String getTitle() {
+    var songBean = playerController.songBean.value;
+    var title = songBean.title;
+    var artist = songBean.artist;
+    if (artist.isEmpty && title.isEmpty) {
+      return '未知歌曲';
+    }
+    return '$title $artist';
   }
 }

@@ -83,8 +83,7 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
                         SizedBox(
                           height: 20,
                           child: Marquee(
-                            text:
-                                "正在播放：${miniController.songBean.value.artist.isNotEmpty ? miniController.songBean.value.artist : '未知歌曲'}",
+                            text: "正在播放：${getTitle()}",
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
@@ -186,5 +185,15 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
     } else {
       miniController.upDataSong(miniController.songBean.value);
     }
+  }
+
+  String getTitle() {
+    var songBean = miniController.songBean.value;
+    var title = songBean.title;
+    var artist = songBean.artist;
+    if (artist.isEmpty && title.isEmpty) {
+      return '未知歌曲';
+    }
+    return '$title $artist';
   }
 }

@@ -231,6 +231,12 @@ class MusicPlayerController extends GetxController {
     playIndex.value = currentIndex;
     MusicSPManage.saveCurrentPlayIndex(listName, currentIndex);
   }
+
+  void removeSongInList(MusicBean musicBean) {
+    var listName  = MusicSPManage.getCurrentPlayType();
+    playList.removeWhere((item)=>item.songBean.id==musicBean.songBean.id);
+    MusicSPManage.savePlayList(playList, listName);
+  }
 }
 
 class MyAudioHandler extends BaseAudioHandler {

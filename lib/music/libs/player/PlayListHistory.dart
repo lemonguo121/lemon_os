@@ -31,12 +31,12 @@ class _PlayListHistoryState extends State<PlayListHistory> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                '历史播放记录',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                '播放列表',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               if (list.isEmpty)
-                const Text('暂无播放记录')
+                const Text('列表为空')
               else
                 Flexible(
                   child: ListView.builder(
@@ -50,7 +50,8 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                                 horizontal: 16, vertical: 4),
                             leading: Icon(
                               Icons.music_note,
-                              color: item.songBean.id == controller.songBean.value.id
+                              color: item.songBean.id ==
+                                      controller.songBean.value.id
                                   ? themeController
                                       .currentAppTheme.selectedTextColor
                                   : themeController
@@ -59,18 +60,20 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                             title: Text(
                               item.songBean.title,
                               style: TextStyle(
-                                color:item.songBean.id == controller.songBean.value.id
-                                    ? themeController
-                                        .currentAppTheme.selectedTextColor
-                                    : themeController
-                                        .currentAppTheme.normalTextColor,
-                              ),
+                                  color: item.songBean.id ==
+                                          controller.songBean.value.id
+                                      ? themeController
+                                          .currentAppTheme.selectedTextColor
+                                      : themeController
+                                          .currentAppTheme.normalTextColor,
+                                  fontSize: 12),
                             ),
                             subtitle: item.songBean.artist != null
                                 ? Text(
                                     item.songBean.artist!,
                                     style: TextStyle(
-                                      color: item.songBean.id == controller.songBean.value.id
+                                      color: item.songBean.id ==
+                                              controller.songBean.value.id
                                           ? themeController
                                               .currentAppTheme.selectedTextColor
                                           : themeController
@@ -82,6 +85,9 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                             onTap: () {
                               controller.playIndex.value = index;
                               controller.updataMedia(item);
+                            },
+                            onLongPress: () {
+                              controller.removeSongInList(item);
                             },
                           ));
                     },
