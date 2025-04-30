@@ -13,7 +13,8 @@ import '../util/SPManager.dart';
 import '../util/ThemeController.dart';
 import 'SearchHistoryList.dart';
 import 'SearchResultList.dart';
-
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:just_audio/just_audio.dart';
 class SearchScreen extends StatefulWidget {
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -37,9 +38,15 @@ class _SearchScreenState extends State<SearchScreen>
   final ThemeController themeController = Get.find();
   String query = '';
 
+  //语音搜索
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
   @override
   void initState() {
     super.initState();
+    _speech = stt.SpeechToText();
     var arguments = Get.arguments;
     query = arguments['query'];
     _initializeData();
@@ -49,7 +56,14 @@ class _SearchScreenState extends State<SearchScreen>
     await Future.wait([_loadSearchHistory(), _loadSubscriptions()]);
     _startQucikSearch();
   }
-
+  Future<void> _playSound(String assetPath) async {
+    try {
+      await _audioPlayer.setAudioSource(AudioSource.asset(assetPath));
+      await _audioPlayer.play();
+    } catch (e) {
+      print("播放提示音失败: $e");
+    }
+  }
   // 加载已订阅站点
   Future<void> _loadSubscriptions() async {
     selectStorehouse = SubscriptionsUtil().selectStorehouse;
@@ -258,11 +272,52 @@ class _SearchScreenState extends State<SearchScreen>
                 ),
               ),
             ),
+            SizedBox(width: 10.0),
+            SizedBox(
+              height: 30,
+              width: 30,
+              child:Obx(()=> GestureDetector(
+                child: Icon(_isListening ? Icons.mic : Icons.mic_none,
+                    color: themeController.currentAppTheme.contentColor),
+                onLongPressStart: (_) => _startListening(),
+                onLongPressEnd: (_) => _stopListening(),
+              ),)
+            ),
             SizedBox(width: 8.0),
           ],
         );
       }),
     );
+  }
+
+  void _startListening() async {
+    _playSound('assets/sounds/begin_record.mp3'); // 播放开始提示音
+    bool available = await _speech.initialize(
+      onStatus: (status) => print('Speech status: $status'),
+      onError: (error) => print('Speech error: $error'),
+    );
+
+    if (available) {
+      setState(() => _isListening = true);
+      _speech.listen(
+        localeId: 'zh_CN', // 中文识别
+        onResult: (result) {
+          setState(
+            () {
+              _searchController.text = result.recognizedWords;
+            },
+          );
+        },
+      );
+    }
+  }
+
+  void _stopListening() {
+    _playSound('assets/sounds/begin_record.mp3'); // 播放开始提示音
+    _speech.stop();
+    FocusScope.of(context).unfocus();
+    setState(() => _isListening = false);
+    _searchVideos(); // 语音停止后执行搜索
   }
 
   void _startQucikSearch() {

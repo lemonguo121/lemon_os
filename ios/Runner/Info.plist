@@ -34,11 +34,13 @@
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>允许此应用访问本地网络以进行调试</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>We need access to your microphone to play audio.</string>
+	<string>我们需要使用麦克风进行语音识别</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>App 需要访问您的相册来读取视频</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>App 需要访问您的相册来显示视频列表</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>我们需要使用语音识别服务</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>
