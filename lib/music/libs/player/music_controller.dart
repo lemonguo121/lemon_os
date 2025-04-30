@@ -55,8 +55,8 @@ class MusicPlayerController extends GetxController {
   Future<void> initPlayer(String url) async {
     await player.setUrl(url);
     player.play();
-    MusicSPManage.getPlayList(listName)
-    MusicSPManage.savePlayList(playList, listName)
+    var playListHistory = MusicSPManage.getPlayList(MusicSPManage.history);
+    MusicSPManage.savePlayList(playListHistory, MusicSPManage.history);
     isLoading.value = false;
   }
 

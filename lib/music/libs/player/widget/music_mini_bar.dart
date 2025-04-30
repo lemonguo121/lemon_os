@@ -27,7 +27,7 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
     _scaleAnim = Tween<double>(begin: 0.95, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
-    print("音乐名字:${miniController.songName}");
+    print("音乐名字:${miniController.songBean.value.title}");
     _controller.forward();
   }
 
@@ -82,7 +82,7 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
                       SizedBox(
                         height: 20,
                         child: Marquee(
-                          text: "正在播放：${miniController.songName}",
+                          text: "正在播放：${miniController.songBean.value.title}",
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import '../../../data/SongBean.dart';
+
 // HotList hotListFromJson(String str) => HotList.fromJson(json.decode(str));
 // String hotListToJson(HotList data) => json.encode(data.toJson());
 
@@ -54,7 +56,7 @@ class TopListItem {
 
 class HotSubModel {
   String id;
-  List<HotSubListModel> musicList;
+  List<SongBean> musicList;
 
   HotSubModel({
     this.id = "",
@@ -65,36 +67,12 @@ class HotSubModel {
     id: json["id"] ?? "",
     musicList: json["musicList"] == null
         ? []
-        : List<HotSubListModel>.from(
-        json["musicList"].map((x) => HotSubListModel.fromJson(x))),
+        : List<SongBean>.from(
+        json["musicList"].map((x) => SongBean.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
     "id": id,
     "musicList": List<dynamic>.from(musicList.map((x) => x.toJson())),
-  };
-}
-
-class HotSubListModel {
-  String id;
-  String title;
-  String artist;
-
-  HotSubListModel({
-    this.id = "",
-    this.title = "",
-    this.artist = "",
-  });
-
-  factory HotSubListModel.fromJson(Map<String, dynamic> json) => HotSubListModel(
-    id: json["id"] ?? "",
-    title: json["title"] ?? "",
-    artist: json["artist"] ?? "",
-  );
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "title": title,
-    "artist": artist,
   };
 }

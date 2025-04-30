@@ -217,7 +217,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
                       width: 300,
                       height: 20,
                       child: Marquee(
-                        text: playerController.songName.value,
+                        text: playerController.songBean.value.title,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
