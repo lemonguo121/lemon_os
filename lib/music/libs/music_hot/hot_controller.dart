@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
 import '../../../util/SubscriptionsUtil.dart';
@@ -12,7 +13,6 @@ class HotController extends GetxController
     with GetSingleTickerProviderStateMixin {
   ///热门首页
   TabController? tabController;
-  var data = <TopListGroup>[].obs;
   var tabs = <TopListItem>[].obs;
   var isLoading = false.obs;
   final SubscriptionsUtil subscriptionsUtil = SubscriptionsUtil();
@@ -35,14 +35,12 @@ class HotController extends GetxController
     PluginInfo? siteResponse;
     try {
       siteResponse =
-      await subscriptionsUtil.requestMusicCurrentSites(currentStorehouse);
+          await subscriptionsUtil.requestMusicCurrentSites(currentStorehouse);
     } on DioException catch (e) {
       print('网络异常：$e');
     } catch (e) {
       print('其他异常：$e');
-    } finally {
-
-    }
+    } finally {}
 
     if (siteResponse == null) {
       errorType.value = 2;
@@ -54,7 +52,7 @@ class HotController extends GetxController
   }
 
   Future<void> getHotBannerList() async {
-    isLoading.value = true;
+    // isLoading.value = true;
     try {
       var currentSite = MusicSPManage.getCurrentSite();
       final response = await NetworkManager().get('/getTopLists',
@@ -64,13 +62,11 @@ class HotController extends GetxController
           });
 
       final dataResponse = response.data;
-      data.value =
+      var data =
           (dataResponse as List).map((e) => TopListGroup.fromJson(e)).toList();
       final items = data.expand((e) => e.data).toList();
       tabController = TabController(length: items.length, vsync: this);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        tabs.value = items;
-      });
+      tabs.value = items;
     } on DioException catch (e) {
       print('请求失败：$e');
       isLoading.value = false;

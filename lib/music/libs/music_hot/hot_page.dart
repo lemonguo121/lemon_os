@@ -30,12 +30,13 @@ class _HotPageState extends State<HotPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       loadData();
     });
+
   }
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (controller.isLoading.value) {
+      if (controller.tabs.isEmpty||controller.isLoading.value||controller.tabController==null) {
         return const Center(child: CircularProgressIndicator());
       }
       return getErrorView();
@@ -91,7 +92,7 @@ class _HotPageState extends State<HotPage> {
                           shrinkWrap: true,
                           // 防止 GridView 超出范围
                           gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
+                          SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
                             mainAxisSpacing: 8.0,
                             crossAxisSpacing: 8.0,
@@ -176,7 +177,7 @@ class _HotPageState extends State<HotPage> {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => HotPage()),
-          (route) => false,
+              (route) => false,
         );
       },
       child: Container(
@@ -213,14 +214,17 @@ class _HotPageState extends State<HotPage> {
     } else {
       return controller.tabs.isEmpty
           ? NoDataView(
-              reload: loadData,
-            )
+        reload: loadData,
+      )
           : _buildTopicData();
     }
   }
 
   Widget _buildTopicData() {
-    final topPadding = MediaQuery.of(context).padding.top;
+    final topPadding = MediaQuery
+        .of(context)
+        .padding
+        .top;
     return Column(
       children: [
         SizedBox(height: topPadding),
@@ -243,40 +247,34 @@ class _HotPageState extends State<HotPage> {
               labelColor: Colors.white,
               unselectedLabelColor: Colors.black87,
               labelStyle:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               unselectedLabelStyle: const TextStyle(fontSize: 14),
               indicatorPadding: const EdgeInsets.symmetric(horizontal: 4),
               tabs: controller.tabs
-                  .map((item) => Tab(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(item.title),
-                        ),
-                      ))
+                  .map((item) =>
+                  Tab(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(item.title),
+                    ),
+                  ))
                   .toList(),
             ),
           ),
         ),
-        _buildContentView()
+        Expanded(
+          child: TabBarView(
+            controller: controller.tabController,
+            children: controller.tabs.map((item) {
+              return TopListContentView(id: item.id);
+            }).toList(),
+          ),
+        ),
       ],
     );
   }
 
   void loadData() async {
     await controller.loadSite();
-  }
-
-  Widget _buildContentView() {
-   if( controller.tabController==null||controller.tabs.isEmpty){
-     return const Center(child: CircularProgressIndicator());
-   }
-    return Expanded(
-      child: TabBarView(
-        controller: controller.tabController,
-        children: controller.tabs.map((item) {
-          return TopListContentView(id: item.id);
-        }).toList(),
-      ),
-    );
   }
 }
