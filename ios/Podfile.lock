@@ -12,7 +12,7 @@ PODS:
   - Flutter (1.0.0)
   - flutter_vlc_player (3.0.3):
     - Flutter
-    - MobileVLCKit (~> 3.6.1b1)
+    - MobileVLCKit (~> 3.6.0b12)
   - fluttertoast (0.0.2):
     - Flutter
   - just_audio (0.0.1):
@@ -113,7 +113,7 @@ SPEC CHECKSUMS:
   battery_plus: b42253f6d2dde71712f8c36fef456d99121c5977
   connectivity_plus: 481668c94744c30c53b8895afb39159d1e619bdf
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_vlc_player: 5464f594a9338e080d240bbe7b10ffe30c7bc8bc
+  flutter_vlc_player: adffbf4816d69407ca712e4cc1ff1d257b4fd0a9
   fluttertoast: 2c67e14dce98bbdb200df9e1acf610d7a6264ea1
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   MobileVLCKit: 2d9c7c373393ae43086aeeff890bf0b1afc15c5c

@@ -186,23 +186,27 @@ class SubscriptionsUtil {
 
   Future<PluginInfo?> getSingleMusicSubscription(
       String url, String name) async {
-    var networkManager = NetworkManager();
-    var response =
-        await networkManager.get('/getPlugins', queryParameters: {});
-    var data = response.data;
-    pluginsList = (data as List)
-        .map((e) => PluginInfo.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+    try {
+      var networkManager = NetworkManager();
+      var response =
+              await networkManager.get('/getPlugins', queryParameters: {});
+      var data = response.data;
+      pluginsList = (data as List)
+              .map((e) => PluginInfo.fromJson(Map<String, dynamic>.from(e)))
+              .toList();
 
-    if (pluginsList.isNotEmpty) {
-      // 先看有没有缓存的站点，如果没有，是切换或添加仓库；如果不为空，则是切换站点
-      var currentSite = MusicSPManage.getCurrentSite();
-      if (currentSite == null) {
-        MusicSPManage.saveCurrentSite(pluginsList[0]);
-        return pluginsList[0];
-      } else {
-        return currentSite;
-      }
+      if (pluginsList.isNotEmpty) {
+            // 先看有没有缓存的站点，如果没有，是切换或添加仓库；如果不为空，则是切换站点
+            var currentSite = MusicSPManage.getCurrentSite();
+            if (currentSite == null) {
+              MusicSPManage.saveCurrentSite(pluginsList[0]);
+              return pluginsList[0];
+            } else {
+              return currentSite;
+            }
+          }
+    } catch (e) {
+      print('获取站点失败 e = $e');
     }
     return null;
   }

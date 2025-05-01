@@ -11,7 +11,7 @@ import 'hot_model/hot_Model.dart';
 class HotController extends GetxController
     with GetSingleTickerProviderStateMixin {
   ///热门首页
-  late TabController tabController;
+  TabController? tabController;
   var data = <TopListGroup>[].obs;
   var tabs = <TopListItem>[].obs;
   var isLoading = false.obs;
@@ -23,29 +23,32 @@ class HotController extends GetxController
   var tabIndex = 0.obs;
 
   Future<void> loadSite() async {
-    // 第一步先检查当前是否有选择的仓库
     isLoading.value = true;
+
     var currentStorehouse = MusicSPManage.getCurrentSubscription();
     if (currentStorehouse == null) {
       errorType.value = 1;
+      isLoading.value = false;
       return;
     }
-    var siteResponse = null;
-    // 第二步，根据当前的仓库去请求仓库下的站点
+
+    PluginInfo? siteResponse;
     try {
       siteResponse =
-          await subscriptionsUtil.requestMusicCurrentSites(currentStorehouse);
+      await subscriptionsUtil.requestMusicCurrentSites(currentStorehouse);
+    } on DioException catch (e) {
+      print('网络异常：$e');
     } catch (e) {
-      siteResponse = null;
-      print(e);
+      print('其他异常：$e');
     } finally {
-      isLoading.value = false;
+
     }
+
     if (siteResponse == null) {
       errorType.value = 2;
-      isLoading.value = false;
       return;
     }
+
     currentSite.value = siteResponse;
     getHotBannerList();
   }
@@ -64,10 +67,12 @@ class HotController extends GetxController
       data.value =
           (dataResponse as List).map((e) => TopListGroup.fromJson(e)).toList();
       final items = data.expand((e) => e.data).toList();
-      tabs.value = items;
-
-      tabController = TabController(length: tabs.length, vsync: this);
+      tabController = TabController(length: items.length, vsync: this);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        tabs.value = items;
+      });
     } on DioException catch (e) {
+      print('请求失败：$e');
       isLoading.value = false;
     } catch (e) {
       isLoading.value = false;
