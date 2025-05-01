@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/music/libs/player/music_controller.dart';
+import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
 
 class PlayListHistory extends StatefulWidget {
@@ -85,6 +86,8 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                             onTap: () {
                               controller.playIndex.value = index;
                               controller.updataMedia(item);
+                              var listName = MusicSPManage.getCurrentPlayType();
+                              MusicSPManage.saveCurrentPlayIndex(listName,index);
                             },
                             onLongPress: () {
                               controller.removeSongInList(item);
