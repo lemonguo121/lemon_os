@@ -32,17 +32,21 @@ class _MusicHomePageState extends State<MusicHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
+      body: Column(
         children: [
           // 页面内容
-          Positioned.fill(
+          Expanded(
             child: IndexedStack(
               index: _currentIndex,
               children: _pages,
             ),
           ),
-          // 小型播放器
-          _buildMiniPlayer(),
+          // 小型播放器区域
+          Obx(() {
+            return miniController.playList.isNotEmpty
+                ? MiniMusicPlayerBar()
+                : const SizedBox.shrink();
+          }),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
