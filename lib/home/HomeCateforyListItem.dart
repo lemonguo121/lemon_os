@@ -7,7 +7,7 @@ import '../mywidget/VodForamTag.dart';
 import '../routes/routes.dart';
 import '../search/SearchScreen.dart';
 import '../util/CommonUtil.dart';
-import '../util/LoadingImage.dart';
+import '../util/widget/LoadingImage.dart';
 
 class Homecateforylistitem extends StatefulWidget {
   final RealVideo realVideo;

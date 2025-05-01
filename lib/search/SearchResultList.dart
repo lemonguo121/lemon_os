@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import '../http/data/RealVideo.dart';
 import '../mywidget/MyLoadingIndicator.dart';
-import '../util/LoadingImage.dart';
+import '../util/widget/LoadingImage.dart';
 import '../util/ThemeController.dart';
 
 class SearchResultList extends StatefulWidget {

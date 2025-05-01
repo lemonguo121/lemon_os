@@ -2,14 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lemon_tv/subscrip/SubscriptionPage.dart';
 import 'package:lemon_tv/util/SubscriptionsUtil.dart';
+import 'package:lemon_tv/util/widget/NoDataView.dart';
+import 'package:lemon_tv/util/widget/NoSubscriptionView.dart';
 import 'package:xml/xml.dart';
 
 import '../category/CategoryFragment.dart';
-import '../routes/routes.dart';
-import '../util/ThemeController.dart';
-import 'HomeFragment.dart';
 import '../http/HttpService.dart';
 import '../http/data/CategoryBean.dart';
 import '../http/data/HomeCateforyData.dart';
@@ -18,9 +16,12 @@ import '../http/data/Video.dart';
 import '../http/data/storehouse_bean_entity.dart';
 import '../main.dart';
 import '../mywidget/MyLoadingIndicator.dart';
-import '../search/SearchScreen.dart';
+import '../routes/routes.dart';
 import '../util/CommonUtil.dart';
 import '../util/SPManager.dart';
+import '../util/ThemeController.dart';
+import '../util/widget/SiteInvileView.dart';
+import 'HomeFragment.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -62,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     setState(() => isLoading = true);
     try {
       // 第一步先检查当前是否有选择的仓库
-      var currentStorehouse =  SPManager.getCurrentSubscription();
+      var currentStorehouse = SPManager.getCurrentSubscription();
       if (currentStorehouse == null) {
         setState(() {
           errorType = 1;
@@ -199,7 +200,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         final double itemHeight = 38;
         const int itemsPerRow = 2;
         final double scrollPosition = (index ~/ itemsPerRow) * itemHeight;
-        final double maxScrollExtent = _scrollController.position.maxScrollExtent;
+        final double maxScrollExtent =
+            _scrollController.position.maxScrollExtent;
         final double targetScroll = scrollPosition.clamp(0.0, maxScrollExtent);
         _scrollController.animateTo(
           targetScroll,
@@ -208,7 +210,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         );
       });
     });
-
   }
 
   Widget _buildSearch() {
@@ -331,74 +332,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  // 订阅为空
-  Widget _buildNoSubscriptionView() {
-    return Center(
-      child: GestureDetector(
-        onTap: () =>
-            Routes.goSubscripPage(),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.add,
-                size: 64,
-                color: themeController.currentAppTheme.selectedTextColor),
-            const SizedBox(height: 16),
-            Text('暂无订阅，点击添加',
-                style: TextStyle(
-                    color: themeController.currentAppTheme.selectedTextColor,
-                    fontSize: 16)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  //站点不可用
-  Widget _buildSiteInvileView() {
-    return Center(
-      child: GestureDetector(
-        onTap: () {
-          _loadData();
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.refresh,
-                size: 64,
-                color: themeController.currentAppTheme.selectedTextColor),
-            SizedBox(height: 16),
-            Text('站点不可用，点击重试，或切换订阅',
-                style: TextStyle(
-                    color: themeController.currentAppTheme.selectedTextColor,
-                    fontSize: 16)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNoDataView() {
-    return Center(
-      child: GestureDetector(
-        onTap: _loadData,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.refresh,
-                size: 64,
-                color: themeController.currentAppTheme.selectedTextColor),
-            SizedBox(height: 16),
-            Text('暂无数据，点击刷新',
-                style: TextStyle(
-                    color: themeController.currentAppTheme.selectedTextColor,
-                    fontSize: 16)),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildSiteGridItem(int index) {
     var selectStorehouse = _subscriptionsUtil.selectStorehouse[index];
     var siteName = selectStorehouse.name;
@@ -441,11 +374,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Widget getErrorView() {
     if (errorType == 1) {
-      return _buildNoSubscriptionView();
+      // 订阅为空
+      return NoSubscriptionView(onAddSubscription: Routes.goSubscripPage);
     } else if (errorType == 2) {
-      return _buildSiteInvileView();
+      // 站点不可用
+      return SiteInvileView(reload: _loadData);
     } else {
-      return categories.isEmpty ? _buildNoDataView() : _buildCategorySelector();
+      // 数据为空
+      return categories.isEmpty ? NoDataView(reload: _loadData) : _buildCategorySelector();
     }
   }
 }

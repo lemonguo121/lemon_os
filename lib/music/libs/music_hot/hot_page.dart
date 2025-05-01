@@ -1,14 +1,16 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/music/libs/music_hot/hot_controller.dart';
 import 'package:lemon_tv/music/libs/music_hot/widget/hot_contentView.dart';
 import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
+import 'package:lemon_tv/util/widget/NoDataView.dart';
 
 import '../../../routes/routes.dart';
 import '../../../util/CommonUtil.dart';
 import '../../../util/SubscriptionsUtil.dart';
+import '../../../util/widget/NoSubscriptionView.dart';
+import '../../../util/widget/SiteInvileView.dart';
 
 class HotPage extends StatefulWidget {
   const HotPage({super.key});
@@ -25,65 +27,19 @@ class _HotPageState extends State<HotPage> {
   @override
   void initState() {
     super.initState();
-    controller.loadSite();
-    // controller.getHotBannerList();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadData();
+    });
+
   }
 
   @override
   Widget build(BuildContext context) {
-    final topPadding = MediaQuery.of(context).padding.top;
-
     return Obx(() {
       if (controller.tabs.isEmpty) {
         return const Center(child: CircularProgressIndicator());
       }
-
-      return Column(
-        children: [
-          SizedBox(height: topPadding),
-          _buildSearch(),
-          Container(
-            color: Colors.white,
-            height: 38,
-            alignment: Alignment.centerLeft,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: TabBar(
-                isScrollable: true,
-                labelPadding: EdgeInsets.only(right: 20),
-                // 去掉 TabBar 的默认内边距
-                controller: controller.tabController,
-                indicator: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.redAccent,
-                ),
-                labelColor: Colors.white,
-                unselectedLabelColor: Colors.black87,
-                labelStyle:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                unselectedLabelStyle: const TextStyle(fontSize: 14),
-                indicatorPadding: const EdgeInsets.symmetric(horizontal: 4),
-                tabs: controller.tabs
-                    .map((item) => Tab(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Text(item.title),
-                          ),
-                        ))
-                    .toList(),
-              ),
-            ),
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: controller.tabController,
-              children: controller.tabs.map((item) {
-                return TopListContentView(id: item.id);
-              }).toList(),
-            ),
-          ),
-        ],
-      );
+      return getErrorView();
     });
   }
 
@@ -136,14 +92,13 @@ class _HotPageState extends State<HotPage> {
                           shrinkWrap: true,
                           // 防止 GridView 超出范围
                           gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
+                          SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
                             mainAxisSpacing: 8.0,
                             crossAxisSpacing: 8.0,
                             mainAxisExtent: 30,
                           ),
-                          itemCount:
-                              SubscriptionsUtil().pluginsList.length,
+                          itemCount: SubscriptionsUtil().pluginsList.length,
                           itemBuilder: (context, index) {
                             return _buildSiteGridItem(index);
                           },
@@ -222,7 +177,7 @@ class _HotPageState extends State<HotPage> {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => HotPage()),
-          (route) => false,
+              (route) => false,
         );
       },
       child: Container(
@@ -247,5 +202,79 @@ class _HotPageState extends State<HotPage> {
         ),
       ),
     );
+  }
+
+  Widget getErrorView() {
+    if (controller.errorType.value == 1) {
+      // 订阅为空
+      return NoSubscriptionView(onAddSubscription: Routes.goPluginPage);
+    } else if (controller.errorType.value == 2) {
+      // 站点不可用
+      return SiteInvileView(reload: loadData);
+    } else {
+      return controller.tabs.isEmpty
+          ? NoDataView(
+        reload: loadData,
+      )
+          : _buildTopicData();
+    }
+  }
+
+  Widget _buildTopicData() {
+    final topPadding = MediaQuery
+        .of(context)
+        .padding
+        .top;
+    return Column(
+      children: [
+        SizedBox(height: topPadding),
+        _buildSearch(),
+        Container(
+          color: Colors.white,
+          height: 38,
+          alignment: Alignment.centerLeft,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: TabBar(
+              isScrollable: true,
+              labelPadding: EdgeInsets.only(right: 20),
+              // 去掉 TabBar 的默认内边距
+              controller: controller.tabController,
+              indicator: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.redAccent,
+              ),
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.black87,
+              labelStyle:
+              const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              unselectedLabelStyle: const TextStyle(fontSize: 14),
+              indicatorPadding: const EdgeInsets.symmetric(horizontal: 4),
+              tabs: controller.tabs
+                  .map((item) =>
+                  Tab(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(item.title),
+                    ),
+                  ))
+                  .toList(),
+            ),
+          ),
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: controller.tabController,
+            children: controller.tabs.map((item) {
+              return TopListContentView(id: item.id);
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void loadData() async {
+    await controller.loadSite();
   }
 }

@@ -6,7 +6,7 @@ import 'package:lemon_tv/util/CommonUtil.dart';
 import 'package:lemon_tv/util/SPManager.dart';
 
 import '../http/data/ParesVideo.dart';
-import '../util/LoadingImage.dart';
+import '../util/widget/LoadingImage.dart';
 import '../util/ThemeController.dart';
 
 class PareseScreen extends StatefulWidget {

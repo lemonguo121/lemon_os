@@ -6,7 +6,7 @@ import '../http/data/RealVideo.dart';
 import '../mywidget/VodForamTag.dart';
 import '../routes/routes.dart';
 import '../search/SearchScreen.dart';
-import '../util/LoadingImage.dart';
+import '../util/widget/LoadingImage.dart';
 
 class CategoryListItem extends StatefulWidget {
   final RealVideo realVideo;

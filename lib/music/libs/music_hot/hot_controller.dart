@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -19,9 +20,9 @@ class HotController extends GetxController
       PluginInfo(platform: "", name: "", plugin: "").obs;
   var errorType = (-1).obs; //0:作为成功；1：订阅为空；2:站点不可用；
   var selecteSitedIndex = (0).obs;
+  var tabIndex = 0.obs;
 
-
-  void loadSite() async {
+  Future<void> loadSite() async {
     // 第一步先检查当前是否有选择的仓库
     isLoading.value = true;
     var currentStorehouse = MusicSPManage.getCurrentSubscription();
@@ -33,7 +34,7 @@ class HotController extends GetxController
     // 第二步，根据当前的仓库去请求仓库下的站点
     try {
       siteResponse =
-      await subscriptionsUtil.requestMusicCurrentSites(currentStorehouse);
+          await subscriptionsUtil.requestMusicCurrentSites(currentStorehouse);
     } catch (e) {
       siteResponse = null;
       print(e);
@@ -66,7 +67,10 @@ class HotController extends GetxController
       tabs.value = items;
 
       tabController = TabController(length: tabs.length, vsync: this);
+    } on DioException catch (e) {
+      isLoading.value = false;
     } catch (e) {
+      isLoading.value = false;
       print('搜索失败：$e');
     } finally {
       isLoading.value = false;
@@ -79,17 +83,19 @@ class HotController extends GetxController
   Future<void> getHotList({String? id}) async {
     isLoading.value = true;
     try {
-      final response = await NetworkManager().get('/getTopListDetail',
-          queryParameters: {
-            'id': id,
-            'plugin': MusicSPManage.getCurrentSite()?.platform ?? ""
-          });
+      final response = await NetworkManager().get(
+        '/getTopListDetail',
+        queryParameters: {
+          'id': id,
+          'plugin': MusicSPManage.getCurrentSite()?.platform ?? ""
+        },
+      );
       final dataResponse = response.data;
       subModel.value = HotSubModel.fromJson(dataResponse);
+    } on DioException catch (e) {
       isLoading.value = false;
-
     } catch (e) {
-      print("搜索失败：$e");
+      print("未知错误: $e");
     } finally {
       isLoading.value = false;
     }

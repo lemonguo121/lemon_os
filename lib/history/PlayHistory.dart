@@ -9,7 +9,7 @@ import '../routes/routes.dart';
 import 'HistoryController.dart';
 import '../util/SPManager.dart';
 import '../util/CommonUtil.dart';
-import '../util/LoadingImage.dart';
+import '../util/widget/LoadingImage.dart';
 
 class PlayHistory extends StatefulWidget {
   @override

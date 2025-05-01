@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../http/data/RealVideo.dart';
 import '../routes/routes.dart';
-import '../util/LoadingImage.dart';
+import '../util/widget/LoadingImage.dart';
 
 import '../detail/DetailScreen.dart';
 

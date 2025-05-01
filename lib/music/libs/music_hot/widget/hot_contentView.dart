@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/music/libs/player/music_controller.dart';
+import 'package:lemon_tv/util/widget/NoDataView.dart';
 
 import '../../../../routes/routes.dart';
 import '../../../music_http/music_http_rquest.dart';
@@ -24,7 +25,7 @@ class _TopListContentViewState extends State<TopListContentView> {
   void initState() {
     super.initState();
     print('******${widget.id}');
-    controller.getHotList(id: widget.id);
+    load();
   }
 
   @override
@@ -33,7 +34,9 @@ class _TopListContentViewState extends State<TopListContentView> {
       if (controller.isLoading.value) {
         return const Center(child: CircularProgressIndicator());
       }
-
+      if (controller.subModel.value.musicList.isEmpty) {
+        return NoDataView(reload:load);
+      }
       return ListView.builder(
         itemCount: controller.subModel.value.musicList.length,
         itemBuilder: (context, index) {
@@ -55,5 +58,9 @@ class _TopListContentViewState extends State<TopListContentView> {
         },
       );
     });
+  }
+
+  void load() {
+    controller.getHotList(id: widget.id);
   }
 }
