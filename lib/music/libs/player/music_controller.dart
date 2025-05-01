@@ -51,6 +51,9 @@ class MusicPlayerController extends GetxController {
     var currentPlayType = MusicSPManage.getCurrentPlayType();
     playList.value = MusicSPManage.getPlayList(currentPlayType);
     playIndex.value = MusicSPManage.getCurrentPlayIndex(currentPlayType);
+    if(playIndex.value>playList.length-1){
+      playIndex.value=0;
+    }
     if (playList.isNotEmpty) {
       songBean.value=  playList[playIndex.value].songBean;
     }
