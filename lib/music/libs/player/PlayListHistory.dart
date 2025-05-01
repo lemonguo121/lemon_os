@@ -89,9 +89,12 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                               var listName = MusicSPManage.getCurrentPlayType();
                               MusicSPManage.saveCurrentPlayIndex(listName,index);
                             },
-                            onLongPress: () {
-                              controller.removeSongInList(item);
-                            },
+                        trailing: GestureDetector(
+                          child: Icon(Icons.close,color: Colors.red,),
+                          onTap: (){
+                            controller.removeSongInList(item);
+                          },
+                        ),
                           ));
                     },
                   ),
