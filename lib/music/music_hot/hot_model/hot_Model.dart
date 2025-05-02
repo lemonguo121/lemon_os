@@ -1,6 +1,7 @@
 import 'dart:convert';
 
-import '../../../data/SongBean.dart';
+import '../../data/SongBean.dart';
+
 
 // HotList hotListFromJson(String str) => HotList.fromJson(json.decode(str));
 // String hotListToJson(HotList data) => json.encode(data.toJson());

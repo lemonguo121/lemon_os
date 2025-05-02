@@ -4,9 +4,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
 import '../../../util/SubscriptionsUtil.dart';
-import '../../data/PluginBean.dart';
-import '../../music_http/music_http_rquest.dart';
-import '../../music_utils/MusicSPManage.dart';
+import '../data/PluginBean.dart';
+import '../music_http/music_http_rquest.dart';
+import '../music_utils/MusicSPManage.dart';
 import 'hot_model/hot_Model.dart';
 
 class HotController extends GetxController
@@ -20,7 +20,6 @@ class HotController extends GetxController
       PluginInfo(platform: "", name: "", plugin: "").obs;
   var errorType = (-1).obs; //0:作为成功；1：订阅为空；2:站点不可用；
   var selecteSitedIndex = (0).obs;
-  var tabIndex = 0.obs;
 
   Future<void> loadSite() async {
     isLoading.value = true;
@@ -40,7 +39,9 @@ class HotController extends GetxController
       print('网络异常：$e');
     } catch (e) {
       print('其他异常：$e');
-    } finally {}
+    } finally {
+      isLoading.value = false;
+    }
 
     if (siteResponse == null) {
       errorType.value = 2;
@@ -52,7 +53,7 @@ class HotController extends GetxController
   }
 
   Future<void> getHotBannerList() async {
-    // isLoading.value = true;
+    isLoading.value = true;
     try {
       var currentSite = MusicSPManage.getCurrentSite();
       final response = await NetworkManager().get('/getTopLists',

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lemon_tv/music/libs/player/music_controller.dart';
 import 'package:marquee/marquee.dart';
 
 import '../PlayListHistory.dart';
+import '../music_controller.dart';
 
 class MiniMusicPlayerBar extends StatefulWidget {
   const MiniMusicPlayerBar({super.key});

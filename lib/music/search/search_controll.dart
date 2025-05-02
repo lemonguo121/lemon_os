@@ -2,9 +2,8 @@ import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 
 import '../../../util/SubscriptionsUtil.dart';
-import '../../data/PluginBean.dart';
-import '../../music_http/music_http_rquest.dart';
-import '../../music_utils/MusicSPManage.dart';
+import '../music_http/music_http_rquest.dart';
+import '../music_utils/MusicSPManage.dart';
 
 class SearchControll extends GetxController {
   var isLoading = false.obs;

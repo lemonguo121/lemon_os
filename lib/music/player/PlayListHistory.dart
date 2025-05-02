@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lemon_tv/music/libs/player/music_controller.dart';
 import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
+
+import 'music_controller.dart';
 
 class PlayListHistory extends StatefulWidget {
   const PlayListHistory({super.key});
@@ -55,8 +56,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                                       controller.songBean.value.id
                                   ? themeController
                                       .currentAppTheme.selectedTextColor
-                                  : themeController
-                                      .currentAppTheme.normalTextColor,
+                                  : Colors.black
                             ),
                             title: Text(
                               item.songBean.title,
@@ -65,8 +65,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                                           controller.songBean.value.id
                                       ? themeController
                                           .currentAppTheme.selectedTextColor
-                                      : themeController
-                                          .currentAppTheme.normalTextColor,
+                                      : Colors.black,
                                   fontSize: 12),
                             ),
                             subtitle: item.songBean.artist != null
@@ -77,8 +76,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                                               controller.songBean.value.id
                                           ? themeController
                                               .currentAppTheme.selectedTextColor
-                                          : themeController
-                                              .currentAppTheme.normalTextColor,
+                                          : Colors.black,
                                       fontSize: 12, // 可选：调整字号
                                     ),
                                   )

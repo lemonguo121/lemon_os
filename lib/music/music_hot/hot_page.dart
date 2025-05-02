@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lemon_tv/music/libs/music_hot/hot_controller.dart';
-import 'package:lemon_tv/music/libs/music_hot/widget/hot_contentView.dart';
 import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
 import 'package:lemon_tv/util/widget/NoDataView.dart';
 
+import '../../../mywidget/MyLoadingIndicator.dart';
 import '../../../routes/routes.dart';
 import '../../../util/CommonUtil.dart';
 import '../../../util/SubscriptionsUtil.dart';
 import '../../../util/widget/NoSubscriptionView.dart';
 import '../../../util/widget/SiteInvileView.dart';
+import 'hot_controller.dart';
 
 class HotPage extends StatefulWidget {
   const HotPage({super.key});
@@ -30,16 +30,35 @@ class _HotPageState extends State<HotPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       loadData();
     });
-
   }
 
   @override
   Widget build(BuildContext context) {
+    // return Obx(() {
+    //   // if (controller.tabs.isEmpty ) {
+    //   //   return const Center(child: CircularProgressIndicator());
+    //   // }
+    //
+    //   return getErrorView();
+    // });
+
+    if (controller.isLoading.value) {
+      return Column(children: [
+        MyLoadingIndicator(isLoading: controller.isLoading.value)
+      ]);
+    }
+    var isVertical = CommonUtil.isVertical(context);
     return Obx(() {
-      if (controller.tabs.isEmpty||controller.isLoading.value||controller.tabController==null) {
-        return const Center(child: CircularProgressIndicator());
-      }
-      return getErrorView();
+      return Scaffold(
+        body: Column(
+          children: [
+            SizedBox(height: isVertical ? 55.0 : 40),
+            _buildSearch(),
+            Expanded(child: getErrorView() // 否则，显示分类选择视图
+                ),
+          ],
+        ),
+      );
     });
   }
 
@@ -92,7 +111,7 @@ class _HotPageState extends State<HotPage> {
                           shrinkWrap: true,
                           // 防止 GridView 超出范围
                           gridDelegate:
-                          SliverGridDelegateWithFixedCrossAxisCount(
+                              SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
                             mainAxisSpacing: 8.0,
                             crossAxisSpacing: 8.0,
@@ -135,7 +154,7 @@ class _HotPageState extends State<HotPage> {
         const SizedBox(width: 8.0),
         Expanded(
           child: InkWell(
-            onTap: () => Routes.goMusicSearchPlayer(),
+            onTap: () => Routes.goMusicSearchPage(),
             child: Container(
               height: 35,
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -177,7 +196,7 @@ class _HotPageState extends State<HotPage> {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => HotPage()),
-              (route) => false,
+          (route) => false,
         );
       },
       child: Container(
@@ -214,67 +233,142 @@ class _HotPageState extends State<HotPage> {
     } else {
       return controller.tabs.isEmpty
           ? NoDataView(
-        reload: loadData,
-      )
-          : _buildTopicData();
+              reload: loadData,
+            )
+          : _buildTopicWidget();
     }
-  }
-
-  Widget _buildTopicData() {
-    final topPadding = MediaQuery
-        .of(context)
-        .padding
-        .top;
-    return Column(
-      children: [
-        SizedBox(height: topPadding),
-        _buildSearch(),
-        Container(
-          color: Colors.white,
-          height: 38,
-          alignment: Alignment.centerLeft,
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: TabBar(
-              isScrollable: true,
-              labelPadding: EdgeInsets.only(right: 20),
-              // 去掉 TabBar 的默认内边距
-              controller: controller.tabController,
-              indicator: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.redAccent,
-              ),
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.black87,
-              labelStyle:
-              const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-              unselectedLabelStyle: const TextStyle(fontSize: 14),
-              indicatorPadding: const EdgeInsets.symmetric(horizontal: 4),
-              tabs: controller.tabs
-                  .map((item) =>
-                  Tab(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text(item.title),
-                    ),
-                  ))
-                  .toList(),
-            ),
-          ),
-        ),
-        Expanded(
-          child: TabBarView(
-            controller: controller.tabController,
-            children: controller.tabs.map((item) {
-              return TopListContentView(id: item.id);
-            }).toList(),
-          ),
-        ),
-      ],
-    );
   }
 
   void loadData() async {
     await controller.loadSite();
+  }
+
+  Widget _buildTopicWidget() {
+    var isVertical = CommonUtil.isVertical(context);
+    if (controller.tabs.isEmpty ||
+        controller.isLoading.value ||
+        controller.tabController == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 6.0,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                '推荐榜单',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Routes.goHotListPage();
+                },
+                child: const Text(
+                  '更多 >',
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 200, // 高度 = 每个 item 的高度 × 2 + 间距
+          child: GridView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.all(8.0),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2, // 显示两行
+              mainAxisSpacing: 8.0, // item 横向间距
+              crossAxisSpacing: 8.0, // item 纵向间距
+              childAspectRatio: 1, // 宽高比，自行调整
+            ),
+            itemCount: controller.tabs.length,
+            itemBuilder: (context, index) {
+              return SizedBox(
+                width: 90, // 固定宽度
+                height: 90,
+                child: _buildGridItem(index),
+              );
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                '我的歌单',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildGridItem(int index) {
+    var tabs = controller.tabs;
+    var tab = tabs[index];
+
+    return GestureDetector(
+      onTap: () {
+        Routes.goHotDetaiPage(tab);
+      },
+      child: Stack(
+        children: [
+          // 封面图片
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: Image(image: AssetImage('assets/music/record.png')),
+          ),
+          // 覆盖层显示文字
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topCenter, // 渐变起点（顶部）
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.05), // 顶部完全透明
+                        Colors.black.withOpacity(0.9), // 底部半透明黑色
+                      ]),
+                  color: Colors.black.withOpacity(0.7),
+                  borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(8.0),
+                      bottomRight: Radius.circular(8.0))),
+              padding: const EdgeInsets.symmetric(
+                vertical: 4.0,
+                horizontal: 8.0,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    tab.title,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: Colors.white,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

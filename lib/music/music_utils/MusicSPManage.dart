@@ -166,4 +166,6 @@ class MusicSPManage {
     SharedPreferences sp = Get.find<SharedPreferences>();
     sp.setString(music_play_type, listName);
   }
+
+//   获取所有的播放列表
 }

@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../history/HistoryController.dart';
-import '../music/libs/player/music_controller.dart';
+import '../music/player/music_controller.dart';
 import 'ThemeController.dart';
 
 class Injection {

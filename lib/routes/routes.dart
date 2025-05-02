@@ -6,8 +6,11 @@ import 'package:lemon_tv/subscrip/SubscriptionPage.dart';
 
 import '../http/data/storehouse_bean_entity.dart';
 import '../mine/SettingPage.dart';
-import '../music/libs/player/widget/music_play.dart';
-import '../music/libs/search/widget/music_search.dart';
+import '../music/music_hot/HotDetailPage.dart';
+import '../music/music_hot/HotListPage.dart';
+import '../music/music_hot/hot_model/hot_Model.dart';
+import '../music/player/widget/music_play.dart';
+import '../music/search/widget/music_search.dart';
 
 abstract class Routes {
   /// 详情页
@@ -21,13 +24,16 @@ abstract class Routes {
 
 //   设置页
   static const String settingPage = '/setting';
+
   //
   static const String pluginsPage = '/plugins';
 
   static const String musicPlayer = '/musicPlayer';
-  static const String musicSearchPlayer = '/musicSearchPlayer';
 
+  static const String musicSearchPage = '/musicSearchPage';
 
+  static const String musicHotDetalPage = '/hotDetal';
+  static const String musicHotListPage = '/musicHotListPage';
 
   static goDetailPage(String vodId, StorehouseBeanSites site) {
     Get.toNamed(detailPage, arguments: {'vodId': vodId, 'site': site});
@@ -37,23 +43,32 @@ abstract class Routes {
     Get.toNamed(searchPage, arguments: {'query': query});
   }
 
-  static goSubscripPage(){
+  static goSubscripPage() {
     Get.toNamed(subscripPage);
   }
 
-  static goSettingPage(){
+  static goSettingPage() {
     Get.toNamed(settingPage);
   }
-  static goPluginPage(){
+
+  static goPluginPage() {
     Get.toNamed(pluginsPage);
   }
 
-  static goMusicPage(){
+  static goMusicPage() {
     Get.toNamed(musicPlayer);
   }
 
-  static goMusicSearchPlayer(){
-    Get.toNamed(musicSearchPlayer);
+  static goMusicSearchPage() {
+    Get.toNamed(musicSearchPage);
+  }
+
+  static goHotDetaiPage(TopListItem topListItem) {
+    Get.toNamed(musicHotDetalPage, arguments: {'topListItem': topListItem});
+  }
+
+  static goHotListPage() {
+    Get.toNamed(musicHotListPage);
   }
   static final routePage = [
     GetPage(name: detailPage, page: () => DetailScreen()),
@@ -62,6 +77,8 @@ abstract class Routes {
     GetPage(name: settingPage, page: () => SettingPage()),
     GetPage(name: pluginsPage, page: () => PluginsPage()),
     GetPage(name: musicPlayer, page: () => MusicPlayerPage()),
-    GetPage(name: musicSearchPlayer, page: () => MusicSearchPage()),
+    GetPage(name: musicSearchPage, page: () => MusicSearchPage()),
+    GetPage(name: musicHotDetalPage, page: () => HotDetailPage()),
+    GetPage(name: musicHotListPage, page: () => HotListPage()),
   ];
 }

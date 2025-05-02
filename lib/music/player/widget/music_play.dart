@@ -2,11 +2,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:lemon_tv/music/libs/player/PlayListHistory.dart';
-import 'package:lemon_tv/music/libs/player/music_controller.dart';
-import 'package:lemon_tv/music/libs/player/widget/music_bottom_bar.dart';
 import 'package:marquee/marquee.dart';
-import '../../music_download.dart';
+
+import '../../libs/music_download.dart';
+import '../PlayListHistory.dart';
+import '../music_controller.dart';
+import 'music_bottom_bar.dart';
 
 enum PlayMode { loop, single }
 

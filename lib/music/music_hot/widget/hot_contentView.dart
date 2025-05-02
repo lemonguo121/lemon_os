@@ -1,12 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lemon_tv/music/libs/player/music_controller.dart';
 import 'package:lemon_tv/util/widget/NoDataView.dart';
 
 import '../../../../routes/routes.dart';
-import '../../../music_http/music_http_rquest.dart';
-import '../../../music_utils/MusicSPManage.dart';
+import '../../player/music_controller.dart';
 import '../hot_controller.dart';
 
 class TopListContentView extends StatefulWidget {

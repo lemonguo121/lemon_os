@@ -5,10 +5,11 @@ import 'package:just_audio/just_audio.dart';
 import 'package:lemon_tv/music/data/MusicBean.dart';
 import 'package:lemon_tv/util/CommonUtil.dart';
 
-import '../../data/LyricLine.dart';
-import '../../data/SongBean.dart';
-import '../../music_http/music_http_rquest.dart';
-import '../../music_utils/MusicSPManage.dart';
+import '../data/LyricLine.dart';
+import '../data/SongBean.dart';
+import '../music_http/music_http_rquest.dart';
+import '../music_utils/MusicSPManage.dart';
+
 
 class MusicPlayerController extends GetxController {
   final AudioPlayer player = AudioPlayer();

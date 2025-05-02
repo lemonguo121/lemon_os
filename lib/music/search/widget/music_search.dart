@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/music/data/SongBean.dart';
-import 'package:lemon_tv/music/libs/player/music_controller.dart';
 import 'package:lemon_tv/routes/routes.dart';
 
 import '../../../../util/ThemeController.dart';
+import '../../player/music_controller.dart';
 import '../search_controll.dart';
 
 class MusicSearchPage extends StatefulWidget {
@@ -89,6 +89,7 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        iconTheme: IconThemeData(color: themeController.currentAppTheme.normalTextColor),
         title: Text('音乐搜索',
             style: TextStyle(
                 color: themeController.currentAppTheme.normalTextColor)),
@@ -104,10 +105,15 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
                       child: TextField(
                         controller: _editController,
                         focusNode: _focusNode,
+                        style: TextStyle(
+                            fontSize: 16.0,
+                            color: themeController.currentAppTheme.titleColr),
                         onSubmitted: (_) =>
                             controller.searchMusic(_editController.text),
                         decoration: InputDecoration(
                           hintText: '输入歌曲名、歌手名或专辑名',
+                          hintStyle: TextStyle(
+                              color: themeController.currentAppTheme.contentColor),
                           border: OutlineInputBorder(),
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.search),
