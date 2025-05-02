@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/music/music_home/music_home_controller.dart';
 import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
+import 'package:lemon_tv/music/player/music_controller.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
 import 'package:lemon_tv/util/widget/NoDataView.dart';
 
@@ -14,7 +15,7 @@ import '../../../util/widget/NoSubscriptionView.dart';
 import '../../../util/widget/SiteInvileView.dart';
 import '../data/MusicBean.dart';
 import '../data/PlayRecordList.dart';
-
+import '../player/widget/music_mini_bar.dart';
 
 class MusicHomePage extends StatefulWidget {
   const MusicHomePage({super.key});
@@ -25,6 +26,7 @@ class MusicHomePage extends StatefulWidget {
 
 class _MusicHomePageState extends State<MusicHomePage> {
   final MusicHomeController controller = Get.put(MusicHomeController());
+  final MusicPlayerController playerController = Get.find();
   final ThemeController themeController = Get.find();
   final ScrollController _scrollController = ScrollController();
 
@@ -51,6 +53,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
             SizedBox(height: isVertical ? 55.0 : 40),
             _buildSearch(),
             Expanded(child: getErrorView()),
+            _buildMiniBar()
           ],
         ),
       );
@@ -409,5 +412,11 @@ class _MusicHomePageState extends State<MusicHomePage> {
             ),
           );
         });
+  }
+
+  _buildMiniBar() {
+    return playerController.playList.isNotEmpty
+        ? MiniMusicPlayerBar()
+        : const SizedBox.shrink();
   }
 }
