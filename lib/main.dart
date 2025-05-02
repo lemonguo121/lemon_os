@@ -125,6 +125,7 @@ class _HomePageState extends State<HomePage> {
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           backgroundColor: themeController.currentAppTheme.backgroundColor,
+          unselectedItemColor: themeController.currentAppTheme.normalTextColor,
           fixedColor:  themeController.currentAppTheme.selectedTextColor,
           elevation: 1.0,
           currentIndex: _currentIndex,

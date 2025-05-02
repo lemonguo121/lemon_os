@@ -251,33 +251,59 @@ class _MusicHomePageState extends State<MusicHomePage> {
         SizedBox(
           height: 16.h,
         ),
-        Container(
-          margin: const EdgeInsets.all(8.0),
-          padding: const EdgeInsets.all(12.0),
-          decoration: BoxDecoration(
-            color: Colors.grey[100],
-            // 背景色，可替换为 themeController.currentAppTheme.bgColor
-            borderRadius: BorderRadius.circular(12.0),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.0),
+          child: Text(
+            '我的歌单',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: themeController.currentAppTheme.selectedTextColor,
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '我的歌单',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: themeController.currentAppTheme.selectedTextColor,
-                ),
-              ),
-              SizedBox(height: 10.h),
-              SizedBox(
-                height: 400.h,
-                child: _buildPlayRecordList(),
-              ),
-            ],
+        ),
+        SizedBox(height: 10.h),
+        Expanded(
+          child: Container(
+            margin: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(12.0),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            child: _buildPlayRecordList(),
           ),
+        ),
+        SizedBox(
+          height: 16.h,
         )
+        // Container(
+        //   margin: const EdgeInsets.all(8.0),
+        //   padding: const EdgeInsets.all(12.0),
+        //   decoration: BoxDecoration(
+        //     color: Colors.grey[100],
+        //     // 背景色，可替换为 themeController.currentAppTheme.bgColor
+        //     borderRadius: BorderRadius.circular(12.0),
+        //   ),
+        //   child: Column(
+        //     crossAxisAlignment: CrossAxisAlignment.start,
+        //     children: [
+        //       Text(
+        //         '我的歌单',
+        //         style: TextStyle(
+        //           fontSize: 16,
+        //           fontWeight: FontWeight.bold,
+        //           color: themeController.currentAppTheme.selectedTextColor,
+        //         ),
+        //       ),
+        //       SizedBox(height: 10.h),
+        //       SizedBox(
+        //         height: 400.h,
+        //         child: _buildPlayRecordList(),
+        //       ),
+        //     ],
+        //   ),
+        // )
       ],
     );
   }
