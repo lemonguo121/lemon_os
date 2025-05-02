@@ -123,10 +123,9 @@ class _HomePageState extends State<HomePage> {
           children: _pages,
         ),
         bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
           backgroundColor: themeController.currentAppTheme.backgroundColor,
-          unselectedItemColor:
-              themeController.currentAppTheme.unselectedTextColor,
-          selectedItemColor: themeController.currentAppTheme.selectedTextColor,
+          fixedColor:  themeController.currentAppTheme.selectedTextColor,
           elevation: 1.0,
           currentIndex: _currentIndex,
           onTap: (index) {
