@@ -75,11 +75,6 @@ class _MusicHomePageState extends State<MusicHomePage> {
               builder: (context) {
                 Future.delayed(Duration.zero, () {
                   if (controller.currentSite.value != null) {
-                    // int selectedIndex = _subscriptionsUtil.selectStorehouse
-                    //     .indexWhere((e) => e.name == currentSite!.name);
-                    // if (selectedIndex != -1) {
-                    //   _scrollToSelectedItem(selectedIndex);
-                    // }
                   }
                 });
                 var dialogSize;
