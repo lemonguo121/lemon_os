@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/mine/ThemeSettingsPage.dart';
-import 'package:lemon_tv/music/music_home/music_home_page.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:adaptive_action_sheet/adaptive_action_sheet.dart';
+import '../music/music_home/MusicHomePage.dart';
 import '../util/CacheUtil.dart';
 
 class SecendMinePage extends StatefulWidget {
