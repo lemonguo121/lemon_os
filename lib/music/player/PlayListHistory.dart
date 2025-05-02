@@ -65,16 +65,17 @@ class _PlayListHistoryState extends State<PlayListHistory> {
   Widget playListCell(MusicBean item, int index) {
     final bool isPlaying = item.songBean.id == controller.songBean.value.id;
 
-    return InkWell(
-      onTap: () {
-        controller.playIndex.value = index;
-        controller.updataMedia(item);
-        var listName = MusicSPManage.getCurrentPlayType();
-        MusicSPManage.saveCurrentPlayIndex(listName, index);
-      },
-      child: SizedBox(
-        height: 66.h,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8), // 每个 cell 上下间距
+      child: InkWell(
+        onTap: () {
+          controller.playIndex.value = index;
+          controller.updataMedia(item);
+          var listName = MusicSPManage.getCurrentPlayType();
+          MusicSPManage.saveCurrentPlayIndex(listName, index);
+        },
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(
               width: 30,
@@ -85,18 +86,18 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                 barHeight: 10,
                 color: Colors.redAccent,
               )
-                  : null,
+                  : const SizedBox(),
             ),
-            const SizedBox(width: 8),
+            // const SizedBox(width: 8),
             ClipOval(
               child: Image.asset(
                 'assets/music/record.png',
-                width: 40,
-                height: 40,
+                width: 36,
+                height: 36,
                 fit: BoxFit.cover,
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,8 +109,11 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                       color: isPlaying
                           ? themeController.currentAppTheme.selectedTextColor
                           : Colors.black,
-                      fontSize: 12,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   if (item.songBean.artist != null)
                     Text(
@@ -117,9 +121,11 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                       style: TextStyle(
                         color: isPlaying
                             ? themeController.currentAppTheme.selectedTextColor
-                            : Colors.black,
+                            : Colors.grey,
                         fontSize: 12,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                 ],
               ),
@@ -130,7 +136,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
               },
               child: const Padding(
                 padding: EdgeInsets.all(8.0),
-                child: Icon(Icons.close, color: Colors.red),
+                child: Icon(Icons.close, color: Colors.red, size: 18),
               ),
             ),
           ],
