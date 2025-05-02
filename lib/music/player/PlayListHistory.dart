@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
+import 'package:lemon_tv/music/player/widget/music_play.dart';
 import 'package:lemon_tv/music/player/widget/music_yinfu.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
 
@@ -18,7 +20,17 @@ class PlayListHistory extends StatefulWidget {
 class _PlayListHistoryState extends State<PlayListHistory> {
   final MusicPlayerController controller = Get.find();
   final ThemeController themeController = Get.find();
-
+  late  PlayMode _playMode = PlayMode.loop;
+  final MusicPlayerController playerController = Get.find();
+  Widget _playModeIconWidget() {
+    switch (_playMode) {
+      case PlayMode.single:
+        return Image.asset('assets/music/repeat.png', width: 20, height: 20,color: themeController.currentAppTheme.selectedTextColor);
+      case PlayMode.loop:
+      default:
+      return Image.asset('assets/music/loop.png', width: 20, height: 20,color: themeController.currentAppTheme.selectedTextColor);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     print('******* playListHistory = ${controller.playList.length}');
@@ -37,21 +49,47 @@ class _PlayListHistoryState extends State<PlayListHistory> {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                '播放列表',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              // 顶部标题 + 播放模式按钮
+              SizedBox(
+                height: 40,
+                child: Stack(
+                  children: [
+                    const Center(
+                      child: Text(
+                        '播放列表',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Positioned(
+                      right: -5,
+                      top: 0,
+                      bottom: 0,
+                      child: IconButton(
+                        icon: _playModeIconWidget(), // 你已有的方法，返回一个Icon组件
+                        onPressed: () {
+                          setState(() {
+                            _playMode = _playMode == PlayMode.loop ? PlayMode.single : PlayMode.loop;
+                          });
+                          playerController.player.setLoopMode(
+                            _playMode == PlayMode.loop ? LoopMode.all : LoopMode.one,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 12),
-              if (list.isEmpty)
+              if (controller.playList.isEmpty)
                 const Text('列表为空')
               else
                 Flexible(
                   child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: list.length,
+                    itemCount: controller.playList.length,
                     itemBuilder: (context, index) {
-                      final item = list[index];
-                      return Obx(() => playListCell(item,index));
+                      final item = controller.playList[index];
+                      return Obx(() => playListCell(item, index));
                     },
                   ),
                 ),

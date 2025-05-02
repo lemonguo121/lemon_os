@@ -34,13 +34,13 @@ class MusicBottomBar extends StatelessWidget {
     return '$minutes:$seconds';
   }
 
-  IconData _playModeIcon() {
+  Widget _playModeIconWidget() {
     switch (playMode) {
       case PlayMode.single:
-        return Icons.repeat_one;
+        return Image.asset('assets/music/repeat.png', width: 20, height: 20,color: Colors.white,);
       case PlayMode.loop:
       default:
-        return Icons.repeat;
+        return Image.asset('assets/music/loop.png', width: 20, height: 20,color: Colors.white);
     }
   }
 
@@ -111,7 +111,7 @@ class MusicBottomBar extends StatelessWidget {
                 style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
               IconButton(
-                icon: Icon(_playModeIcon(), color: Colors.white, size: 20),
+                icon: _playModeIconWidget(),
                 onPressed: onModeTap,
               ),
             ],
