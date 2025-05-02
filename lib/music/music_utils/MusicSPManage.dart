@@ -21,6 +21,8 @@ class MusicSPManage {
   static const String music_play_type =
       "music_play_type"; //播放类型  是收藏还是历史 或者自己建的播放列表
   static const String music_play_record = "music_play_record"; //播放列表
+  static const String music_customize = "customize"; //自定义文件名前缀
+
   // 保存指定仓库
   static saveSubscription(List<StorehouseBean> subscriptions) {
     SharedPreferences sp = Get.find<SharedPreferences>();
@@ -175,9 +177,24 @@ class MusicSPManage {
     String? jsonString = sp.getString(music_play_record);
     if (jsonString == null) {
       // 如果为空，创建默认两个播放列表 记录和收藏
-      List<PlayRecordList> list =[];
-      list.add(PlayRecordList(name: '播放记录',key: history));
-      list.add(PlayRecordList(name: '我的收藏',key: collect));
+      List<PlayRecordList> list = [];
+      list.add(PlayRecordList(name: '播放记录', key: history, canDelete: false));
+      list.add(PlayRecordList(name: '我的收藏', key: collect, canDelete: false));
+
+      list.add(PlayRecordList(name: '我的收藏1', key: 'collect1', canDelete: true));
+      list.add(PlayRecordList(name: 'collect2', key: 'collect2', canDelete: true));
+      list.add(PlayRecordList(name: 'collect3', key: 'collect3', canDelete: true));
+      list.add(PlayRecordList(name: 'collect4', key: 'collect4', canDelete: true));
+      list.add(PlayRecordList(name: 'collect5', key: 'collect5', canDelete: true));
+      list.add(PlayRecordList(name: 'collect6', key: 'collect6', canDelete: true));
+      list.add(PlayRecordList(name: 'collect7', key: 'collect7', canDelete: true));
+      list.add(PlayRecordList(name: 'collect8', key: 'collect8', canDelete: true));
+      list.add(PlayRecordList(name: 'collect9', key: 'collect9', canDelete: true));
+      list.add(PlayRecordList(name: 'collect10', key: 'collect10', canDelete: true));
+      list.add(PlayRecordList(name: 'collect11', key: 'collect11', canDelete: true));
+      list.add(PlayRecordList(name: 'collect12', key: 'collect12', canDelete: true));
+      list.add(PlayRecordList(name: 'collect13', key: 'collect13', canDelete: true));
+      list.add(PlayRecordList(name: 'collect14', key: 'collect14', canDelete: true));
       saveRecordList(list);
       return list;
     }
@@ -195,5 +212,24 @@ class MusicSPManage {
     // 序列化 JSON 并存储
     String jsonString = jsonEncode(uniqueList.map((e) => e.toJson()).toList());
     sp.setString(music_play_record, jsonString);
+  }
+
+//   添加自定义播放列表
+  static void addRecordList(String listName) {
+    var list = getRecordList();
+    int timestampMillis = DateTime.now().millisecondsSinceEpoch;
+    var record = PlayRecordList(
+        name: listName,
+        key: '${music_customize}_$timestampMillis',
+        canDelete: true);
+    list.add(record);
+    saveRecordList(list);
+  }
+  // 删除指定播放列表
+  static void removeRecordList(String key) {
+    var list = getRecordList();
+    list.removeWhere((item)=>item.key==key);
+    clearAllSongs(key);
+    saveRecordList(list);
   }
 }

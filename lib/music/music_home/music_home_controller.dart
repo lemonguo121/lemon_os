@@ -12,8 +12,7 @@ import '../music_utils/MusicSPManage.dart';
 
 class MusicHomeController extends GetxController
     with GetSingleTickerProviderStateMixin {
-  ///热门首页
-  TabController? tabController;
+
   var tabs = <TopListItem>[].obs;
   var isLoading = false.obs;
   final SubscriptionsUtil subscriptionsUtil = SubscriptionsUtil();
@@ -67,7 +66,6 @@ class MusicHomeController extends GetxController
       var data =
           (dataResponse as List).map((e) => TopListGroup.fromJson(e)).toList();
       final items = data.expand((e) => e.data).toList();
-      tabController = TabController(length: items.length, vsync: this);
       tabs.value = items;
     } on DioException catch (e) {
       print('请求失败：$e');
