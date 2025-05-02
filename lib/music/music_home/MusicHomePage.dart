@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:lemon_tv/music/music_home/music_home_controller.dart';
 import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
 import 'package:lemon_tv/util/widget/NoDataView.dart';
@@ -10,17 +12,19 @@ import '../../../util/CommonUtil.dart';
 import '../../../util/SubscriptionsUtil.dart';
 import '../../../util/widget/NoSubscriptionView.dart';
 import '../../../util/widget/SiteInvileView.dart';
-import 'hot_controller.dart';
+import '../data/MusicBean.dart';
+import '../data/PlayRecordList.dart';
 
-class HotPage extends StatefulWidget {
-  const HotPage({super.key});
+
+class MusicHomePage extends StatefulWidget {
+  const MusicHomePage({super.key});
 
   @override
-  State<HotPage> createState() => _HotPageState();
+  State<MusicHomePage> createState() => _MusicHomePageState();
 }
 
-class _HotPageState extends State<HotPage> {
-  final HotController controller = Get.put(HotController());
+class _MusicHomePageState extends State<MusicHomePage> {
+  final MusicHomeController controller = Get.put(MusicHomeController());
   final ThemeController themeController = Get.find();
   final ScrollController _scrollController = ScrollController();
 
@@ -34,28 +38,19 @@ class _HotPageState extends State<HotPage> {
 
   @override
   Widget build(BuildContext context) {
-    // return Obx(() {
-    //   // if (controller.tabs.isEmpty ) {
-    //   //   return const Center(child: CircularProgressIndicator());
-    //   // }
-    //
-    //   return getErrorView();
-    // });
-
-    if (controller.isLoading.value) {
-      return Column(children: [
-        MyLoadingIndicator(isLoading: controller.isLoading.value)
-      ]);
-    }
-    var isVertical = CommonUtil.isVertical(context);
     return Obx(() {
+      if (controller.isLoading.value) {
+        return Column(children: [
+          MyLoadingIndicator(isLoading: controller.isLoading.value)
+        ]);
+      }
+      var isVertical = CommonUtil.isVertical(context);
       return Scaffold(
         body: Column(
           children: [
             SizedBox(height: isVertical ? 55.0 : 40),
             _buildSearch(),
-            Expanded(child: getErrorView() // 否则，显示分类选择视图
-                ),
+            Expanded(child: getErrorView()),
           ],
         ),
       );
@@ -195,7 +190,7 @@ class _HotPageState extends State<HotPage> {
         setState(() {});
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => HotPage()),
+          MaterialPageRoute(builder: (context) => MusicHomePage()),
           (route) => false,
         );
       },
@@ -244,7 +239,6 @@ class _HotPageState extends State<HotPage> {
   }
 
   Widget _buildTopicWidget() {
-    var isVertical = CommonUtil.isVertical(context);
     if (controller.tabs.isEmpty ||
         controller.isLoading.value ||
         controller.tabController == null) {
@@ -261,17 +255,22 @@ class _HotPageState extends State<HotPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 '推荐榜单',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: themeController.currentAppTheme.selectedTextColor),
               ),
               GestureDetector(
                 onTap: () {
                   Routes.goHotListPage();
                 },
-                child: const Text(
-                  '更多 >',
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                child: Text(
+                  '全部',
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: themeController.currentAppTheme.normalTextColor),
                 ),
               ),
             ],
@@ -300,16 +299,15 @@ class _HotPageState extends State<HotPage> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                '我的歌单',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ],
+          child: Text(
+            '我的歌单',
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: themeController.currentAppTheme.selectedTextColor),
           ),
-        )
+        ),
+        _buildPlayRecordList()
       ],
     );
   }
@@ -370,5 +368,46 @@ class _HotPageState extends State<HotPage> {
         ],
       ),
     );
+  }
+
+  Widget _buildPlayRecordList() {
+    List<PlayRecordList> list = MusicSPManage.getRecordList();
+    print('_buildPlayRecordList = ${list.length}');
+    return ListView.builder(
+        shrinkWrap: true,
+        itemCount: list.length,
+        itemBuilder: (context, index) {
+          var record = list[index];
+          List<MusicBean> playList = MusicSPManage.getPlayList(record.name);
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            child: GestureDetector(
+              onTap: () => {Routes.goPlayListPage()},
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                // mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    record.name,
+                    style: TextStyle(
+                        color: themeController.currentAppTheme.normalTextColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16),
+                  ),
+                  SizedBox(
+                    width: 4.0.w,
+                  ),
+                  Text(
+                    '(${playList.length})',
+                    style: TextStyle(
+                        color: themeController.currentAppTheme.normalTextColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14),
+                  )
+                ],
+              ),
+            ),
+          );
+        });
   }
 }

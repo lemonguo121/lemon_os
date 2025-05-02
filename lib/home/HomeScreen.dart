@@ -23,14 +23,14 @@ import '../util/ThemeController.dart';
 import '../util/widget/SiteInvileView.dart';
 import 'HomeFragment.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class MovieHomeScreen extends StatefulWidget {
+  const MovieHomeScreen({super.key});
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _MovieHomeScreenState createState() => _MovieHomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+class _MovieHomeScreenState extends State<MovieHomeScreen> with TickerProviderStateMixin {
   final PageController _pageController = PageController();
   late TabController _tabController = TabController(length: 0, vsync: this);
   final HttpService _httpService = HttpService();

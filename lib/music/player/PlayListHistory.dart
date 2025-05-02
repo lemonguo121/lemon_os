@@ -20,6 +20,8 @@ class _PlayListHistoryState extends State<PlayListHistory> {
   Widget build(BuildContext context) {
     print('******* playListHistory = ${controller.playList.length}');
     return SafeArea(
+      top: true,
+      bottom: false,
       child: Container(
         padding: const EdgeInsets.all(16),
         height: 500,

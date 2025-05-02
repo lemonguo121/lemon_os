@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/music/data/SongBean.dart';
+import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 import 'package:lemon_tv/routes/routes.dart';
 
 import '../../../../util/ThemeController.dart';
@@ -57,6 +58,7 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
       onTap: () {
         if (songBean.id.isNotEmpty) {
           playerController.upDataSong(songBean);
+          MusicSPManage.saveCurrentPlayIndex(MusicSPManage.history, 0);
           Routes.goMusicPage();
         }
       },

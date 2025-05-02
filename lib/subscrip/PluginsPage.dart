@@ -1,14 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart';
-import 'package:lemon_tv/http/HttpService.dart';
-import 'package:lemon_tv/music/data/PluginBean.dart';
 
 import '../http/data/SubscripBean.dart';
 import '../main.dart';
-import '../music/music_home/music_home_page.dart';
 import '../music/music_http/music_http_rquest.dart';
 import '../music/music_utils/MusicSPManage.dart';
 import '../mywidget/MyLoadingIndicator.dart';
@@ -86,7 +80,7 @@ class _PluginsPageState extends State<PluginsPage> {
       await Future.delayed(Duration(milliseconds: 300));
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => MusicHomePage()),
+        MaterialPageRoute(builder: (context) => HomePage()),
             (route) => false,
       );
     } else {

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -13,6 +12,8 @@ import '../history/PlayHistory.dart';
 import 'home/HomeScreen.dart';
 import 'http/data/MyHttpOverrides.dart';
 import 'mine/ProfileScreen.dart';
+import 'music/music_home/MusicHomePage.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
@@ -45,6 +46,7 @@ class ElectronicsStoreApp extends StatelessWidget {
         getPages: Routes.routePage,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
+          useMaterial3: false,
           scaffoldBackgroundColor:
               themeController.currentAppTheme.backgroundColor,
           appBarTheme: AppBarTheme(
@@ -77,8 +79,9 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   final ThemeController themeController = Get.find();
   final List<Widget> _pages = [
-    HomeScreen(),
+    MovieHomeScreen(),
     PlayHistory(),
+    MusicHomePage(),
     ProfileScreen(key: UniqueKey()),
   ];
 
@@ -132,8 +135,10 @@ class _HomePageState extends State<HomePage> {
             });
           },
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: "首页"),
+            BottomNavigationBarItem(icon: Icon(Icons.movie), label: "影视"),
             BottomNavigationBarItem(icon: Icon(Icons.history), label: "记录"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.library_music), label: "音乐"),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: "我的"),
           ],
         ),

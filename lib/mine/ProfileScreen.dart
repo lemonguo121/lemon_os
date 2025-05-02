@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
-import '../music/music_home/music_home_page.dart';
 import '../routes/routes.dart';
-import '../subscrip/SubscriptionPage.dart';
 import '../util/CacheUtil.dart';
 import 'ThemeSettingsPage.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:adaptive_action_sheet/adaptive_action_sheet.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -132,37 +129,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: TextStyle(
                         color: themeController.currentAppTheme.titleColr)),
               ),
-              ListTile(
-                leading: Icon(Icons.change_history,
-                    color: themeController
-                        .currentAppTheme.unselectedTextColor),
-                // 清理缓存图标
-                title: Text(
-                  "功能切换",
-                  style: TextStyle(
-                      color: themeController.currentAppTheme.titleColr),
-                ),
-                onTap: () {
-                  showAdaptiveActionSheet(
-                    context: context,
-                    actions: <BottomSheetAction>[
-                      BottomSheetAction(
-                        leading: Icon(Icons.music_note_rounded),
-                        title: const Text('享音乐'),
-                        onPressed: (_) {
-                          Get.off(MusicHomePage());
-                        },
-                      ),
-                      BottomSheetAction(
-                        leading: Icon(Icons.book_online),
-                        title: const Text('看小说'),
-                        onPressed: (_) {},
-                      ),
-                    ],
-                    cancelAction: CancelAction(title: const Text('Cancel')),
-                  );
-                },
-              ),
+              // ListTile(
+              //   leading: Icon(Icons.change_history,
+              //       color: themeController
+              //           .currentAppTheme.unselectedTextColor),
+              //   // 清理缓存图标
+              //   title: Text(
+              //     "功能切换",
+              //     style: TextStyle(
+              //         color: themeController.currentAppTheme.titleColr),
+              //   ),
+              //   onTap: () {
+              //     showAdaptiveActionSheet(
+              //       context: context,
+              //       actions: <BottomSheetAction>[
+              //         BottomSheetAction(
+              //           leading: Icon(Icons.music_note_rounded),
+              //           title: const Text('享音乐'),
+              //           onPressed: (_) {
+              //             Get.off(MusicHomePage());
+              //           },
+              //         ),
+              //         BottomSheetAction(
+              //           leading: Icon(Icons.book_online),
+              //           title: const Text('看小说'),
+              //           onPressed: (_) {},
+              //         ),
+              //       ],
+              //       cancelAction: CancelAction(title: const Text('Cancel')),
+              //     );
+              //   },
+              // ),
             ],
           ),
         ));

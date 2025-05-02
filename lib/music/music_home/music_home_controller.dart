@@ -5,11 +5,12 @@ import 'package:get/get.dart';
 
 import '../../../util/SubscriptionsUtil.dart';
 import '../data/PluginBean.dart';
+import '../music_hot/hot_model/hot_Model.dart';
 import '../music_http/music_http_rquest.dart';
 import '../music_utils/MusicSPManage.dart';
-import 'hot_model/hot_Model.dart';
 
-class HotController extends GetxController
+
+class MusicHomeController extends GetxController
     with GetSingleTickerProviderStateMixin {
   ///热门首页
   TabController? tabController;

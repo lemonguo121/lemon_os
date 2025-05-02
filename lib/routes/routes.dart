@@ -25,15 +25,23 @@ abstract class Routes {
 //   设置页
   static const String settingPage = '/setting';
 
-  //
+  //插件页
   static const String pluginsPage = '/plugins';
 
+  // 播放器页
   static const String musicPlayer = '/musicPlayer';
 
+  // 音乐搜索
   static const String musicSearchPage = '/musicSearchPage';
 
+  // 榜单详情
   static const String musicHotDetalPage = '/hotDetal';
-  static const String musicHotListPage = '/musicHotListPage';
+
+  // 榜单列表
+  static const String musicHotListPage = '/hotListPage';
+
+  // 播放列表
+  static const String musicPlayListPage = '/PlayListPage';
 
   static goDetailPage(String vodId, StorehouseBeanSites site) {
     Get.toNamed(detailPage, arguments: {'vodId': vodId, 'site': site});
@@ -70,6 +78,11 @@ abstract class Routes {
   static goHotListPage() {
     Get.toNamed(musicHotListPage);
   }
+
+  static goPlayListPage() {
+    Get.toNamed(musicHotListPage);
+  }
+
   static final routePage = [
     GetPage(name: detailPage, page: () => DetailScreen()),
     GetPage(name: searchPage, page: () => SearchScreen()),
@@ -80,5 +93,6 @@ abstract class Routes {
     GetPage(name: musicSearchPage, page: () => MusicSearchPage()),
     GetPage(name: musicHotDetalPage, page: () => HotDetailPage()),
     GetPage(name: musicHotListPage, page: () => HotListPage()),
+    GetPage(name: musicPlayListPage, page: () => goPlayListPage()),
   ];
 }

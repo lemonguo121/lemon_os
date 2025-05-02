@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:core';
 
 import 'package:get/get.dart';
 import 'package:lemon_tv/music/data/MusicBean.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../http/data/SubscripBean.dart';
+import '../data/PlayRecordList.dart';
 import '../data/PluginBean.dart';
 
 class MusicSPManage {
@@ -18,7 +20,7 @@ class MusicSPManage {
   static const String music_play_index = "music_play_index"; //播放索引
   static const String music_play_type =
       "music_play_type"; //播放类型  是收藏还是历史 或者自己建的播放列表
-
+  static const String music_play_record = "music_play_record"; //播放列表
   // 保存指定仓库
   static saveSubscription(List<StorehouseBean> subscriptions) {
     SharedPreferences sp = Get.find<SharedPreferences>();
@@ -152,7 +154,7 @@ class MusicSPManage {
   // 获取某个类型下的播放索引
   static int getCurrentPlayIndex(String listName) {
     SharedPreferences sp = Get.find<SharedPreferences>();
-    return sp.getInt('$music_play_index$listName')??0 ;
+    return sp.getInt('$music_play_index$listName') ?? 0;
   }
 
   // 获取当前的播放类型
@@ -168,4 +170,30 @@ class MusicSPManage {
   }
 
 //   获取所有的播放列表
+  static List<PlayRecordList> getRecordList() {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    String? jsonString = sp.getString(music_play_record);
+    if (jsonString == null) {
+      // 如果为空，创建默认两个播放列表 记录和收藏
+      List<PlayRecordList> list =[];
+      list.add(PlayRecordList(name: '播放记录',key: history));
+      list.add(PlayRecordList(name: '我的收藏',key: collect));
+      saveRecordList(list);
+      return list;
+    }
+    List<dynamic> jsonList = jsonDecode(jsonString);
+    List<PlayRecordList> list =
+        jsonList.map((e) => PlayRecordList.fromJson(e)).toList();
+    return list;
+  }
+
+  // 更新播放列表
+  static void saveRecordList(List<PlayRecordList> list) {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    // 使用 Set 过滤掉重复 URL
+    final uniqueList = list.toSet().toList();
+    // 序列化 JSON 并存储
+    String jsonString = jsonEncode(uniqueList.map((e) => e.toJson()).toList());
+    sp.setString(music_play_record, jsonString);
+  }
 }

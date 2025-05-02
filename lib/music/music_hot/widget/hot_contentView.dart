@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lemon_tv/music/music_home/music_home_controller.dart';
 import 'package:lemon_tv/util/widget/NoDataView.dart';
 
 import '../../../../routes/routes.dart';
 import '../../player/music_controller.dart';
-import '../hot_controller.dart';
 
 class TopListContentView extends StatefulWidget {
   final String id;
@@ -17,7 +17,7 @@ class TopListContentView extends StatefulWidget {
 }
 
 class _TopListContentViewState extends State<TopListContentView> {
-  final HotController controller = Get.find();
+  final MusicHomeController controller = Get.find();
   final MusicPlayerController playerController = Get.find();
   @override
   void initState() {
