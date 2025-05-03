@@ -87,7 +87,6 @@ class MusicPlayerController extends GetxController {
     player.play();
     updateMediaItem(bean);
     if (!playList.any((song) => song.songBean.id == songBean.value.id)) {
-      print('****** 列表没有这首，所以添加 songBean.value.id = ${songBean.value.id}');
       playList.insert(
         0,
         MusicBean(songBean: songBean.value, rawLrc: lyrics, url: url),
@@ -122,15 +121,17 @@ class MusicPlayerController extends GetxController {
 
   void updateMediaItem(SongBean song) {
     String artwork = song.artwork;
+    String songId = song.id;
     Uri artUri;
 
     if (artwork.isEmpty || !artwork.startsWith('http')) {
       // 使用默认占位图（可以上传一张放到服务器上的默认图片）
       artUri = Uri.parse(
-          'https://pic.616pic.com/ys_img/00/06/93/l7BqFgODgP.jpg');
+          CommonUtil.getCoverImg(songId));
     } else {
       artUri = Uri.parse(artwork);
     }
+
     audioHandler.mediaItem.add(
       MediaItem(
         id: song.id,

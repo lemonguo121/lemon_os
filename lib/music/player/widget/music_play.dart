@@ -1,10 +1,13 @@
 import 'dart:math';
+import 'dart:ui';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 import 'package:marquee/marquee.dart';
 
+import '../../../util/CommonUtil.dart';
 import '../../libs/music_download.dart';
 import '../PlayListHistory.dart';
 import '../music_controller.dart';
@@ -149,10 +152,32 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
           body: Stack(
             fit: StackFit.expand,
             children: [
-              Image.asset(
-                bgImageName,
-                fit: BoxFit.cover,
+              Stack(
+                children: [
+                  Positioned.fill(
+                    child: CachedNetworkImage(
+                      imageUrl: getCover(),
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(
+                          sigmaX: 40.0, sigmaY: 40.0), // 设置模糊程度
+                      child: Container(
+                        color: Colors.black.withOpacity(0.2), // 可以设置背景的透明度
+                      ),
+                    ),
+                  ),
+                  // _buildCustomScrollView(), // 将页面内容放置在背景之上
+                ],
               ),
+              // Image.asset(
+              //   bgImageName,
+              //   fit: BoxFit.cover,
+              // ),
               Container(color: Colors.black.withOpacity(0.4)),
               playerController.isLoading.value
                   ? const Center(child: CircularProgressIndicator())
@@ -294,5 +319,15 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
       return '未知歌曲';
     }
     return '$title $artist';
+  }
+
+  String getCover() {
+    var songBean = playerController.songBean.value;
+    var artwork = songBean.artwork;
+    var id = songBean.id;
+    if (artwork.isEmpty || !artwork.startsWith('http')) {
+      return CommonUtil.getCoverImg(id);
+    }
+    return artwork;
   }
 }

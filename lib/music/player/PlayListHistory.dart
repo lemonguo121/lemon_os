@@ -33,7 +33,6 @@ class _PlayListHistoryState extends State<PlayListHistory> {
   }
   @override
   Widget build(BuildContext context) {
-    print('******* playListHistory = ${controller.playList.length}');
     return SafeArea(
       top: true,
       bottom: false,
@@ -84,7 +83,10 @@ class _PlayListHistoryState extends State<PlayListHistory> {
               ),
               const SizedBox(height: 12),
               if (controller.playList.isEmpty)
-                const Text('列表为空')
+                const Expanded(
+                    child: Center(
+                      child: Text('列表为空'),
+                    ))
               else
                 Flexible(
                   child: ListView.builder(
