@@ -102,7 +102,7 @@ class MusicBottomBar extends StatelessWidget {
                       position.inSeconds.clamp(0, total.inSeconds).toDouble(),
                   min: 0,
                   max: total.inSeconds.toDouble(),
-                  activeColor: Colors.blueAccent,
+                  activeColor: themeController.currentAppTheme.selectedTextColor,
                   inactiveColor: Colors.white24,
                   onChanged: onSeek,
                 ),

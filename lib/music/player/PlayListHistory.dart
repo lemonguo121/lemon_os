@@ -67,8 +67,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                     const Center(
                       child: Text(
                         '播放列表',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold,color:Colors.black),
                       ),
                     ),
                     Positioned(
@@ -88,6 +87,8 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                                 ? LoopMode.all
                                 : LoopMode.one,
                           );
+                          print('当前播放器的模式。。。。。${playerController.player.loopMode}');
+
                           MusicSPManage.saveCurrentPlayMode(_playMode);
                         },
                       ),
