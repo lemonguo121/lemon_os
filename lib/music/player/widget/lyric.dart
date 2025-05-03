@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../../util/ThemeController.dart';
 
 class LyricLineView extends StatelessWidget {
   final String text;
   final bool isActive;
   final double opacity;
 
-  const LyricLineView({
+   LyricLineView({
     super.key,
     required this.text,
     required this.isActive,
     required this.opacity,
   });
+  final ThemeController themeController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +27,7 @@ class LyricLineView extends StatelessWidget {
             text,
             style: TextStyle(
               fontSize: 16,
-              color: isActive ? Colors.blue : Colors.white70,
+              color: isActive ? themeController.currentAppTheme.selectedTextColor : Colors.white70,
               fontWeight:
               isActive ? FontWeight.bold : FontWeight.normal,
             ),
