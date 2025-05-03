@@ -21,7 +21,7 @@ class MusicHomeController extends GetxController
   var selecteSitedIndex = (0).obs;
 
   var isColled = false.obs;
-  List<PlayRecordList> recordList = <PlayRecordList>[].obs;
+  var recordList = <PlayRecordList>[].obs;
 
   Future<void> loadSite() async {
     isLoading.value = true;
@@ -108,6 +108,6 @@ class MusicHomeController extends GetxController
   }
 
   void getRordList() {
-    recordList = MusicSPManage.getRecordList();
+    recordList.value = MusicSPManage.getRecordList();
   }
 }

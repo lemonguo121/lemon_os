@@ -98,8 +98,8 @@ class _HotDetailPageState extends State<HotDetailPage> {
                           name: topListItem?.title ?? "",
                           key: topListItem?.id ?? "",
                           canDelete: true);
-                      controller.recordList.add(playrecord);
-                      MusicSPManage.saveRecordList(controller.recordList);
+                      var recordList = controller.recordList.value;
+                      recordList.add(playrecord);
                       var musicList = controller.subModel.value.musicList;
                       List<MusicBean> musicPlayList = [];
                       for (int i = 0; i < musicList.length; i++) {
@@ -111,6 +111,9 @@ class _HotDetailPageState extends State<HotDetailPage> {
                       MusicSPManage.savePlayList(
                           musicPlayList, topListItem?.id ?? "");
                       controller.isColled.value = true;
+                      controller.recordList.value = recordList;
+                      MusicSPManage.saveRecordList(recordList);
+                      controller.recordList.refresh();
                     }
                   },
                   child: Text(
@@ -255,7 +258,7 @@ class _HotDetailPageState extends State<HotDetailPage> {
                       style: TextStyle(
                         color: isPlaying
                             ? themeController.currentAppTheme.selectedTextColor
-                            : themeController.currentAppTheme.normalTextColor,
+                            : Colors.grey,
                         fontSize: 12,
                       ),
                       maxLines: 1,

@@ -307,9 +307,10 @@ class _MusicHomePageState extends State<MusicHomePage> {
     return ListView.builder(
         padding: EdgeInsets.zero,
         shrinkWrap: true,
-        itemCount: controller.recordList.length,
+        itemCount: controller.recordList.value.length,
         itemBuilder: (context, index) {
-          var record = controller.recordList[index];
+          var record = controller.recordList.value[index];
+          print('*************刷新**************');
           List<MusicBean> playList = MusicSPManage.getPlayList(record.key);
           return GestureDetector(
             behavior: HitTestBehavior.translucent, // ✅ 允许空白区域也响应点击
@@ -456,8 +457,11 @@ class _MusicHomePageState extends State<MusicHomePage> {
           size: 35.r,
         ),
         onPressed: () {
-          MusicSPManage.removeRecordList(record.key);
-          setState(() {});
+          controller.recordList.value = controller.recordList
+              .where((item) => item.key != record.key)
+              .toList();
+          MusicSPManage.saveRecordList(controller.recordList.value);
+          MusicSPManage.clearAllSongs(record.key);
         },
       );
     }
