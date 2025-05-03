@@ -86,4 +86,8 @@ class CommonUtil {
     Size screenSize = MediaQuery.of(context).size;
     return screenSize.height;
   }
+
+  static String getCoverImg(String key) {
+    return 'https://picsum.photos/seed/$key/300/200';
+  }
 }

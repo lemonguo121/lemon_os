@@ -13,6 +13,7 @@ import '../../../util/CommonUtil.dart';
 import '../../../util/SubscriptionsUtil.dart';
 import '../../../util/widget/NoSubscriptionView.dart';
 import '../../../util/widget/SiteInvileView.dart';
+import '../../util/widget/LoadingImage.dart';
 import '../data/MusicBean.dart';
 import '../data/PlayRecordList.dart';
 import '../player/widget/music_mini_bar.dart';
@@ -289,8 +290,9 @@ class _MusicHomePageState extends State<MusicHomePage> {
           // 封面图片
           ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
-            child: Image(image: AssetImage('assets/music/record.png')),
-          ),
+            child: LoadingImage(
+              pic: CommonUtil.getCoverImg(tab.id),
+            )),
           // 覆盖层显示文字
           Align(
             alignment: Alignment.bottomCenter,

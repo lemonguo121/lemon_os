@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lemon_tv/util/CommonUtil.dart';
+import 'package:lemon_tv/util/widget/LoadingImage.dart';
 import 'package:marquee/marquee.dart';
 
 import '../PlayListHistory.dart';
@@ -69,9 +71,13 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
               return Row(
                 children: [
                   // 唱片封面
-                  const CircleAvatar(
-                    backgroundImage: AssetImage('assets/music/record.png'),
+                  CircleAvatar(
                     radius: 22,
+                    child: ClipOval(
+                      child: LoadingImage(
+                        pic: getCover(),
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   // 歌曲信息
@@ -195,5 +201,15 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
       return '未知歌曲';
     }
     return '$title $artist';
+  }
+
+  String getCover() {
+    var songBean = miniController.songBean.value;
+    var artwork = songBean.artwork;
+    var id = songBean.id;
+    if (artwork.isEmpty || !artwork.startsWith('http')) {
+      return CommonUtil.getCoverImg(id);
+    }
+    return artwork;
   }
 }
