@@ -75,11 +75,6 @@ class _MusicHomePageState extends State<MusicHomePage> {
               builder: (context) {
                 Future.delayed(Duration.zero, () {
                   if (controller.currentSite.value != null) {
-                    // int selectedIndex = _subscriptionsUtil.selectStorehouse
-                    //     .indexWhere((e) => e.name == currentSite!.name);
-                    // if (selectedIndex != -1) {
-                    //   _scrollToSelectedItem(selectedIndex);
-                    // }
                   }
                 });
                 var dialogSize;
@@ -425,6 +420,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
   }
 
   Widget _buildHotWidget() {
+    var isVertical = CommonUtil.isVertical(context);
     return controller.tabs.isEmpty
         ? SizedBox.shrink()
         : Column(
@@ -458,7 +454,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
                 ),
               ),
               SizedBox(
-                height: 200, // 高度 = 每个 item 的高度 × 2 + 间距
+                height:isVertical? 290.h:150.h, // 高度 = 每个 item 的高度 × 2 + 间距
                 child: GridView.builder(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.all(8.0),
@@ -471,8 +467,8 @@ class _MusicHomePageState extends State<MusicHomePage> {
                   itemCount: controller.tabs.length,
                   itemBuilder: (context, index) {
                     return SizedBox(
-                      width: 90, // 固定宽度
-                      height: 90,
+                      width: isVertical? 140.r:60.w, // 固定宽度
+                      height: isVertical? 140.r:60.h,
                       child: _buildGridItem(index),
                     );
                   },
