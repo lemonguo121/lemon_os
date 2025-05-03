@@ -36,16 +36,6 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
     });
   }
 
-  // required this.id,
-  // required this.platform,
-  // required this.artist,
-  // required this.title,
-  // required this.pic,
-  // required this.duration,
-  // required this.artwork,
-  // required this.rawLrc,
-  // required this.url,
-
   Widget _buildSongItem(dynamic song) {
     var songBean = SongBean.fromJson(song);
     return ListTile(

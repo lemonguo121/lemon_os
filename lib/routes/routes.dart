@@ -1,11 +1,13 @@
 import 'package:get/get.dart';
 import 'package:lemon_tv/detail/DetailScreen.dart';
+import 'package:lemon_tv/music/playlist/PlayListPage.dart';
 import 'package:lemon_tv/search/SearchScreen.dart';
 import 'package:lemon_tv/subscrip/PluginsPage.dart';
 import 'package:lemon_tv/subscrip/SubscriptionPage.dart';
 
 import '../http/data/storehouse_bean_entity.dart';
 import '../mine/SettingPage.dart';
+import '../music/data/PlayRecordList.dart';
 import '../music/music_hot/HotDetailPage.dart';
 import '../music/music_hot/HotListPage.dart';
 import '../music/music_hot/hot_model/hot_Model.dart';
@@ -79,8 +81,8 @@ abstract class Routes {
     Get.toNamed(musicHotListPage);
   }
 
-  static goPlayListPage() {
-    Get.toNamed(musicHotListPage);
+  static goPlayListPage(PlayRecordList record) {
+    Get.toNamed(musicPlayListPage,arguments: {'record':record});
   }
 
   static final routePage = [
@@ -93,6 +95,6 @@ abstract class Routes {
     GetPage(name: musicSearchPage, page: () => MusicSearchPage()),
     GetPage(name: musicHotDetalPage, page: () => HotDetailPage()),
     GetPage(name: musicHotListPage, page: () => HotListPage()),
-    GetPage(name: musicPlayListPage, page: () => goPlayListPage()),
+    GetPage(name: musicPlayListPage, page: () => PlayListPage()),
   ];
 }

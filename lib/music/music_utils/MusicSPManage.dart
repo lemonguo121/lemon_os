@@ -124,9 +124,9 @@ class MusicSPManage {
   }
 
   // 获取某个类型播放历史记录
-  static List<MusicBean> getPlayList(String listName) {
+  static List<MusicBean> getPlayList(String listKey) {
     SharedPreferences sp = Get.find<SharedPreferences>();
-    String? jsonString = sp.getString('$music_play_list$listName');
+    String? jsonString = sp.getString('$music_play_list$listKey');
     if (jsonString == null) {
       return [];
     }

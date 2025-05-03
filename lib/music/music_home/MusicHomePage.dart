@@ -240,14 +240,14 @@ class _MusicHomePageState extends State<MusicHomePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 10.0.h,
+          height: 32.0.h,
         ),
         _buildHotWidget(),
         SizedBox(
-          height: 16.h,
+          height: 32.h,
         ),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.0),
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
             '我的歌单',
             style: TextStyle(
@@ -257,11 +257,11 @@ class _MusicHomePageState extends State<MusicHomePage> {
             ),
           ),
         ),
-        SizedBox(height: 10.h),
+        SizedBox(height: 16.h),
         Expanded(
           child: Container(
-            margin: const EdgeInsets.all(8.0),
-            padding: const EdgeInsets.all(12.0),
+            margin: const EdgeInsets.symmetric(horizontal: 16.0),
+            // padding: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
               color: Colors.grey[100],
               borderRadius: BorderRadius.circular(12.0),
@@ -272,33 +272,6 @@ class _MusicHomePageState extends State<MusicHomePage> {
         SizedBox(
           height: 16.h,
         )
-        // Container(
-        //   margin: const EdgeInsets.all(8.0),
-        //   padding: const EdgeInsets.all(12.0),
-        //   decoration: BoxDecoration(
-        //     color: Colors.grey[100],
-        //     // 背景色，可替换为 themeController.currentAppTheme.bgColor
-        //     borderRadius: BorderRadius.circular(12.0),
-        //   ),
-        //   child: Column(
-        //     crossAxisAlignment: CrossAxisAlignment.start,
-        //     children: [
-        //       Text(
-        //         '我的歌单',
-        //         style: TextStyle(
-        //           fontSize: 16,
-        //           fontWeight: FontWeight.bold,
-        //           color: themeController.currentAppTheme.selectedTextColor,
-        //         ),
-        //       ),
-        //       SizedBox(height: 10.h),
-        //       SizedBox(
-        //         height: 400.h,
-        //         child: _buildPlayRecordList(),
-        //       ),
-        //     ],
-        //   ),
-        // )
       ],
     );
   }
@@ -371,9 +344,9 @@ class _MusicHomePageState extends State<MusicHomePage> {
           var record = list[index];
           List<MusicBean> playList = MusicSPManage.getPlayList(record.key);
           return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: GestureDetector(
-              onTap: () => {Routes.goPlayListPage()},
+              onTap: () => {Routes.goPlayListPage(record)},
               child: SizedBox(
                 height: 50.h,
                 child: Row(
@@ -426,7 +399,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
         : Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -453,11 +426,12 @@ class _MusicHomePageState extends State<MusicHomePage> {
                   ],
                 ),
               ),
+              SizedBox(height: 16.h,),
               SizedBox(
                 height:isVertical? 290.h:150.h, // 高度 = 每个 item 的高度 × 2 + 间距
                 child: GridView.builder(
                   scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2, // 显示两行
                     mainAxisSpacing: 8.0, // item 横向间距

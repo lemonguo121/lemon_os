@@ -42,12 +42,11 @@ class MusicHomeController extends GetxController
     } finally {
       isLoading.value = false;
     }
-
     if (siteResponse == null) {
       errorType.value = 2;
       return;
     }
-
+    errorType.value = 0;
     currentSite.value = siteResponse;
     getHotBannerList();
   }
