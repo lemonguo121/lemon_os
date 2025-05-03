@@ -4,15 +4,14 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
 import '../../../util/SubscriptionsUtil.dart';
+import '../data/PlayRecordList.dart';
 import '../data/PluginBean.dart';
 import '../music_hot/hot_model/hot_Model.dart';
 import '../music_http/music_http_rquest.dart';
 import '../music_utils/MusicSPManage.dart';
 
-
 class MusicHomeController extends GetxController
     with GetSingleTickerProviderStateMixin {
-
   var tabs = <TopListItem>[].obs;
   var isLoading = false.obs;
   final SubscriptionsUtil subscriptionsUtil = SubscriptionsUtil();
@@ -20,6 +19,9 @@ class MusicHomeController extends GetxController
       PluginInfo(platform: "", name: "", plugin: "").obs;
   var errorType = (-1).obs; //0:作为成功；1：订阅为空；2:站点不可用；
   var selecteSitedIndex = (0).obs;
+
+  var isColled = false.obs;
+  List<PlayRecordList> recordList = <PlayRecordList>[].obs;
 
   Future<void> loadSite() async {
     isLoading.value = true;
@@ -99,5 +101,13 @@ class MusicHomeController extends GetxController
     } finally {
       isLoading.value = false;
     }
+  }
+
+  void checkIsColled(TopListItem? topListItem) {
+    isColled.value = recordList.any((e) => e.key == topListItem?.id);
+  }
+
+  void getRordList() {
+    recordList = MusicSPManage.getRecordList();
   }
 }

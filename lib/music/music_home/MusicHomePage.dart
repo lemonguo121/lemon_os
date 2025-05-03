@@ -36,6 +36,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       loadData();
+      controller.getRordList();
     });
   }
 
@@ -53,6 +54,9 @@ class _MusicHomePageState extends State<MusicHomePage> {
           children: [
             SizedBox(height: isVertical ? 55.0 : 40),
             _buildSearch(),
+            SizedBox(
+              height: 16.0.h,
+            ),
             Expanded(child: getErrorView()),
             _buildMiniBar()
           ],
@@ -75,8 +79,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
               ),
               builder: (context) {
                 Future.delayed(Duration.zero, () {
-                  if (controller.currentSite.value != null) {
-                  }
+                  if (controller.currentSite.value != null) {}
                 });
                 var dialogSize;
                 if (CommonUtil.isVertical(context)) {
@@ -237,44 +240,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
     if (controller.isLoading.value) {
       return const Center(child: CircularProgressIndicator());
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: 32.0.h,
-        ),
-        _buildHotWidget(),
-        SizedBox(
-          height: 32.h,
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
-            '我的歌单',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: themeController.currentAppTheme.selectedTextColor,
-            ),
-          ),
-        ),
-        SizedBox(height: 16.h),
-        Expanded(
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0),
-            // padding: const EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(12.0),
-            ),
-            child: _buildPlayRecordList(),
-          ),
-        ),
-        SizedBox(
-          height: 16.h,
-        )
-      ],
-    );
+    return Expanded(child: _buildweidget());
   }
 
   Widget _buildGridItem(int index) {
@@ -289,10 +255,10 @@ class _MusicHomePageState extends State<MusicHomePage> {
         children: [
           // 封面图片
           ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-            child: LoadingImage(
-              pic: CommonUtil.getCoverImg(tab.id),
-            )),
+              borderRadius: BorderRadius.circular(8.0),
+              child: LoadingImage(
+                pic: CommonUtil.getCoverImg(tab.id),
+              )),
           // 覆盖层显示文字
           Align(
             alignment: Alignment.bottomCenter,
@@ -337,51 +303,74 @@ class _MusicHomePageState extends State<MusicHomePage> {
   }
 
   Widget _buildPlayRecordList() {
-    List<PlayRecordList> list = MusicSPManage.getRecordList();
+    String listkey = MusicSPManage.getCurrentPlayType();
     return ListView.builder(
         padding: EdgeInsets.zero,
         shrinkWrap: true,
-        itemCount: list.length,
+        itemCount: controller.recordList.length,
         itemBuilder: (context, index) {
-          var record = list[index];
+          var record = controller.recordList[index];
           List<MusicBean> playList = MusicSPManage.getPlayList(record.key);
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: GestureDetector(
-              onTap: () => {Routes.goPlayListPage(record)},
-              child: SizedBox(
-                height: 50.h,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Text(
-                            record.name,
-                            style: TextStyle(
-                              color: themeController
-                                  .currentAppTheme.normalTextColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
+          return GestureDetector(
+            behavior: HitTestBehavior.translucent, // ✅ 允许空白区域也响应点击
+            onTap: () => {Routes.goPlayListPage(record)},
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.h),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 120.r,
+                          height: 90.r,
+                          child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8.0.r),
+                              child: LoadingImage(
+                                pic: CommonUtil.getCoverImg(record.key),
+                              )),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                record.name,
+                                style: TextStyle(
+                                  color: record.key == listkey
+                                      ? themeController
+                                          .currentAppTheme.selectedTextColor
+                                      : themeController
+                                          .currentAppTheme.normalTextColor,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                '${playList.length}首',
+                                style: TextStyle(
+                                  color: record.key == listkey
+                                      ? themeController
+                                          .currentAppTheme.selectedTextColor
+                                      : Colors.grey,
+                                  fontSize: 11,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ),
-                          SizedBox(width: 4.0.w),
-                          Text(
-                            '(${playList.length})',
-                            style: TextStyle(
-                              color: themeController
-                                  .currentAppTheme.normalTextColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    _buildDeleteRecord(record)
-                  ],
-                ),
+                  ),
+                  _buildDeleteRecord(record)
+                ],
               ),
             ),
           );
@@ -410,15 +399,16 @@ class _MusicHomePageState extends State<MusicHomePage> {
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: themeController
-                              .currentAppTheme.selectedTextColor),
+                          color:
+                              themeController.currentAppTheme.normalTextColor),
                     ),
                     GestureDetector(
                       onTap: () {
                         Routes.goHotListPage();
                       },
                       child: Text(
-                        '全部',
+                        '',
+                        // '全部 >',
                         style: TextStyle(
                             fontSize: 14,
                             color: themeController
@@ -428,9 +418,11 @@ class _MusicHomePageState extends State<MusicHomePage> {
                   ],
                 ),
               ),
-              SizedBox(height: 16.h,),
               SizedBox(
-                height:isVertical? 290.h:150.h, // 高度 = 每个 item 的高度 × 2 + 间距
+                height: 16.h,
+              ),
+              SizedBox(
+                height: isVertical ? 290.h : 220.h, // 高度 = 每个 item 的高度 × 2 + 间距
                 child: GridView.builder(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -438,13 +430,13 @@ class _MusicHomePageState extends State<MusicHomePage> {
                     crossAxisCount: 2, // 显示两行
                     mainAxisSpacing: 8.0, // item 横向间距
                     crossAxisSpacing: 8.0, // item 纵向间距
-                    childAspectRatio: 1, // 宽高比，自行调整
+                    childAspectRatio: isVertical ? 1 : 0.75, // 宽高比，自行调整
                   ),
                   itemCount: controller.tabs.length,
                   itemBuilder: (context, index) {
                     return SizedBox(
-                      width: isVertical? 140.r:60.w, // 固定宽度
-                      height: isVertical? 140.r:60.h,
+                      width: isVertical ? 140.r : 105.w, // 固定宽度
+                      height: isVertical ? 140.r : 105.h,
                       child: _buildGridItem(index),
                     );
                   },
@@ -457,8 +449,9 @@ class _MusicHomePageState extends State<MusicHomePage> {
   Widget _buildDeleteRecord(PlayRecordList record) {
     if (record.canDelete) {
       return IconButton(
+        padding: EdgeInsets.zero,
         icon: Icon(
-          Icons.delete,
+          Icons.delete_outlined,
           color: Colors.redAccent,
           size: 35.r,
         ),
@@ -469,5 +462,58 @@ class _MusicHomePageState extends State<MusicHomePage> {
       );
     }
     return SizedBox.shrink();
+  }
+
+  Widget _buildweidget() {
+    var isVertical = CommonUtil.isVertical(context);
+    return isVertical
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 榜单
+              _buildHotWidget(),
+              SizedBox(
+                height: 32.h,
+              ),
+              // 播放列表
+              _buildPlayerWidget()
+            ],
+          )
+        : Expanded(
+            child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              // 榜单
+              Expanded(child: _buildHotWidget()),
+              // 播放列表
+              _buildPlayerWidget()
+            ],
+          ));
+  }
+
+  Widget _buildPlayerWidget() {
+    return Expanded(
+        child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text(
+            '我的歌单',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: themeController.currentAppTheme.normalTextColor,
+            ),
+          ),
+        ),
+        Expanded(
+          child: _buildPlayRecordList(),
+        ),
+        SizedBox(
+          height: 6.h,
+        )
+      ],
+    ));
   }
 }

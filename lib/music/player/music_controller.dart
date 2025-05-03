@@ -35,6 +35,26 @@ class MusicPlayerController extends GetxController {
 
   var playList = <MusicBean>[].obs;
 
+  String getTitle() {
+    // var songBean = songBean.value;
+    var title = songBean.value.title;
+    var artist = songBean.value.artist;
+    if (artist.isEmpty && title.isEmpty) {
+      return '未知歌曲';
+    }
+    return '$title $artist';
+  }
+
+  String getCover() {
+    // var songBean = this.songBean.value;
+    var artwork = songBean.value.artwork;
+    var id = songBean.value.id;
+    if (artwork.isEmpty || !artwork.startsWith('http')) {
+      return CommonUtil.getCoverImg(id);
+    }
+    return artwork;
+  }
+
   /// 新增的初始化方法
   Future<void> init() async {
     final session = await AudioSession.instance;
@@ -286,4 +306,5 @@ class MyAudioHandler extends BaseAudioHandler {
   Future<void> skipToPrevious() async {
     playerController.onPrev();
   }
+
 }

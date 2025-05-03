@@ -196,21 +196,6 @@ class MusicSPManage {
       List<PlayRecordList> list = [];
       list.add(PlayRecordList(name: '播放记录', key: history, canDelete: false));
       list.add(PlayRecordList(name: '我的收藏', key: collect, canDelete: false));
-
-      list.add(PlayRecordList(name: '我的收藏1', key: 'collect1', canDelete: true));
-      list.add(PlayRecordList(name: 'collect2', key: 'collect2', canDelete: true));
-      list.add(PlayRecordList(name: 'collect3', key: 'collect3', canDelete: true));
-      list.add(PlayRecordList(name: 'collect4', key: 'collect4', canDelete: true));
-      list.add(PlayRecordList(name: 'collect5', key: 'collect5', canDelete: true));
-      list.add(PlayRecordList(name: 'collect6', key: 'collect6', canDelete: true));
-      list.add(PlayRecordList(name: 'collect7', key: 'collect7', canDelete: true));
-      list.add(PlayRecordList(name: 'collect8', key: 'collect8', canDelete: true));
-      list.add(PlayRecordList(name: 'collect9', key: 'collect9', canDelete: true));
-      list.add(PlayRecordList(name: 'collect10', key: 'collect10', canDelete: true));
-      list.add(PlayRecordList(name: 'collect11', key: 'collect11', canDelete: true));
-      list.add(PlayRecordList(name: 'collect12', key: 'collect12', canDelete: true));
-      list.add(PlayRecordList(name: 'collect13', key: 'collect13', canDelete: true));
-      list.add(PlayRecordList(name: 'collect14', key: 'collect14', canDelete: true));
       saveRecordList(list);
       return list;
     }

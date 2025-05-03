@@ -5,7 +5,10 @@ import 'package:lemon_tv/music/data/PlayRecordList.dart';
 import 'package:lemon_tv/music/player/music_controller.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
 
+import '../../util/CommonUtil.dart';
+import '../../util/widget/LoadingImage.dart';
 import '../data/MusicBean.dart';
+import '../data/SongBean.dart';
 import '../music_utils/MusicSPManage.dart';
 import '../player/widget/music_yinfu.dart';
 import 'PlayListController.dart';
@@ -20,24 +23,7 @@ class PlayListPage extends StatefulWidget {
 class _PlayListPageState extends State<PlayListPage> {
   ThemeController themeController = Get.find();
   PlayListController controller = Get.put(PlayListController());
-  PlayMode _playMode = MusicSPManage.getCurrentPlayMode();
   MusicPlayerController playerController = Get.find();
-
-  Widget _playModeIconWidget() {
-    switch (_playMode) {
-      case PlayMode.single:
-        return Image.asset('assets/music/repeat.png',
-            width: 20,
-            height: 20,
-            color: themeController.currentAppTheme.selectedTextColor);
-      case PlayMode.loop:
-      default:
-        return Image.asset('assets/music/loop.png',
-            width: 20,
-            height: 20,
-            color: themeController.currentAppTheme.selectedTextColor);
-    }
-  }
 
   @override
   void initState() {
@@ -70,9 +56,13 @@ class _PlayListPageState extends State<PlayListPage> {
           children: [
             // 顶部标题 + 播放模式按钮
             if (controller.playList.isEmpty)
-              const Expanded(
+              Expanded(
                   child: Center(
-                child: Text('列表为空'),
+                child: Text(
+                  '列表为空',
+                  style: TextStyle(
+                      color: themeController.currentAppTheme.selectedTextColor),
+                ),
               ))
             else
               Flexible(
@@ -108,24 +98,23 @@ class _PlayListPageState extends State<PlayListPage> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(
-              width: 30,
-              height: 30,
-              child: isPlaying
-                  ? AudioBarsAnimated(
+            isPlaying
+                ? SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: AudioBarsAnimated(
                       barWidth: 2,
                       barHeight: 10,
                       color: Colors.redAccent,
-                    )
-                  : const SizedBox(),
-            ),
+                    ),
+                  )
+                : SizedBox.shrink(),
             // const SizedBox(width: 8),
-            ClipOval(
-              child: Image.asset(
-                'assets/music/record.png',
-                width: 36,
-                height: 36,
-                fit: BoxFit.cover,
+            SizedBox(
+              width: 36,
+              height: 36,
+              child: ClipOval(
+                child: LoadingImage(pic: getCover(item.songBean)),
               ),
             ),
             const SizedBox(width: 10),
@@ -135,11 +124,13 @@ class _PlayListPageState extends State<PlayListPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    item.songBean.title,
+                    item.songBean.title.isEmpty
+                        ? item.songBean.artist
+                        : item.songBean.title,
                     style: TextStyle(
                       color: isPlaying
                           ? themeController.currentAppTheme.selectedTextColor
-                          : Colors.black,
+                          : themeController.currentAppTheme.normalTextColor,
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                     ),
@@ -174,5 +165,14 @@ class _PlayListPageState extends State<PlayListPage> {
         ),
       ),
     );
+  }
+
+  String getCover(SongBean songBean) {
+    var artwork = songBean.artwork;
+    var songId = songBean.id;
+    if (artwork.isEmpty || !artwork.startsWith('http')) {
+      return CommonUtil.getCoverImg(songId);
+    }
+    return artwork;
   }
 }

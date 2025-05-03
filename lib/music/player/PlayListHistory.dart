@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:lemon_tv/music/data/SongBean.dart';
 import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 import 'package:lemon_tv/music/player/widget/music_play.dart';
 import 'package:lemon_tv/music/player/widget/music_yinfu.dart';
+import 'package:lemon_tv/util/CommonUtil.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
+import 'package:lemon_tv/util/widget/LoadingImage.dart';
 
 import '../data/MusicBean.dart';
 import 'music_controller.dart';
@@ -20,17 +23,25 @@ class PlayListHistory extends StatefulWidget {
 class _PlayListHistoryState extends State<PlayListHistory> {
   final MusicPlayerController controller = Get.find();
   final ThemeController themeController = Get.find();
-  late  PlayMode _playMode = MusicSPManage.getCurrentPlayMode();
+  late PlayMode _playMode = MusicSPManage.getCurrentPlayMode();
   final MusicPlayerController playerController = Get.find();
+
   Widget _playModeIconWidget() {
     switch (_playMode) {
       case PlayMode.single:
-        return Image.asset('assets/music/repeat.png', width: 20, height: 20,color: themeController.currentAppTheme.selectedTextColor);
+        return Image.asset('assets/music/repeat.png',
+            width: 20,
+            height: 20,
+            color: themeController.currentAppTheme.selectedTextColor);
       case PlayMode.loop:
       default:
-      return Image.asset('assets/music/loop.png', width: 20, height: 20,color: themeController.currentAppTheme.selectedTextColor);
+        return Image.asset('assets/music/loop.png',
+            width: 20,
+            height: 20,
+            color: themeController.currentAppTheme.selectedTextColor);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -56,7 +67,8 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                     const Center(
                       child: Text(
                         '播放列表',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                     ),
                     Positioned(
@@ -67,10 +79,14 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                         icon: _playModeIconWidget(), // 你已有的方法，返回一个Icon组件
                         onPressed: () {
                           setState(() {
-                            _playMode = _playMode == PlayMode.loop ? PlayMode.single : PlayMode.loop;
+                            _playMode = _playMode == PlayMode.loop
+                                ? PlayMode.single
+                                : PlayMode.loop;
                           });
                           playerController.player.setLoopMode(
-                            _playMode == PlayMode.loop ? LoopMode.all : LoopMode.one,
+                            _playMode == PlayMode.loop
+                                ? LoopMode.all
+                                : LoopMode.one,
                           );
                           MusicSPManage.saveCurrentPlayMode(_playMode);
                         },
@@ -81,10 +97,10 @@ class _PlayListHistoryState extends State<PlayListHistory> {
               ),
               const SizedBox(height: 12),
               if (controller.playList.isEmpty)
-                const Expanded(
+                 Expanded(
                     child: Center(
-                      child: Text('列表为空'),
-                    ))
+                  child: Text('列表为空',style: TextStyle(color: themeController.currentAppTheme.selectedTextColor),),
+                ))
               else
                 Flexible(
                   child: ListView.builder(
@@ -123,19 +139,18 @@ class _PlayListHistoryState extends State<PlayListHistory> {
               height: 30,
               child: isPlaying
                   ? AudioBarsAnimated(
-                barWidth: 2,
-                barHeight: 10,
-                color: Colors.redAccent,
-              )
+                      barWidth: 2,
+                      barHeight: 10,
+                      color: Colors.redAccent,
+                    )
                   : const SizedBox(),
             ),
             // const SizedBox(width: 8),
-            ClipOval(
-              child: Image.asset(
-                'assets/music/record.png',
-                width: 36,
-                height: 36,
-                fit: BoxFit.cover,
+            SizedBox(
+              width: 36,
+              height: 36,
+              child: ClipOval(
+                child: LoadingImage(pic: getCover(item.songBean)),
               ),
             ),
             const SizedBox(width: 10),
@@ -184,5 +199,14 @@ class _PlayListHistoryState extends State<PlayListHistory> {
         ),
       ),
     );
+  }
+
+  String getCover(SongBean songBean) {
+    var artwork = songBean.artwork;
+    var songId = songBean.id;
+    if (artwork.isEmpty || !artwork.startsWith('http')) {
+      return CommonUtil.getCoverImg(songId);
+    }
+    return artwork;
   }
 }

@@ -156,7 +156,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
                 children: [
                   Positioned.fill(
                     child: CachedNetworkImage(
-                      imageUrl: getCover(),
+                      imageUrl: playerController.getCover(),
                       width: double.infinity,
                       height: double.infinity,
                       fit: BoxFit.cover,
@@ -289,7 +289,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
             width: 240,
             height: 20,
             child: Marquee(
-              text: getTitle(),
+              text: playerController.getTitle(),
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -311,23 +311,5 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
       ),
     );
   }
-  String getTitle() {
-    var songBean = playerController.songBean.value;
-    var title = songBean.title;
-    var artist = songBean.artist;
-    if (artist.isEmpty && title.isEmpty) {
-      return '未知歌曲';
-    }
-    return '$title $artist';
-  }
 
-  String getCover() {
-    var songBean = playerController.songBean.value;
-    var artwork = songBean.artwork;
-    var id = songBean.id;
-    if (artwork.isEmpty || !artwork.startsWith('http')) {
-      return CommonUtil.getCoverImg(id);
-    }
-    return artwork;
-  }
 }

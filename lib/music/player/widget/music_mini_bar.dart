@@ -75,7 +75,7 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
                     radius: 22,
                     child: ClipOval(
                       child: LoadingImage(
-                        pic: getCover(),
+                        pic: miniController.getCover(),
                       ),
                     ),
                   ),
@@ -89,7 +89,7 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
                         SizedBox(
                           height: 20,
                           child: Marquee(
-                            text: "正在播放：${getTitle()}",
+                            text: "正在播放：${miniController.getTitle()}",
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
@@ -193,23 +193,4 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
     }
   }
 
-  String getTitle() {
-    var songBean = miniController.songBean.value;
-    var title = songBean.title;
-    var artist = songBean.artist;
-    if (artist.isEmpty && title.isEmpty) {
-      return '未知歌曲';
-    }
-    return '$title $artist';
-  }
-
-  String getCover() {
-    var songBean = miniController.songBean.value;
-    var artwork = songBean.artwork;
-    var id = songBean.id;
-    if (artwork.isEmpty || !artwork.startsWith('http')) {
-      return CommonUtil.getCoverImg(id);
-    }
-    return artwork;
-  }
 }
