@@ -13,7 +13,9 @@ import '../music_utils/MusicSPManage.dart';
 class MusicHomeController extends GetxController
     with GetSingleTickerProviderStateMixin {
   var tabs = <TopListItem>[].obs;
+  // 这个loading是给音乐首页用的，别的页面不能随便改变这个，会导致音乐销毁
   var isLoading = false.obs;
+  var isLoading2 = false.obs;
   final SubscriptionsUtil subscriptionsUtil = SubscriptionsUtil();
   Rx<PluginInfo> currentSite =
       PluginInfo(platform: "", name: "", plugin: "").obs;
@@ -83,7 +85,7 @@ class MusicHomeController extends GetxController
   Rx<HotSubModel> subModel = HotSubModel().obs;
 
   Future<void> getHotList({String? id}) async {
-    isLoading.value = true;
+    isLoading2.value = true;
     try {
       final response = await NetworkManager().get(
         '/getTopListDetail',
@@ -95,11 +97,11 @@ class MusicHomeController extends GetxController
       final dataResponse = response.data;
       subModel.value = HotSubModel.fromJson(dataResponse);
     } on DioException catch (e) {
-      isLoading.value = false;
+      isLoading2.value = false;
     } catch (e) {
       print("未知错误: $e");
     } finally {
-      isLoading.value = false;
+      isLoading2.value = false;
     }
   }
 

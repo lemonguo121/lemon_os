@@ -310,7 +310,6 @@ class _MusicHomePageState extends State<MusicHomePage> {
         itemCount: controller.recordList.value.length,
         itemBuilder: (context, index) {
           var record = controller.recordList.value[index];
-          print('*************刷新**************');
           List<MusicBean> playList = MusicSPManage.getPlayList(record.key);
           return GestureDetector(
             behavior: HitTestBehavior.translucent, // ✅ 允许空白区域也响应点击

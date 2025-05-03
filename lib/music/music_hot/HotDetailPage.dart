@@ -59,7 +59,7 @@ class _HotDetailPageState extends State<HotDetailPage> {
   }
 
   Widget _buildContentWidget() {
-    if (controller.isLoading.value) {
+    if (controller.isLoading2.value) {
       return const Center(child: CircularProgressIndicator());
     }
     if (controller.subModel.value.musicList.isEmpty) {
@@ -243,9 +243,9 @@ class _HotDetailPageState extends State<HotDetailPage> {
                   Text(
                     item.title.isNotEmpty ? item.title : (item.artist ?? ""),
                     style: TextStyle(
-                      color: isPlaying
-                          ? themeController.currentAppTheme.selectedTextColor
-                          : themeController.currentAppTheme.normalTextColor,
+                      // color: isPlaying
+                      //     ? themeController.currentAppTheme.selectedTextColor
+                      //     : themeController.currentAppTheme.normalTextColor,
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                     ),
@@ -256,9 +256,9 @@ class _HotDetailPageState extends State<HotDetailPage> {
                     Text(
                       item.artist!,
                       style: TextStyle(
-                        color: isPlaying
-                            ? themeController.currentAppTheme.selectedTextColor
-                            : Colors.grey,
+                        // color: isPlaying
+                        //     ? themeController.currentAppTheme.selectedTextColor
+                        //     : Colors.grey,
                         fontSize: 12,
                       ),
                       maxLines: 1,
