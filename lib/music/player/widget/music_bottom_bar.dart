@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 
-import 'music_play.dart';
+import '../../../util/ThemeController.dart';
 
 class MusicBottomBar extends StatelessWidget {
   final bool isPlaying;
@@ -12,9 +14,7 @@ class MusicBottomBar extends StatelessWidget {
   final VoidCallback showMenu;
   final Function(double) onSeek;
   final VoidCallback onModeTap;
-  final PlayMode playMode;
-
-  const MusicBottomBar({
+  MusicBottomBar({
     super.key,
     required this.isPlaying,
     required this.position,
@@ -25,8 +25,8 @@ class MusicBottomBar extends StatelessWidget {
     required this.showMenu,
     required this.onSeek,
     required this.onModeTap,
-    required this.playMode,
   });
+  final ThemeController themeController = Get.find();
 
   String _formatTime(Duration d) {
     final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
@@ -35,12 +35,13 @@ class MusicBottomBar extends StatelessWidget {
   }
 
   Widget _playModeIconWidget() {
-    switch (playMode) {
+    print('当前播放模式为****${MusicSPManage.getCurrentPlayMode()}');
+    switch (MusicSPManage.getCurrentPlayMode()) {
       case PlayMode.single:
-        return Image.asset('assets/music/repeat.png', width: 20, height: 20,color: Colors.white,);
+        return Image.asset('assets/music/repeat.png', width: 20, height: 20,color: themeController.currentAppTheme.selectedTextColor,);
       case PlayMode.loop:
       default:
-        return Image.asset('assets/music/loop.png', width: 20, height: 20,color: Colors.white);
+        return Image.asset('assets/music/loop.png', width: 20, height: 20,color: themeController.currentAppTheme.selectedTextColor);
     }
   }
 

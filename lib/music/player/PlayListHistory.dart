@@ -20,7 +20,7 @@ class PlayListHistory extends StatefulWidget {
 class _PlayListHistoryState extends State<PlayListHistory> {
   final MusicPlayerController controller = Get.find();
   final ThemeController themeController = Get.find();
-  late  PlayMode _playMode = PlayMode.loop;
+  late  PlayMode _playMode = MusicSPManage.getCurrentPlayMode();
   final MusicPlayerController playerController = Get.find();
   Widget _playModeIconWidget() {
     switch (_playMode) {
@@ -73,6 +73,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                           playerController.player.setLoopMode(
                             _playMode == PlayMode.loop ? LoopMode.all : LoopMode.one,
                           );
+                          MusicSPManage.saveCurrentPlayMode(_playMode);
                         },
                       ),
                     ),

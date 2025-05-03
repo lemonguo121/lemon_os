@@ -2,14 +2,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 import 'package:marquee/marquee.dart';
 
 import '../../libs/music_download.dart';
 import '../PlayListHistory.dart';
 import '../music_controller.dart';
 import 'music_bottom_bar.dart';
-
-enum PlayMode { loop, single }
 
 class MusicPlayerPage extends StatefulWidget {
   const MusicPlayerPage({super.key});
@@ -31,7 +30,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
   final _scrollController = ScrollController();
 
   late AnimationController _rotationController;
-  PlayMode _playMode = PlayMode.loop;
+  PlayMode _playMode = MusicSPManage.getCurrentPlayMode();
   static const double _lineHeight = 37;
   bool showMiniBar = false;
   MusicPlayerController playerController = Get.find();
@@ -130,6 +129,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
     });
     playerController.player
         .setLoopMode(_playMode == PlayMode.loop ? LoopMode.all : LoopMode.one);
+    MusicSPManage.saveCurrentPlayMode(_playMode);
   }
 
   void _handleBackPressed() {
@@ -175,7 +175,6 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
                           isPlaying: playerController.player.playing,
                           position: playerController.currentPosition.value,
                           total: playerController.totalDuration.value,
-                          playMode: _playMode,
                           onPlayPause: () {
                             playerController.player.playing
                                 ? playerController.player.pause()

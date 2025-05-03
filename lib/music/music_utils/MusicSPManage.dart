@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../http/data/SubscripBean.dart';
 import '../data/PlayRecordList.dart';
 import '../data/PluginBean.dart';
-
+enum PlayMode { loop, single }
 class MusicSPManage {
   static const String music_plugins = "music_plugins";
   static const String music_current_plugins = "music_current_plugins";
@@ -22,6 +22,7 @@ class MusicSPManage {
       "music_play_type"; //播放类型  是收藏还是历史 或者自己建的播放列表
   static const String music_play_record = "music_play_record"; //播放列表
   static const String music_customize = "customize"; //自定义文件名前缀
+  static const String music_play_mode_key = 'music_play_mode'; // 播放模式key
 
   // 保存指定仓库
   static saveSubscription(List<StorehouseBean> subscriptions) {
@@ -170,6 +171,21 @@ class MusicSPManage {
     SharedPreferences sp = Get.find<SharedPreferences>();
     sp.setString(music_play_type, listName);
   }
+
+  // 获取当前的播放模式
+  static PlayMode getCurrentPlayMode() {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    int index = sp.getInt(music_play_mode_key) ?? 0; // 默认 loop
+    return PlayMode.values[index];
+  }
+
+  // 保存当前的播放模式
+  static void saveCurrentPlayMode(PlayMode mode) {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    sp.setInt(music_play_mode_key, mode.index);
+  }
+
+
 
 //   获取所有的播放列表
   static List<PlayRecordList> getRecordList() {
