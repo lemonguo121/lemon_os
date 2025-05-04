@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:lemon_tv/util/CommonUtil.dart';
 import 'package:lemon_tv/util/widget/LoadingImage.dart';
 import 'package:marquee/marquee.dart';
@@ -186,11 +187,10 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
   }
 
   goPlay() {
-    if (miniController.isPlaying.value) {
+    if (miniController.player.playerState.processingState==ProcessingState.ready) {
       miniController.playPause();
     } else {
       miniController.upDataSong(miniController.songBean.value);
     }
   }
-
 }
