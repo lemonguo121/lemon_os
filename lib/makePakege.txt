@@ -5,6 +5,7 @@ create-dmg \
  "lemon_os.dmg" \
  "lemon_os.app/"
 
+flutter build macos
  create-dmg \
    "/Volumes/go/Document/workplace/flutter/StudioProjects/lemon_os/build/macos/Build/Products/Release/lemon_os.app" \
    --dmg-title="Lemon OS Installer" \
