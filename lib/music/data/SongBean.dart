@@ -24,7 +24,7 @@ class SongBean{
       artist: json['artist'] ?? '',
       title: json['title'] ?? '',
       pic: json['pic'] ?? '',
-      duration: json['duration'] ?? '',
+      duration: '${json['duration'] ?? '0'}',
       artwork: json['artwork'] ?? '',
     );
   }

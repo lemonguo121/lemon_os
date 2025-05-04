@@ -5,28 +5,43 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 class CacheUtil {
   /// 获取缓存大小 (返回 MB)
   static Future<double> getCacheSize() async {
-    Directory cacheDir = await getTemporaryDirectory();
-    Directory customCacheDir = Directory("${cacheDir.path}/libCachedImageData");
+    final cacheDir = await getTemporaryDirectory();
 
-    if (customCacheDir.existsSync()) {
-      int totalSize = customCacheDir
-          .listSync(recursive: true)
-          .whereType<File>()
-          .map((file) => file.lengthSync())
-          .fold(0, (sum, length) => sum + length);
+    final List<Directory> targetDirs = [
+      Directory("${cacheDir.path}/libCachedImageData"), // flutter_cache_manager
+      Directory("${cacheDir.path}/music_cache"),         // 歌曲缓存
+      Directory("${cacheDir.path}/lyric_cache"),         // 歌词缓存
+    ];
 
-      return totalSize / 1024 / 1024; // 转换为 MB
+    int totalSize = 0;
+    for (var dir in targetDirs) {
+      if (dir.existsSync()) {
+        totalSize += dir
+            .listSync(recursive: true)
+            .whereType<File>()
+            .map((file) => file.lengthSync())
+            .fold(0, (sum, length) => sum + length);
+      }
     }
-    return 0;
+
+    return totalSize / 1024 / 1024; // MB
   }
 
   /// 清理缓存
   static Future<void> clearCache() async {
-    Directory cacheDir = await getTemporaryDirectory();
-    Directory customCacheDir = Directory("${cacheDir.path}/libCachedImageData");
-    if (customCacheDir.existsSync()) {
-      await customCacheDir.delete(recursive: true);
-      await customCacheDir.create(recursive: true);
+    final cacheDir = await getTemporaryDirectory();
+
+    final List<Directory> targetDirs = [
+      Directory("${cacheDir.path}/libCachedImageData"),
+      Directory("${cacheDir.path}/music_cache"),
+      Directory("${cacheDir.path}/lyric_cache"),
+    ];
+
+    for (var dir in targetDirs) {
+      if (dir.existsSync()) {
+        await dir.delete(recursive: true);
+        await dir.create(recursive: true);
+      }
     }
   }
 

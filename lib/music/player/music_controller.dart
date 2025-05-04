@@ -5,6 +5,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:lemon_tv/music/data/MusicBean.dart';
 import 'package:lemon_tv/util/CommonUtil.dart';
 
+import '../../util/MusicCacheUtil.dart';
 import '../data/LyricLine.dart';
 import '../data/SongBean.dart';
 import '../music_http/music_http_rquest.dart';
@@ -26,7 +27,7 @@ class MusicPlayerController extends GetxController {
           artist: '',
           title: '',
           pic: '',
-          duration: '00:00',
+          duration:'0',
           artwork: '')
       .obs;
   var lyrics = <LyricLine>[].obs;
@@ -101,8 +102,13 @@ class MusicPlayerController extends GetxController {
   }
 
   /// 设置歌曲并播放
-  Future<void> initPlayer(String url) async {
-    await player.setUrl(url);
+  Future<void> initPlayer(String url, bool hasCache) async {
+    if(hasCache){
+      await player.setFilePath(url);
+    }else{
+      await player.setUrl(url);
+    }
+
     final bean = songBean.value;
     player.play();
     updateMediaItem(bean);
@@ -170,23 +176,65 @@ class MusicPlayerController extends GetxController {
     playList.value = MusicSPManage.getPlayList(listName);
   }
 
+  // Future<void> getMediaInfo() async {
+  //   isLoading.value = true;
+  //   var currentSite = MusicSPManage.getCurrentSite();
+  //   final rawLrcResp = await NetworkManager().get('/lyric', queryParameters: {
+  //     'id': songBean.value.id,
+  //     'plugin': currentSite?.platform ?? ""
+  //   });
+  //   final rawLrc = rawLrcResp.data['rawLrc'] ?? '';
+  //   lyrics.value = _parseLrc(rawLrc);
+  //
+  //   final audioResp = await NetworkManager().get('/getMediaSource',
+  //       queryParameters: {
+  //         'id': songBean.value.id,
+  //         'plugin': currentSite?.platform ?? ""
+  //       });
+  //   final audioUrl = audioResp.data['url'];
+  //   initPlayer(audioUrl);
+  // }
+
   Future<void> getMediaInfo() async {
     isLoading.value = true;
-    var currentSite = MusicSPManage.getCurrentSite();
-    final rawLrcResp = await NetworkManager().get('/lyric', queryParameters: {
-      'id': songBean.value.id,
-      'plugin': currentSite?.platform ?? ""
-    });
-    final rawLrc = rawLrcResp.data['rawLrc'] ?? '';
-    lyrics.value = _parseLrc(rawLrc);
+    final song = songBean.value;
+    final platform = song.platform ?? '';
 
-    final audioResp = await NetworkManager().get('/getMediaSource',
-        queryParameters: {
-          'id': songBean.value.id,
-          'plugin': currentSite?.platform ?? ""
-        });
-    final audioUrl = audioResp.data['url'];
-    initPlayer(audioUrl);
+    // ===== 尝试加载音频缓存 =====
+    final hasAudioCache = await MusicCacheUtil.hasAudioCache(song.id, platform);
+    String playUrl;
+
+    if (hasAudioCache) {
+      final file = await MusicCacheUtil.getCachedFile(song.id, platform);
+      playUrl = file.path;
+    } else {
+      final audioResp = await NetworkManager().get('/getMediaSource', queryParameters: {
+        'id': song.id,
+        'plugin': platform
+      });
+      playUrl = audioResp.data['url'];
+      await MusicCacheUtil.downloadAndCache(playUrl, song.id, platform);
+    }
+
+    // ===== 歌词缓存处理 =====
+    final hasLyricCache = await MusicCacheUtil.hasLyricCache(song.id, platform);
+    String rawLrc;
+
+    if (hasLyricCache) {
+      rawLrc = await MusicCacheUtil.getCachedLyric(song.id, platform);
+    } else {
+      final rawLrcResp = await NetworkManager().get('/lyric', queryParameters: {
+        'id': song.id,
+        'plugin': platform
+      });
+      rawLrc = rawLrcResp.data['rawLrc'] ?? '';
+      await MusicCacheUtil.saveLyric(rawLrc, song.id, platform);
+    }
+
+    // ===== 设置播放器并开始播放 =====
+    lyrics.value = _parseLrc(rawLrc);
+    print('platform = $platform   hasAudioCache = $hasAudioCache  playUrl = $playUrl');
+    await initPlayer(playUrl, hasAudioCache);
   }
 
   List<LyricLine> _parseLrc(String rawLrc) {

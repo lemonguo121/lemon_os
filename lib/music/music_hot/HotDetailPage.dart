@@ -75,7 +75,7 @@ class _HotDetailPageState extends State<HotDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHotInfo(),
+            _buildHotInfo(context),
             SizedBox(height: 32.h),
             Row(
               children: [
@@ -136,50 +136,58 @@ class _HotDetailPageState extends State<HotDetailPage> {
     );
   }
 
-  Widget _buildHotInfo() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 180.r,
-          height: 180.r,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-            child: LoadingImage(
-              pic: CommonUtil.getCoverImg(topListItem?.id ?? ""),
+  Widget _buildHotInfo(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final imageSize = constraints.maxWidth * 0.25; // 25% 宽度作为图片尺寸
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: imageSize,
+              height: imageSize,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: LoadingImage(
+                  pic: CommonUtil.getCoverImg(topListItem?.id ?? ""),
+                ),
+              ),
             ),
-          ),
-        ),
-        SizedBox(width: 24.w),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                topListItem?.title ?? '无标题',
-                style: TextStyle(
-                    fontSize: 42.sp,
-                    fontWeight: FontWeight.bold,
-                    color: themeController.currentAppTheme.normalTextColor),
+            const SizedBox(width: 24),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    topListItem?.title ?? '无标题',
+                    style: TextStyle(
+                        fontSize: constraints.maxWidth * 0.05, // 5%宽度作为字体大小
+                        fontWeight: FontWeight.bold,
+                        color:
+                        themeController.currentAppTheme.normalTextColor),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    topListItem?.description ?? '暂无描述',
+                    style: TextStyle(
+                        fontSize: constraints.maxWidth * 0.035,
+                        color: themeController.currentAppTheme.contentColor),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    '共 ${controller.subModel.value.musicList.length} 首',
+                    style: TextStyle(
+                        fontSize: constraints.maxWidth * 0.03,
+                        color:
+                        themeController.currentAppTheme.selectedTextColor),
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                topListItem?.description ?? '暂无描述',
-                style: TextStyle(
-                    fontSize: 28.sp,
-                    color: themeController.currentAppTheme.contentColor),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                '共 ${controller.subModel.value.musicList.length} 首',
-                style: TextStyle(
-                    fontSize: 22.sp,
-                    color: themeController.currentAppTheme.selectedTextColor),
-              ),
-            ],
-          ),
-        ),
-      ],
+            ),
+          ],
+        );
+      },
     );
   }
 
