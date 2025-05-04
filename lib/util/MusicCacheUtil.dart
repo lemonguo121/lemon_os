@@ -63,4 +63,26 @@ class MusicCacheUtil {
     await file.create(recursive: true);
     await file.writeAsString(lyric);
   }
+
+  /// 删除指定音频缓存文件
+  static Future<void> deleteAudioCache(String id, String platform) async {
+    final file = await _getFile(id, platform, 'mp3');
+    if (await file.exists()) {
+      await file.delete();
+    }
+  }
+
+  /// 删除指定歌词缓存文件
+  static Future<void> deleteLyricCache(String id, String platform) async {
+    final file = await _getLyricFile(id, platform);
+    if (await file.exists()) {
+      await file.delete();
+    }
+  }
+
+  // 删除某首歌歌词和音频缓存
+  static Future<void> deleteAllCacheForSong(String id, String platform) async {
+    await deleteAudioCache(id, platform);
+    await deleteLyricCache(id, platform);
+  }
 }

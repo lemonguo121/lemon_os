@@ -309,6 +309,9 @@ class MusicPlayerController extends GetxController {
     var listName  = MusicSPManage.getCurrentPlayType();
     playList.removeWhere((item)=>item.songBean.id==musicBean.songBean.id);
     MusicSPManage.savePlayList(playList, listName);
+    var id = musicBean.songBean.id;
+    var platform = musicBean.songBean.platform;
+    MusicCacheUtil.deleteAllCacheForSong(id, platform);
   }
 }
 
