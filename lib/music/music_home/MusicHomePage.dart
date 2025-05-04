@@ -13,6 +13,7 @@ import '../../../util/CommonUtil.dart';
 import '../../../util/SubscriptionsUtil.dart';
 import '../../../util/widget/NoSubscriptionView.dart';
 import '../../../util/widget/SiteInvileView.dart';
+import '../../main.dart';
 import '../../util/widget/LoadingImage.dart';
 import '../data/MusicBean.dart';
 import '../data/PlayRecordList.dart';
@@ -192,7 +193,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
         setState(() {});
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => MusicHomePage()),
+          MaterialPageRoute(builder: (context) => HomePage()),
           (route) => false,
         );
       },
