@@ -5,6 +5,8 @@ import 'package:lemon_tv/util/CommonUtil.dart';
 import 'package:lemon_tv/util/widget/LoadingImage.dart';
 import 'package:marquee/marquee.dart';
 
+import '../../../util/ThemeController.dart';
+import '../../music_utils/MusicSPManage.dart';
 import '../PlayListHistory.dart';
 import '../music_controller.dart';
 
@@ -19,8 +21,9 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _scaleAnim;
-  final MusicPlayerController miniController =
+  final MusicPlayerController playerController =
       Get.find<MusicPlayerController>();
+  final ThemeController themeController = Get.find();
 
   @override
   void initState() {
@@ -32,21 +35,21 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
     _scaleAnim = Tween<double>(begin: 0.95, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
-    print("音乐名字:${miniController.songBean.value.title}");
+    print("音乐名字:${playerController.songBean.value.title}");
     _controller.forward();
   }
 
   @override
   void dispose() {
     _controller.dispose();
-    miniController.player.stop();
+    playerController.player.stop();
     super.dispose();
   }
 
   void _closePlayer() async {
     await _controller.reverse();
-    await miniController.player.stop();
-    miniController.onClose?.call(); // 加个问号保险，防止 onClose == null
+    await playerController.player.stop();
+    playerController.onClose?.call(); // 加个问号保险，防止 onClose == null
   }
 
   @override
@@ -76,7 +79,7 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
                     radius: 22,
                     child: ClipOval(
                       child: LoadingImage(
-                        pic: miniController.getCover(),
+                        pic: playerController.getCover(),
                       ),
                     ),
                   ),
@@ -90,7 +93,7 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
                         SizedBox(
                           height: 20,
                           child: Marquee(
-                            text: "正在播放：${miniController.getTitle()}",
+                            text: "正在播放：${playerController.getTitle()}",
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
@@ -109,7 +112,7 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "${_formatDuration(miniController.currentPosition.value)} / ${_formatDuration(miniController.totalDuration.value)}",
+                          "${_formatDuration(playerController.currentPosition.value)} / ${_formatDuration(playerController.totalDuration.value)}",
                           style: const TextStyle(
                             color: Colors.white60,
                             fontSize: 12,
@@ -125,7 +128,7 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
                       IconButton(
                         icon: const Icon(Icons.skip_previous,
                             color: Colors.white),
-                        onPressed: miniController.onPrev,
+                        onPressed: playerController.onPrev,
                         iconSize: 24,
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
@@ -134,7 +137,7 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
                       Obx(() {
                         return IconButton(
                           icon: Icon(
-                            miniController.isPlaying.value
+                            playerController.isPlaying.value
                                 ? Icons.pause
                                 : Icons.play_arrow,
                             color: Colors.white,
@@ -148,7 +151,7 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
                       const SizedBox(width: 4),
                       IconButton(
                         icon: const Icon(Icons.skip_next, color: Colors.white),
-                        onPressed: miniController.onNext,
+                        onPressed: playerController.onNext,
                         iconSize: 24,
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
@@ -163,13 +166,36 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
+                  const SizedBox(width: 4),
+                  Obx((){
+                    return IconButton(
+                      icon: _playModeIconWidget(playerController.playMode.value), // 你已有的方法，返回一个Icon组件
+                      onPressed: () {
+                        playerController.togglePlayMode();
+                      },
+                    );
+                  })
                 ],
               );
             }),
           ),
         ));
   }
-
+  Widget _playModeIconWidget(PlayMode mode) {
+    switch (mode) {
+      case PlayMode.single:
+        return Image.asset('assets/music/repeat.png',
+            width: 20,
+            height: 20,
+            color: themeController.currentAppTheme.selectedTextColor);
+      case PlayMode.loop:
+      default:
+        return Image.asset('assets/music/loop.png',
+            width: 20,
+            height: 20,
+            color: themeController.currentAppTheme.selectedTextColor);
+    }
+  }
   void showBottomMenu() {
     showModalBottomSheet(
       context: context,
@@ -187,10 +213,10 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
   }
 
   goPlay() {
-    if (miniController.player.playerState.processingState==ProcessingState.ready) {
-      miniController.playPause();
+    if (playerController.player.playerState.processingState==ProcessingState.ready) {
+      playerController.playPause();
     } else {
-      miniController.upDataSong(miniController.songBean.value);
+      playerController.upDataSong(playerController.songBean.value);
     }
   }
 }

@@ -184,7 +184,16 @@ class MusicSPManage {
     SharedPreferences sp = Get.find<SharedPreferences>();
     sp.setInt(music_play_mode_key, mode.index);
   }
-
+// 获取当前音乐是否被收藏
+  static bool isCollected(String songId) {
+    List<MusicBean> collectList = getPlayList(collect);
+    for (var model in collectList){
+      if (model.songBean.id == songId){
+        return true;
+      }
+    }
+    return false;
+  }
 
 
 //   获取所有的播放列表

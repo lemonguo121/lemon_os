@@ -20,6 +20,9 @@ class MusicPlayerController extends GetxController {
   var currentPosition = Duration.zero.obs;
   var totalDuration = Duration.zero.obs;
   var playIndex = 0.obs;
+  Rx<PlayMode> playMode = (MusicSPManage.getCurrentPlayMode()).obs;
+  RxBool isCurrentSongFavorite = false.obs;
+  Rx<String> currentSongId = "".obs;
 
   var songBean = SongBean(
           id: '',
@@ -55,7 +58,19 @@ class MusicPlayerController extends GetxController {
     }
     return artwork;
   }
-
+  void checkSongIsCollected(String songId) {
+    currentSongId.value = songId;
+    isCurrentSongFavorite.value = MusicSPManage.isCollected(songId);
+  }
+  void toggleFavorite() {
+    String songId = currentSongId.value;
+    if (isCurrentSongFavorite.value) {
+      MusicSPManage.deleteSingleSong(songId,MusicSPManage.collect);
+    } else {
+      MusicSPManage.savePlayList(playList,MusicSPManage.collect);
+    }
+    isCurrentSongFavorite.value = !isCurrentSongFavorite.value;
+  }
   /// 新增的初始化方法
   Future<void> init() async {
     final session = await AudioSession.instance;
@@ -271,7 +286,18 @@ class MusicPlayerController extends GetxController {
   void seekTo(Duration position) {
     player.seek(position);
   }
-
+  void togglePlayMode() {
+    if (playMode.value == PlayMode.loop) {
+      playMode.value = PlayMode.single;
+    } else {
+      playMode.value = PlayMode.loop;
+    }
+    MusicSPManage.saveCurrentPlayMode(playMode.value);
+    player.setLoopMode(
+      playMode.value == PlayMode.loop ? LoopMode.all : LoopMode.one,
+    );
+    print('当前播放器的模式：${playMode.value}');
+  }
   @override
   void onClose() {
     player.dispose();
@@ -281,30 +307,29 @@ class MusicPlayerController extends GetxController {
   void onPrev() async {
     var listName = MusicSPManage.getCurrentPlayType();
     var currentIndex = MusicSPManage.getCurrentPlayIndex(listName);
-    currentIndex--;
     if (currentIndex == 0) {
       CommonUtil.showToast('已经是第一首了');
       return;
     }
-    var musicBean = playList[currentIndex];
-    await upDataSong(musicBean.songBean);
-    playIndex.value = currentIndex;
-    MusicSPManage.saveCurrentPlayIndex(listName, currentIndex);
+    currentIndex--;
+    updatePlayIndex(listName, currentIndex);
   }
 
   void onNext() async {
     var listName = MusicSPManage.getCurrentPlayType();
     var currentIndex = MusicSPManage.getCurrentPlayIndex(listName);
-    currentIndex++;
     if (currentIndex > playList.length - 1) {
       currentIndex = 0;
     }
+    currentIndex++;
+    updatePlayIndex(listName, currentIndex);
+  }
+  void updatePlayIndex(String listName,int currentIndex)async{
     var musicBean = playList[currentIndex];
     await upDataSong(musicBean.songBean);
     playIndex.value = currentIndex;
     MusicSPManage.saveCurrentPlayIndex(listName, currentIndex);
   }
-
   void removeSongInList(MusicBean musicBean) {
     var listName  = MusicSPManage.getCurrentPlayType();
     playList.removeWhere((item)=>item.songBean.id==musicBean.songBean.id);

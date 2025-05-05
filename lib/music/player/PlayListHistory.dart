@@ -23,11 +23,10 @@ class PlayListHistory extends StatefulWidget {
 class _PlayListHistoryState extends State<PlayListHistory> {
   final MusicPlayerController controller = Get.find();
   final ThemeController themeController = Get.find();
-  late PlayMode _playMode = MusicSPManage.getCurrentPlayMode();
   final MusicPlayerController playerController = Get.find();
 
-  Widget _playModeIconWidget() {
-    switch (_playMode) {
+  Widget _playModeIconWidget(PlayMode mode) {
+    switch (mode) {
       case PlayMode.single:
         return Image.asset('assets/music/repeat.png',
             width: 20,
@@ -74,24 +73,14 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                       right: -5,
                       top: 0,
                       bottom: 0,
-                      child: IconButton(
-                        icon: _playModeIconWidget(), // 你已有的方法，返回一个Icon组件
-                        onPressed: () {
-                          setState(() {
-                            _playMode = _playMode == PlayMode.loop
-                                ? PlayMode.single
-                                : PlayMode.loop;
-                          });
-                          playerController.player.setLoopMode(
-                            _playMode == PlayMode.loop
-                                ? LoopMode.all
-                                : LoopMode.one,
-                          );
-                          print('当前播放器的模式。。。。。${playerController.player.loopMode}');
-
-                          MusicSPManage.saveCurrentPlayMode(_playMode);
-                        },
-                      ),
+                      child: Obx((){
+                        return IconButton(
+                          icon: _playModeIconWidget(playerController.playMode.value), // 你已有的方法，返回一个Icon组件
+                          onPressed: () {
+                            playerController.togglePlayMode();
+                          },
+                        );
+                      }),
                     ),
                   ],
                 ),

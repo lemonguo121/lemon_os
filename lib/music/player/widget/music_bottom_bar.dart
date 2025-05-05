@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
+import 'package:lemon_tv/music/player/music_controller.dart';
 
 import '../../../util/ThemeController.dart';
 
@@ -13,7 +14,6 @@ class MusicBottomBar extends StatelessWidget {
   final VoidCallback onNext;
   final VoidCallback showMenu;
   final Function(double) onSeek;
-  final VoidCallback onModeTap;
   MusicBottomBar({
     super.key,
     required this.isPlaying,
@@ -24,9 +24,9 @@ class MusicBottomBar extends StatelessWidget {
     required this.onNext,
     required this.showMenu,
     required this.onSeek,
-    required this.onModeTap,
   });
   final ThemeController themeController = Get.find();
+  final MusicPlayerController playerController = Get.find();
 
   String _formatTime(Duration d) {
     final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
@@ -34,8 +34,7 @@ class MusicBottomBar extends StatelessWidget {
     return '$minutes:$seconds';
   }
 
-  Widget _playModeIconWidget() {
-    print('当前播放模式为****${MusicSPManage.getCurrentPlayMode()}');
+  Widget _playModeIconWidget(PlayMode mode) {
     switch (MusicSPManage.getCurrentPlayMode()) {
       case PlayMode.single:
         return Image.asset('assets/music/repeat.png', width: 20, height: 20,color: themeController.currentAppTheme.selectedTextColor,);
@@ -84,6 +83,23 @@ class MusicBottomBar extends StatelessWidget {
                 icon: const Icon(Icons.menu, color: Colors.white, size: 24),
                 onPressed: showMenu,
               ),
+              SizedBox(
+                width: 10,
+              ),
+              // ❤️ 收藏按钮
+              Obx(() {
+                final isFav = playerController.isCurrentSongFavorite.value;
+                return IconButton(
+                  icon: Icon(
+                    isFav ? Icons.favorite : Icons.favorite_border,
+                    color: isFav ? Colors.redAccent : Colors.white,
+                    size: 24,
+                  ),
+                  onPressed: () {
+                    playerController.toggleFavorite();
+                  },
+                );
+              }),
             ],
           ),
 
@@ -111,10 +127,12 @@ class MusicBottomBar extends StatelessWidget {
                 _formatTime(total),
                 style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
-              IconButton(
-                icon: _playModeIconWidget(),
-                onPressed: onModeTap,
-              ),
+              Obx((){
+                return IconButton(
+                  icon: _playModeIconWidget(playerController.playMode.value),
+                  onPressed: playerController.togglePlayMode,
+                );
+              }),
             ],
           ),
         ],
