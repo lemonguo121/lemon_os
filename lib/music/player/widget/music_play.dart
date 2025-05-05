@@ -33,10 +33,10 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
   final _scrollController = ScrollController();
 
   late AnimationController _rotationController;
-  PlayMode _playMode = MusicSPManage.getCurrentPlayMode();
   static const double _lineHeight = 37;
   bool showMiniBar = false;
   MusicPlayerController playerController = Get.find();
+  Rx<PlayMode> playMode = (MusicSPManage.getCurrentPlayMode()).obs;
 
   @override
   void initState() {
@@ -47,6 +47,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
           ..repeat();
     _initPlayerAndData();
     _downloadManager = DownloadManager(); // 初始化下载管理器
+    playerController.checkSongIsCollected(playerController.songBean.value.id);
   }
 
   Future<void> _initPlayerAndData() async {
@@ -126,14 +127,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
     }
   }
 
-  void _togglePlayMode() {
-    setState(() {
-      _playMode = _playMode == PlayMode.loop ? PlayMode.single : PlayMode.loop;
-    });
-    playerController.player
-        .setLoopMode(_playMode == PlayMode.loop ? LoopMode.all : LoopMode.one);
-    MusicSPManage.saveCurrentPlayMode(_playMode);
-  }
+
 
   void _handleBackPressed() {
     Navigator.pop(context);
@@ -216,9 +210,10 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
                           },
                           onSeek: (value) {
                             final newPos = Duration(seconds: value.toInt());
+                            playerController.player.pause();
                             playerController.player.seek(newPos);
+                            playerController.player.play();
                           },
-                          onModeTap: _togglePlayMode,
                         ),
                       ],
                     ),
