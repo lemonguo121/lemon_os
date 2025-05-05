@@ -38,6 +38,7 @@ class MusicPlayerController extends GetxController {
   var isLoading = true.obs;
 
   var playList = <MusicBean>[].obs;
+  var listHistory = <MusicBean>[].obs;
 
   String getTitle() {
     // var songBean = songBean.value;
@@ -92,6 +93,7 @@ class MusicPlayerController extends GetxController {
     var currentPlayType = MusicSPManage.getCurrentPlayType();
     playList.value = MusicSPManage.getPlayList(currentPlayType.key);
     playIndex.value = MusicSPManage.getCurrentPlayIndex(currentPlayType.key);
+    listHistory.value = MusicSPManage.getPlayList(MusicSPManage.history);
     if (playIndex.value > playList.length - 1) {
       playIndex.value = 0;
     }
@@ -131,8 +133,6 @@ class MusicPlayerController extends GetxController {
     final bean = songBean.value;
     player.play();
     updateMediaItem(bean);
-
-    var listHistory = MusicSPManage.getPlayList(MusicSPManage.history);
     if (!listHistory.any((song) => song.songBean.id == songBean.value.id)) {
       listHistory.insert(
         0,
@@ -140,6 +140,7 @@ class MusicPlayerController extends GetxController {
       );
       MusicSPManage.savePlayList(listHistory, MusicSPManage.history);
       playList.refresh();
+      listHistory.refresh();
     }
     isLoading.value = false;
   }

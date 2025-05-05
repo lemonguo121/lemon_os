@@ -57,7 +57,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: Obx(() {
-          final list = controller.playList;
+          final list = controller.listHistory;
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -102,7 +102,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                 ),
               ),
               const SizedBox(height: 12),
-              if (controller.playList.isEmpty)
+              if (controller.listHistory.isEmpty)
                 Expanded(
                     child: Center(
                   child: Text(
@@ -116,10 +116,11 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                 Flexible(
                   child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: controller.playList.length,
+                    itemCount: controller.listHistory.length,
                     itemBuilder: (context, index) {
-                      final item = controller.playList[index];
-                      return PlayListCell(item: item, index: index,isBottomSheet:true);
+                      final item = controller.listHistory[index];
+                      return PlayListCell(
+                          item: item, index: index, isBottomSheet: true);
                     },
                   ),
                 ),
