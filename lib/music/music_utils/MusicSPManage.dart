@@ -137,8 +137,10 @@ class MusicSPManage {
   // 删除某个类型单条记录
   static deleteSingleSong(String id, String listName) {
     var playlist = getPlayList(listName);
+    print('取消前 playlist = ${playlist.length}');
     // 根据 id 过滤掉要删除的歌曲
     playlist.removeWhere((song) => song.songBean.id == id);
+    print('取消后 playlist = ${playlist.length}');
     savePlayList(playlist, listName);
   }
 
@@ -187,12 +189,13 @@ class MusicSPManage {
 // 获取当前音乐是否被收藏
   static bool isCollected(String songId) {
     List<MusicBean> collectList = getPlayList(collect);
-    for (var model in collectList){
-      if (model.songBean.id == songId){
-        return true;
-      }
-    }
-    return false;
+  return  collectList.any((model)=>model.songBean.id==songId);
+    // for (var model in collectList){
+    //   if (model.songBean.id == songId){
+    //     return true;
+    //   }
+    // }
+    // return false;
   }
 
 

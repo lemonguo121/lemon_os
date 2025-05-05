@@ -11,7 +11,6 @@ import '../data/SongBean.dart';
 import '../music_http/music_http_rquest.dart';
 import '../music_utils/MusicSPManage.dart';
 
-
 class MusicPlayerController extends GetxController {
   final AudioPlayer player = AudioPlayer();
   late final MyAudioHandler audioHandler;
@@ -22,7 +21,6 @@ class MusicPlayerController extends GetxController {
   var playIndex = 0.obs;
   Rx<PlayMode> playMode = (MusicSPManage.getCurrentPlayMode()).obs;
   RxBool isCurrentSongFavorite = false.obs;
-  Rx<String> currentSongId = "".obs;
 
   var songBean = SongBean(
           id: '',
@@ -30,7 +28,7 @@ class MusicPlayerController extends GetxController {
           artist: '',
           title: '',
           pic: '',
-          duration:'0',
+          duration: '0',
           artwork: '')
       .obs;
   var lyrics = <LyricLine>[].obs;
@@ -58,19 +56,22 @@ class MusicPlayerController extends GetxController {
     }
     return artwork;
   }
+
   void checkSongIsCollected(String songId) {
-    currentSongId.value = songId;
-    isCurrentSongFavorite.value = MusicSPManage.isCollected(songId);
+    isCurrentSongFavorite.value = MusicSPManage.isCollected(songBean.value.id);
   }
+
   void toggleFavorite() {
-    String songId = currentSongId.value;
+    var collect = MusicSPManage.getPlayList(MusicSPManage.collect);
     if (isCurrentSongFavorite.value) {
-      MusicSPManage.deleteSingleSong(songId,MusicSPManage.collect);
+      MusicSPManage.deleteSingleSong(songBean.value.id, MusicSPManage.collect);
     } else {
-      MusicSPManage.savePlayList(playList,MusicSPManage.collect);
+      collect.add(MusicBean(songBean: songBean.value, rawLrc: lyrics, url: ''));
+      MusicSPManage.savePlayList(collect, MusicSPManage.collect);
     }
     isCurrentSongFavorite.value = !isCurrentSongFavorite.value;
   }
+
   /// 新增的初始化方法
   Future<void> init() async {
     final session = await AudioSession.instance;
@@ -88,11 +89,11 @@ class MusicPlayerController extends GetxController {
     var currentPlayType = MusicSPManage.getCurrentPlayType();
     playList.value = MusicSPManage.getPlayList(currentPlayType);
     playIndex.value = MusicSPManage.getCurrentPlayIndex(currentPlayType);
-    if(playIndex.value>playList.length-1){
-      playIndex.value=0;
+    if (playIndex.value > playList.length - 1) {
+      playIndex.value = 0;
     }
     if (playList.isNotEmpty) {
-      songBean.value=  playList[playIndex.value].songBean;
+      songBean.value = playList[playIndex.value].songBean;
     }
 
     // 监听播放状态
@@ -118,9 +119,9 @@ class MusicPlayerController extends GetxController {
 
   /// 设置歌曲并播放
   Future<void> initPlayer(String url, bool hasCache) async {
-    if(hasCache){
+    if (hasCache) {
       await player.setFilePath(url);
-    }else{
+    } else {
       await player.setUrl(url);
     }
 
@@ -167,8 +168,7 @@ class MusicPlayerController extends GetxController {
 
     if (artwork.isEmpty || !artwork.startsWith('http')) {
       // 使用默认占位图（可以上传一张放到服务器上的默认图片）
-      artUri = Uri.parse(
-          CommonUtil.getCoverImg(songId));
+      artUri = Uri.parse(CommonUtil.getCoverImg(songId));
     } else {
       artUri = Uri.parse(artwork);
     }
@@ -223,10 +223,8 @@ class MusicPlayerController extends GetxController {
       final file = await MusicCacheUtil.getCachedFile(song.id, platform);
       playUrl = file.path;
     } else {
-      final audioResp = await NetworkManager().get('/getMediaSource', queryParameters: {
-        'id': song.id,
-        'plugin': platform
-      });
+      final audioResp = await NetworkManager().get('/getMediaSource',
+          queryParameters: {'id': song.id, 'plugin': platform});
       playUrl = audioResp.data['url'];
       await MusicCacheUtil.downloadAndCache(playUrl, song.id, platform);
     }
@@ -238,17 +236,16 @@ class MusicPlayerController extends GetxController {
     if (hasLyricCache) {
       rawLrc = await MusicCacheUtil.getCachedLyric(song.id, platform);
     } else {
-      final rawLrcResp = await NetworkManager().get('/lyric', queryParameters: {
-        'id': song.id,
-        'plugin': platform
-      });
+      final rawLrcResp = await NetworkManager()
+          .get('/lyric', queryParameters: {'id': song.id, 'plugin': platform});
       rawLrc = rawLrcResp.data['rawLrc'] ?? '';
       await MusicCacheUtil.saveLyric(rawLrc, song.id, platform);
     }
 
     // ===== 设置播放器并开始播放 =====
     lyrics.value = _parseLrc(rawLrc);
-    print('platform = $platform   hasAudioCache = $hasAudioCache  playUrl = $playUrl');
+    print(
+        'platform = $platform   hasAudioCache = $hasAudioCache  playUrl = $playUrl');
     await initPlayer(playUrl, hasAudioCache);
   }
 
@@ -286,6 +283,7 @@ class MusicPlayerController extends GetxController {
   void seekTo(Duration position) {
     player.seek(position);
   }
+
   void togglePlayMode() {
     if (playMode.value == PlayMode.loop) {
       playMode.value = PlayMode.single;
@@ -298,6 +296,7 @@ class MusicPlayerController extends GetxController {
     );
     print('当前播放器的模式：${playMode.value}');
   }
+
   @override
   void onClose() {
     player.dispose();
@@ -324,15 +323,17 @@ class MusicPlayerController extends GetxController {
     currentIndex++;
     updatePlayIndex(listName, currentIndex);
   }
-  void updatePlayIndex(String listName,int currentIndex)async{
+
+  void updatePlayIndex(String listName, int currentIndex) async {
     var musicBean = playList[currentIndex];
     await upDataSong(musicBean.songBean);
     playIndex.value = currentIndex;
     MusicSPManage.saveCurrentPlayIndex(listName, currentIndex);
   }
+
   void removeSongInList(MusicBean musicBean) {
-    var listName  = MusicSPManage.getCurrentPlayType();
-    playList.removeWhere((item)=>item.songBean.id==musicBean.songBean.id);
+    var listName = MusicSPManage.getCurrentPlayType();
+    playList.removeWhere((item) => item.songBean.id == musicBean.songBean.id);
     MusicSPManage.savePlayList(playList, listName);
     var id = musicBean.songBean.id;
     var platform = musicBean.songBean.platform;
@@ -382,5 +383,4 @@ class MyAudioHandler extends BaseAudioHandler {
   Future<void> skipToPrevious() async {
     playerController.onPrev();
   }
-
 }
