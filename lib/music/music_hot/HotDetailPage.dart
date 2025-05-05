@@ -218,8 +218,8 @@ class _HotDetailPageState extends State<HotDetailPage> {
         onTap: () {
           playerController.playIndex.value = index;
           playerController.upDataSong(item);
-          var playRecordType = MusicSPManage.getCurrentPlayType();
-          MusicSPManage.saveCurrentPlayIndex(playRecordType.key, index);
+          // var playRecordType = MusicSPManage.getCurrentPlayType();
+          // MusicSPManage.saveCurrentPlayIndex(playRecordType.key, index);
         },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
