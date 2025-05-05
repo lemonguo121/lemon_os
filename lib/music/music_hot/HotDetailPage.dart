@@ -63,7 +63,7 @@ class _HotDetailPageState extends State<HotDetailPage> {
       return const Center(child: CircularProgressIndicator());
     }
     if (controller.subModel.value.musicList.isEmpty) {
-      return NoDataView(reload: load);
+      return NoDataView(reload: load,errorTips: '暂无数据，点击刷新',);
     }
     return _buildInfoAndListWidget();
   }

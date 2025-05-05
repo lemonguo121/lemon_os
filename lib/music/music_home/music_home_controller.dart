@@ -18,7 +18,7 @@ class MusicHomeController extends GetxController
   var isLoading2 = false.obs;
   final SubscriptionsUtil subscriptionsUtil = SubscriptionsUtil();
   Rx<PluginInfo> currentSite =
-      PluginInfo(platform: "", name: "", plugin: "").obs;
+      PluginInfo(platform: "", name: "").obs;
   var errorType = (-1).obs; //0:作为成功；1：订阅为空；2:站点不可用；
   var selecteSitedIndex = (0).obs;
 

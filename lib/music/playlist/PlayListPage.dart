@@ -152,15 +152,22 @@ class _PlayListPageState extends State<PlayListPage> {
                 ],
               ),
             ),
-            InkWell(
-              onTap: () {
-                playerController.removeSongInList(item);
-              },
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Icon(Icons.close, color: Colors.red, size: 18),
-              ),
-            ),
+            Row(
+              children: [
+                Text(item.songBean.platform,style: TextStyle(fontSize: 12,color: isPlaying
+                    ? themeController.currentAppTheme.selectedTextColor
+                    : Colors.grey,),),
+                InkWell(
+                  onTap: () {
+                    playerController.removeSongInList(item);
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Icon(Icons.close, color: Colors.red, size: 18),
+                  ),
+                ),
+              ],
+            )
           ],
         ),
       ),
@@ -175,4 +182,5 @@ class _PlayListPageState extends State<PlayListPage> {
     }
     return artwork;
   }
+
 }

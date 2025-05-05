@@ -30,7 +30,8 @@ class MovieHomeScreen extends StatefulWidget {
   _MovieHomeScreenState createState() => _MovieHomeScreenState();
 }
 
-class _MovieHomeScreenState extends State<MovieHomeScreen> with TickerProviderStateMixin {
+class _MovieHomeScreenState extends State<MovieHomeScreen>
+    with TickerProviderStateMixin {
   final PageController _pageController = PageController();
   late TabController _tabController = TabController(length: 0, vsync: this);
   final HttpService _httpService = HttpService();
@@ -72,7 +73,7 @@ class _MovieHomeScreenState extends State<MovieHomeScreen> with TickerProviderSt
       }
       // 第二步，根据当前的仓库去请求仓库下的站点
       currentSite =
-          await _subscriptionsUtil.requestCurrentSites(currentStorehouse);
+      await _subscriptionsUtil.requestCurrentSites(currentStorehouse);
       if (currentSite == null) {
         setState(() {
           errorType = 2;
@@ -91,7 +92,8 @@ class _MovieHomeScreenState extends State<MovieHomeScreen> with TickerProviderSt
       List<CategoryBean> loadedCategories = [
         CategoryBean(
             typeId: -1, typePid: -1, typeName: "首页", categoryChildList: [])
-      ]..addAll(responseString.alClass);
+      ]
+        ..addAll(responseString.alClass);
 
       setState(() {
         categories = loadedCategories;
@@ -108,21 +110,23 @@ class _MovieHomeScreenState extends State<MovieHomeScreen> with TickerProviderSt
     if (alClass.typeName == "首页") {
       return _cachehomeFragment.putIfAbsent(
         "首页",
-        () => HomeFragment(
-          alClass: alClass,
-          cachedData: _cachedHomeData[alClass.typeName],
-          categories: categories,
-          onDataLoaded: (data) => _cachedHomeData[alClass.typeName] = data,
-        ),
+            () =>
+            HomeFragment(
+              alClass: alClass,
+              cachedData: _cachedHomeData[alClass.typeName],
+              categories: categories,
+              onDataLoaded: (data) => _cachedHomeData[alClass.typeName] = data,
+            ),
       );
     } else {
       return _cachedFragments.putIfAbsent(
         alClass.typeName,
-        () => CategoryFragment(
-          alClass: alClass,
-          cachedData: _cachedData[alClass.typeName],
-          onDataLoaded: (data) => _cachedData[alClass.typeName] = data,
-        ),
+            () =>
+            CategoryFragment(
+              alClass: alClass,
+              cachedData: _cachedData[alClass.typeName],
+              onDataLoaded: (data) => _cachedData[alClass.typeName] = data,
+            ),
       );
     }
   }
@@ -138,6 +142,7 @@ class _MovieHomeScreenState extends State<MovieHomeScreen> with TickerProviderSt
   Widget _buildCategorySelector() {
     return Column(
       children: [
+
         /// 使用 `PreferredSize` 让 `TabBar` 更稳定
         PreferredSize(
           preferredSize: const Size.fromHeight(30), // TabBar 高度
@@ -149,10 +154,10 @@ class _MovieHomeScreenState extends State<MovieHomeScreen> with TickerProviderSt
             dividerHeight: 0,
             indicatorPadding: EdgeInsets.zero,
             unselectedLabelColor:
-                themeController.currentAppTheme.unselectedTextColor,
+            themeController.currentAppTheme.unselectedTextColor,
             labelColor: themeController.currentAppTheme.selectedTextColor,
             labelStyle:
-                const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             unselectedLabelStyle: const TextStyle(fontSize: 16),
             dividerColor: Colors.transparent,
             // 去除底部黑线
@@ -186,7 +191,7 @@ class _MovieHomeScreenState extends State<MovieHomeScreen> with TickerProviderSt
             SizedBox(height: isVertical ? 55.0 : 40),
             _buildSearch(),
             Expanded(child: getErrorView() // 否则，显示分类选择视图
-                ),
+            ),
           ],
         ),
       );
@@ -261,14 +266,14 @@ class _MovieHomeScreenState extends State<MovieHomeScreen> with TickerProviderSt
                           shrinkWrap: true,
                           // 防止 GridView 超出范围
                           gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
+                          SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
                             mainAxisSpacing: 8.0,
                             crossAxisSpacing: 8.0,
                             mainAxisExtent: 30,
                           ),
                           itemCount:
-                              SubscriptionsUtil().selectStorehouse.length,
+                          SubscriptionsUtil().selectStorehouse.length,
                           itemBuilder: (context, index) {
                             return _buildSiteGridItem(index);
                           },
@@ -345,7 +350,7 @@ class _MovieHomeScreenState extends State<MovieHomeScreen> with TickerProviderSt
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => HomePage()),
-          (route) => false,
+              (route) => false,
         );
       },
       child: Container(
@@ -381,7 +386,11 @@ class _MovieHomeScreenState extends State<MovieHomeScreen> with TickerProviderSt
       return SiteInvileView(reload: _loadData);
     } else {
       // 数据为空
-      return categories.isEmpty ? NoDataView(reload: _loadData) : _buildCategorySelector();
-    }
+      return categories.isEmpty ? NoDataView(
+        reload: _loadData,
+        errorTips: '暂无数据，点击刷新',) : _buildCategorySelector
+    (
+    );
+  }
   }
 }

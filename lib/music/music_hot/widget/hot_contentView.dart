@@ -33,7 +33,9 @@ class _TopListContentViewState extends State<TopListContentView> {
         return const Center(child: CircularProgressIndicator());
       }
       if (controller.subModel.value.musicList.isEmpty) {
-        return NoDataView(reload:load);
+        return  NoDataView(
+          reload: load,
+          errorTips: '暂无数据，点击刷新',);
       }
       return ListView.builder(
         itemCount: controller.subModel.value.musicList.length,

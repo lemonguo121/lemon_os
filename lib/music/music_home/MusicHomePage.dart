@@ -425,13 +425,13 @@ class _MusicHomePageState extends State<MusicHomePage> {
               SizedBox(
                 height: isVertical ? 290.h : 220.h, // 高度 = 每个 item 的高度 × 2 + 间距
                 child: GridView.builder(
-                  scrollDirection: Axis.horizontal,
+                  scrollDirection:isVertical? Axis.horizontal:Axis.vertical,
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, // 显示两行
+                    crossAxisCount:isVertical? 2:3, // 显示两行
                     mainAxisSpacing: 8.0, // item 横向间距
                     crossAxisSpacing: 8.0, // item 纵向间距
-                    childAspectRatio: isVertical ? 1 : 0.75, // 宽高比，自行调整
+                    childAspectRatio: isVertical ? 1 : 1.2, // 宽高比，自行调整
                   ),
                   itemCount: controller.tabs.length,
                   itemBuilder: (context, index) {

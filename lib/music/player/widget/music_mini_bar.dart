@@ -46,12 +46,6 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
     super.dispose();
   }
 
-  void _closePlayer() async {
-    await _controller.reverse();
-    await playerController.player.stop();
-    playerController.onClose?.call(); // 加个问号保险，防止 onClose == null
-  }
-
   @override
   Widget build(BuildContext context) {
     return ScaleTransition(

@@ -5,6 +5,7 @@ import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 import 'package:lemon_tv/routes/routes.dart';
 
 import '../../../../util/ThemeController.dart';
+import '../../../util/widget/NoDataView.dart';
 import '../../player/music_controller.dart';
 import '../search_controll.dart';
 
@@ -81,7 +82,8 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(color: themeController.currentAppTheme.normalTextColor),
+        iconTheme: IconThemeData(
+            color: themeController.currentAppTheme.normalTextColor),
         title: Text('音乐搜索',
             style: TextStyle(
                 color: themeController.currentAppTheme.normalTextColor)),
@@ -105,12 +107,13 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
                         decoration: InputDecoration(
                           hintText: '输入歌曲名、歌手名或专辑名',
                           hintStyle: TextStyle(
-                              color: themeController.currentAppTheme.contentColor),
+                              color:
+                                  themeController.currentAppTheme.contentColor),
                           border: OutlineInputBorder(),
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.search),
                             onPressed: (() {
-                              controller.searchMusic(_editController.text);
+                              goSearch;
                             }),
                           ),
                         ),
@@ -141,11 +144,8 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
                     child: Center(child: CircularProgressIndicator()))
               else if (controller.songs.isEmpty)
                 Expanded(
-                    child: Center(
-                        child: Text('暂无搜索结果',
-                            style: TextStyle(
-                                color: themeController
-                                    .currentAppTheme.normalTextColor))))
+                  child: NoDataView(reload: goSearch, errorTips: '暂无搜索结果'),
+                )
               else
                 Expanded(
                   child: ListView.builder(
@@ -173,5 +173,9 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
             TextStyle(color: themeController.currentAppTheme.normalTextColor),
       ),
     ));
+  }
+
+  goSearch() {
+    controller.searchMusic(_editController.text);
   }
 }

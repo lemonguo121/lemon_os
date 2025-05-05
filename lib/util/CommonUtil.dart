@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
+import 'package:lemon_tv/util/SubscriptionsUtil.dart';
 import '../http/data/RealVideo.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -71,23 +73,30 @@ class CommonUtil {
   }
 
   static bool isVertical(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
+    Size screenSize = MediaQuery
+        .of(context)
+        .size;
     var screenHeight = screenSize.height;
     var screenWidth = screenSize.width;
     return screenHeight > screenWidth ? true : false;
   }
 
   static double getScreenWidth(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
+    Size screenSize = MediaQuery
+        .of(context)
+        .size;
     return screenSize.width;
   }
 
   static double getScreenHeight(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
+    Size screenSize = MediaQuery
+        .of(context)
+        .size;
     return screenSize.height;
   }
 
   static String getCoverImg(String key) {
     return 'https://picsum.photos/seed/$key/300/200';
   }
+
 }

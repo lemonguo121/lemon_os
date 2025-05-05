@@ -6,9 +6,6 @@ import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 import 'package:marquee/marquee.dart';
-
-import '../../../util/CommonUtil.dart';
-import '../../libs/music_download.dart';
 import '../PlayListHistory.dart';
 import '../music_controller.dart';
 import 'music_bottom_bar.dart';
@@ -22,12 +19,6 @@ class MusicPlayerPage extends StatefulWidget {
 
 class _MusicPlayerPageState extends State<MusicPlayerPage>
     with TickerProviderStateMixin {
-  late DownloadManager _downloadManager;
-  bool _isDownloading = false;
-  bool _downloadCompleted = false;
-
-  List<String> bgImages = ["music_bg1.png", "music_bg2.png", "music_bg3.png"];
-  String bgImageName = '';
 
   int _currentIndex = 0;
   final _scrollController = ScrollController();
@@ -41,13 +32,13 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
   @override
   void initState() {
     super.initState();
-    bgImageName = 'assets/music/${bgImages[Random().nextInt(bgImages.length)]}';
     _rotationController =
         AnimationController(vsync: this, duration: const Duration(seconds: 20))
           ..repeat();
+    if (playerController.player.playerState.processingState==ProcessingState.idle) {
+      playerController.upDataSong(playerController.songBean.value);
+    }
     _initPlayerAndData();
-    _downloadManager = DownloadManager(); // 初始化下载管理器
-    playerController.checkSongIsCollected(playerController.songBean.value.id);
   }
 
   Future<void> _initPlayerAndData() async {
@@ -68,36 +59,6 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
       }
     });
   }
-
-  // Future<void> _downloadSong() async {
-  //   setState(() {
-  //     _isDownloading = true;
-  //   });
-  //
-  //   try {
-  //     final audioResp = await Dio().get(_currentSongPath);
-  //     final audioUrl = audioResp.data['url'];
-  //
-  //     await _downloadManager.downloadSong(audioUrl,  playerController.songName.value,
-  //         (received, total) {
-  //       if (total != -1) {
-  //         final progress = (received / total * 100).toStringAsFixed(0);
-  //         print("Downloading: $progress%");
-  //       }
-  //     });
-  //
-  //     setState(() {
-  //       _downloadCompleted = true;
-  //       _isDownloading = false;
-  //     });
-  //   } catch (e) {
-  //     setState(() {
-  //       _isDownloading = false;
-  //     });
-  //     print("Download failed: $e");
-  //   }
-  // }
-
   void _onPositionChanged() {
     var _lyrics = playerController.lyrics.value;
     var position = playerController.currentPosition.value;

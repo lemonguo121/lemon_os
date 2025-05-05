@@ -9,7 +9,6 @@ import '../http/data/storehouse_bean_entity.dart';
 import '../mine/SettingPage.dart';
 import '../music/data/PlayRecordList.dart';
 import '../music/music_hot/HotDetailPage.dart';
-import '../music/music_hot/HotListPage.dart';
 import '../music/music_hot/hot_model/hot_Model.dart';
 import '../music/player/widget/music_play.dart';
 import '../music/search/widget/music_search.dart';
@@ -94,7 +93,6 @@ abstract class Routes {
     GetPage(name: musicPlayer, page: () => MusicPlayerPage()),
     GetPage(name: musicSearchPage, page: () => MusicSearchPage()),
     GetPage(name: musicHotDetalPage, page: () => HotDetailPage()),
-    GetPage(name: musicHotListPage, page: () => HotListPage()),
     GetPage(name: musicPlayListPage, page: () => PlayListPage()),
   ];
 }

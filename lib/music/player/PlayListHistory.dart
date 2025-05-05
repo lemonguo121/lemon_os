@@ -25,6 +25,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
   final ThemeController themeController = Get.find();
   final MusicPlayerController playerController = Get.find();
 
+
   Widget _playModeIconWidget(PlayMode mode) {
     switch (mode) {
       case PlayMode.single:
@@ -176,6 +177,9 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                 ],
               ),
             ),
+            Text(item.songBean.platform,style: TextStyle(fontSize: 12,color: isPlaying
+                ? themeController.currentAppTheme.selectedTextColor
+                : Colors.grey,),),
             InkWell(
               onTap: () {
                 controller.removeSongInList(item);
@@ -199,4 +203,5 @@ class _PlayListHistoryState extends State<PlayListHistory> {
     }
     return artwork;
   }
+
 }
