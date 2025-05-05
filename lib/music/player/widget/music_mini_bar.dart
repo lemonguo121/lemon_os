@@ -195,7 +195,11 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => PlayListHistory(),
+      builder: (_) => Wrap(
+        children: const [
+          PlayListHistory(),
+        ],
+      ),
     );
   }
 

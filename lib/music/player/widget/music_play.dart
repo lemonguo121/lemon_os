@@ -38,6 +38,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
     if (playerController.player.playerState.processingState==ProcessingState.idle) {
       playerController.upDataSong(playerController.songBean.value);
     }
+    playerController.checkSongIsCollected();
     _initPlayerAndData();
   }
 
@@ -224,7 +225,11 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => PlayListHistory(),
+      builder: (_) => Wrap(
+        children: const [
+          PlayListHistory(),
+        ],
+      ),
     );
   }
 

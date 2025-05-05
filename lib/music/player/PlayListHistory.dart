@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
-import 'package:lemon_tv/music/data/SongBean.dart';
 import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
-import 'package:lemon_tv/music/player/widget/music_play.dart';
-import 'package:lemon_tv/music/player/widget/music_yinfu.dart';
-import 'package:lemon_tv/util/CommonUtil.dart';
+import 'package:lemon_tv/music/playlist/PlayListController.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
-import 'package:lemon_tv/util/widget/LoadingImage.dart';
 
-import '../data/MusicBean.dart';
+import '../common/PlayListCell.dart';
 import 'music_controller.dart';
 
 class PlayListHistory extends StatefulWidget {
@@ -22,9 +17,10 @@ class PlayListHistory extends StatefulWidget {
 
 class _PlayListHistoryState extends State<PlayListHistory> {
   final MusicPlayerController controller = Get.find();
+  final PlayListController playListController = Get.find();
   final ThemeController themeController = Get.find();
-  final MusicPlayerController playerController = Get.find();
 
+  final MusicPlayerController playerController = Get.find();
 
   Widget _playModeIconWidget(PlayMode mode) {
     switch (mode) {
@@ -40,6 +36,12 @@ class _PlayListHistoryState extends State<PlayListHistory> {
             height: 20,
             color: themeController.currentAppTheme.selectedTextColor);
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    playListController.recordBean = MusicSPManage.getCurrentPlayType();
   }
 
   @override
@@ -62,35 +64,53 @@ class _PlayListHistoryState extends State<PlayListHistory> {
               // 顶部标题 + 播放模式按钮
               SizedBox(
                 height: 40,
-                child: Stack(
+                child: Row(
                   children: [
-                    const Center(
-                      child: Text(
-                        '播放列表',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold,color:Colors.black),
+                    SizedBox(
+                      width: 24.w,
+                    ),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Text(
+                            getPlayListName(),
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black),
+                          ),
+                          SizedBox(
+                            width: 12.w,
+                          ),
+                          Text(
+                            '(共${list.length}首)',
+                            style: TextStyle(fontSize: 12, color: Colors.black),
+                          )
+                        ],
                       ),
                     ),
-                    Positioned(
-                      right: -5,
-                      top: 0,
-                      bottom: 0,
-                      child: Obx((){
-                        return IconButton(
-                          icon: _playModeIconWidget(playerController.playMode.value), // 你已有的方法，返回一个Icon组件
-                          onPressed: () {
-                            playerController.togglePlayMode();
-                          },
-                        );
-                      }),
+                    IconButton(
+                      icon:
+                          _playModeIconWidget(playerController.playMode.value),
+                      // 你已有的方法，返回一个Icon组件
+                      onPressed: () {
+                        playerController.togglePlayMode();
+                      },
                     ),
+                    SizedBox(width: 24.w)
                   ],
                 ),
               ),
               const SizedBox(height: 12),
               if (controller.playList.isEmpty)
-                 Expanded(
+                Expanded(
                     child: Center(
-                  child: Text('列表为空',style: TextStyle(color: themeController.currentAppTheme.selectedTextColor),),
+                  child: Text(
+                    '列表为空',
+                    style: TextStyle(
+                        color:
+                            themeController.currentAppTheme.selectedTextColor),
+                  ),
                 ))
               else
                 Flexible(
@@ -99,7 +119,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                     itemCount: controller.playList.length,
                     itemBuilder: (context, index) {
                       final item = controller.playList[index];
-                      return Obx(() => playListCell(item, index));
+                      return PlayListCell(item: item, index: index,isBottomSheet:true);
                     },
                   ),
                 ),
@@ -110,98 +130,8 @@ class _PlayListHistoryState extends State<PlayListHistory> {
     );
   }
 
-  Widget playListCell(MusicBean item, int index) {
-    final bool isPlaying = item.songBean.id == controller.songBean.value.id;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8), // 每个 cell 上下间距
-      child: InkWell(
-        onTap: () {
-          controller.playIndex.value = index;
-          controller.updataMedia(item);
-          var listName = MusicSPManage.getCurrentPlayType();
-          MusicSPManage.saveCurrentPlayIndex(listName, index);
-        },
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 30,
-              height: 30,
-              child: isPlaying
-                  ? AudioBarsAnimated(
-                      barWidth: 2,
-                      barHeight: 10,
-                      color: Colors.redAccent,
-                    )
-                  : const SizedBox(),
-            ),
-            // const SizedBox(width: 8),
-            SizedBox(
-              width: 36,
-              height: 36,
-              child: ClipOval(
-                child: LoadingImage(pic: getCover(item.songBean)),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    item.songBean.title,
-                    style: TextStyle(
-                      color: isPlaying
-                          ? themeController.currentAppTheme.selectedTextColor
-                          : Colors.black,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (item.songBean.artist != null)
-                    Text(
-                      item.songBean.artist!,
-                      style: TextStyle(
-                        color: isPlaying
-                            ? themeController.currentAppTheme.selectedTextColor
-                            : Colors.grey,
-                        fontSize: 12,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                ],
-              ),
-            ),
-            Text(item.songBean.platform,style: TextStyle(fontSize: 12,color: isPlaying
-                ? themeController.currentAppTheme.selectedTextColor
-                : Colors.grey,),),
-            InkWell(
-              onTap: () {
-                controller.removeSongInList(item);
-              },
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Icon(Icons.close, color: Colors.red, size: 18),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  String getPlayListName() {
+    var playRecord = MusicSPManage.getCurrentPlayType();
+    return playRecord.name;
   }
-
-  String getCover(SongBean songBean) {
-    var artwork = songBean.artwork;
-    var songId = songBean.id;
-    if (artwork.isEmpty || !artwork.startsWith('http')) {
-      return CommonUtil.getCoverImg(songId);
-    }
-    return artwork;
-  }
-
 }

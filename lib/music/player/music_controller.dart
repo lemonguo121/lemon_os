@@ -3,18 +3,20 @@ import 'package:audio_session/audio_session.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lemon_tv/music/data/MusicBean.dart';
+import 'package:lemon_tv/music/data/PlayRecordList.dart';
 import 'package:lemon_tv/util/CommonUtil.dart';
 
 import '../../util/MusicCacheUtil.dart';
 import '../data/LyricLine.dart';
 import '../data/SongBean.dart';
+import '../music_home/music_home_controller.dart';
 import '../music_http/music_http_rquest.dart';
 import '../music_utils/MusicSPManage.dart';
 
 class MusicPlayerController extends GetxController {
   final AudioPlayer player = AudioPlayer();
   late final MyAudioHandler audioHandler;
-
+  final MusicHomeController homeController = Get.find();
   var isPlaying = false.obs;
   var currentPosition = Duration.zero.obs;
   var totalDuration = Duration.zero.obs;
@@ -57,7 +59,7 @@ class MusicPlayerController extends GetxController {
     return artwork;
   }
 
-  void checkSongIsCollected(String songId) {
+  void checkSongIsCollected() {
     isCurrentSongFavorite.value = MusicSPManage.isCollected(songBean.value.id);
   }
 
@@ -70,6 +72,7 @@ class MusicPlayerController extends GetxController {
       MusicSPManage.savePlayList(collect, MusicSPManage.collect);
     }
     isCurrentSongFavorite.value = !isCurrentSongFavorite.value;
+    homeController.getRordList();
   }
 
   /// 新增的初始化方法
@@ -87,8 +90,8 @@ class MusicPlayerController extends GetxController {
     );
     // 初始化的时候，获取上次播放的类型
     var currentPlayType = MusicSPManage.getCurrentPlayType();
-    playList.value = MusicSPManage.getPlayList(currentPlayType);
-    playIndex.value = MusicSPManage.getCurrentPlayIndex(currentPlayType);
+    playList.value = MusicSPManage.getPlayList(currentPlayType.key);
+    playIndex.value = MusicSPManage.getCurrentPlayIndex(currentPlayType.key);
     if (playIndex.value > playList.length - 1) {
       playIndex.value = 0;
     }
@@ -128,12 +131,15 @@ class MusicPlayerController extends GetxController {
     final bean = songBean.value;
     player.play();
     updateMediaItem(bean);
-    if (!playList.any((song) => song.songBean.id == songBean.value.id)) {
-      playList.insert(
+
+    var listHistory = MusicSPManage.getPlayList(MusicSPManage.history);
+    if (!listHistory.any((song) => song.songBean.id == songBean.value.id)) {
+      listHistory.insert(
         0,
         MusicBean(songBean: songBean.value, rawLrc: lyrics, url: url),
       );
-      MusicSPManage.savePlayList(playList, MusicSPManage.history);
+      MusicSPManage.savePlayList(listHistory, MusicSPManage.history);
+      playList.refresh();
     }
     isLoading.value = false;
   }
@@ -150,15 +156,6 @@ class MusicPlayerController extends GetxController {
     await player.stop();
     songBean.value = musicBean.songBean;
     await getMediaInfo();
-    // 这里本来想的是既然播放过，就肯定拿到过歌词和播放地址。这里判断如果歌词是空就每次重新请求下媒体数据
-    // 但是会存储的播放链接会失效，所以改成每次都请求算了
-    // if (musicBean.rawLrc.isEmpty) {
-    //   getMediaInfo();
-    // }else{
-    //   lyrics.value = musicBean.rawLrc;
-    // }
-    // print('updataSong musicBean.url = ${musicBean.url}');
-    // initPlayer(musicBean.url);
   }
 
   void updateMediaItem(SongBean song) {
@@ -186,29 +183,13 @@ class MusicPlayerController extends GetxController {
   }
 
   // 更新当前播放列表，默认是历史记录，如果播放我喜欢的  或者某个自己建的歌单 要调这个方法更新
-  void upDataPlayList(String listName) {
-    MusicSPManage.saveCurrentPlayType(listName);
-    playList.value = MusicSPManage.getPlayList(listName);
+  void upDataPlayList(PlayRecordList? recordType) {
+    if (recordType == null) {
+      return;
+    }
+    MusicSPManage.saveCurrentPlayType(recordType);
+    playList.value = MusicSPManage.getPlayList(recordType.key);
   }
-
-  // Future<void> getMediaInfo() async {
-  //   isLoading.value = true;
-  //   var currentSite = MusicSPManage.getCurrentSite();
-  //   final rawLrcResp = await NetworkManager().get('/lyric', queryParameters: {
-  //     'id': songBean.value.id,
-  //     'plugin': currentSite?.platform ?? ""
-  //   });
-  //   final rawLrc = rawLrcResp.data['rawLrc'] ?? '';
-  //   lyrics.value = _parseLrc(rawLrc);
-  //
-  //   final audioResp = await NetworkManager().get('/getMediaSource',
-  //       queryParameters: {
-  //         'id': songBean.value.id,
-  //         'plugin': currentSite?.platform ?? ""
-  //       });
-  //   final audioUrl = audioResp.data['url'];
-  //   initPlayer(audioUrl);
-  // }
 
   Future<void> getMediaInfo() async {
     isLoading.value = true;
@@ -245,7 +226,7 @@ class MusicPlayerController extends GetxController {
     // ===== 设置播放器并开始播放 =====
     lyrics.value = _parseLrc(rawLrc);
     print(
-        'platform = $platform   hasAudioCache = $hasAudioCache  playUrl = $playUrl');
+        '********* platform = $platform   hasAudioCache = $hasAudioCache  playUrl = $playUrl');
     await initPlayer(playUrl, hasAudioCache);
   }
 
@@ -305,23 +286,23 @@ class MusicPlayerController extends GetxController {
 
   void onPrev() async {
     var listName = MusicSPManage.getCurrentPlayType();
-    var currentIndex = MusicSPManage.getCurrentPlayIndex(listName);
+    var currentIndex = MusicSPManage.getCurrentPlayIndex(listName.key);
     if (currentIndex == 0) {
       CommonUtil.showToast('已经是第一首了');
       return;
     }
     currentIndex--;
-    updatePlayIndex(listName, currentIndex);
+    updatePlayIndex(listName.key, currentIndex);
   }
 
   void onNext() async {
     var listName = MusicSPManage.getCurrentPlayType();
-    var currentIndex = MusicSPManage.getCurrentPlayIndex(listName);
+    var currentIndex = MusicSPManage.getCurrentPlayIndex(listName.key);
+    currentIndex++;
     if (currentIndex > playList.length - 1) {
       currentIndex = 0;
     }
-    currentIndex++;
-    updatePlayIndex(listName, currentIndex);
+    updatePlayIndex(listName.key, currentIndex);
   }
 
   void updatePlayIndex(String listName, int currentIndex) async {
@@ -334,7 +315,7 @@ class MusicPlayerController extends GetxController {
   void removeSongInList(MusicBean musicBean) {
     var listName = MusicSPManage.getCurrentPlayType();
     playList.removeWhere((item) => item.songBean.id == musicBean.songBean.id);
-    MusicSPManage.savePlayList(playList, listName);
+    MusicSPManage.savePlayList(playList, listName.key);
     var id = musicBean.songBean.id;
     var platform = musicBean.songBean.platform;
     MusicCacheUtil.deleteAllCacheForSong(id, platform);

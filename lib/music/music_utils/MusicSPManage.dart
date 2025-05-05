@@ -8,7 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../http/data/SubscripBean.dart';
 import '../data/PlayRecordList.dart';
 import '../data/PluginBean.dart';
+
 enum PlayMode { loop, single }
+
 class MusicSPManage {
   static const String music_plugins = "music_plugins";
   static const String music_current_plugins = "music_current_plugins";
@@ -137,10 +139,8 @@ class MusicSPManage {
   // 删除某个类型单条记录
   static deleteSingleSong(String id, String listName) {
     var playlist = getPlayList(listName);
-    print('取消前 playlist = ${playlist.length}');
     // 根据 id 过滤掉要删除的歌曲
     playlist.removeWhere((song) => song.songBean.id == id);
-    print('取消后 playlist = ${playlist.length}');
     savePlayList(playlist, listName);
   }
 
@@ -163,15 +163,21 @@ class MusicSPManage {
   }
 
   // 获取当前的播放类型
-  static String getCurrentPlayType() {
+  static PlayRecordList getCurrentPlayType() {
     SharedPreferences sp = Get.find<SharedPreferences>();
-    return sp.getString(music_play_type) ?? history;
+    String? typeJson = sp.getString(music_play_type);
+    if (typeJson != null) {
+      Map<String, dynamic> typeMap = jsonDecode(typeJson);
+      return PlayRecordList.fromJson(typeMap);
+    }
+    return PlayRecordList(name: '播放记录', key: history, canDelete: false);
   }
 
   //保存当前的播放类型
-  static void saveCurrentPlayType(String listName) {
+  static void saveCurrentPlayType(PlayRecordList playRecordList) {
     SharedPreferences sp = Get.find<SharedPreferences>();
-    sp.setString(music_play_type, listName);
+    String typeJson = jsonEncode(playRecordList);
+    sp.setString(music_play_type, typeJson);
   }
 
   // 获取当前的播放模式
@@ -186,10 +192,11 @@ class MusicSPManage {
     SharedPreferences sp = Get.find<SharedPreferences>();
     sp.setInt(music_play_mode_key, mode.index);
   }
+
 // 获取当前音乐是否被收藏
   static bool isCollected(String songId) {
     List<MusicBean> collectList = getPlayList(collect);
-  return  collectList.any((model)=>model.songBean.id==songId);
+    return collectList.any((model) => model.songBean.id == songId);
     // for (var model in collectList){
     //   if (model.songBean.id == songId){
     //     return true;
@@ -197,7 +204,6 @@ class MusicSPManage {
     // }
     // return false;
   }
-
 
 //   获取所有的播放列表
   static List<PlayRecordList> getRecordList() {
@@ -238,10 +244,11 @@ class MusicSPManage {
     list.add(record);
     saveRecordList(list);
   }
+
   // 删除指定播放列表
   static void removeRecordList(String key) {
     var list = getRecordList();
-    list.removeWhere((item)=>item.key==key);
+    list.removeWhere((item) => item.key == key);
     clearAllSongs(key);
     saveRecordList(list);
   }

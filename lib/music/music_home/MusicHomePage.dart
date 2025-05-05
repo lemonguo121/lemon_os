@@ -27,7 +27,7 @@ class MusicHomePage extends StatefulWidget {
 }
 
 class _MusicHomePageState extends State<MusicHomePage> {
-  final MusicHomeController controller = Get.put(MusicHomeController());
+  final MusicHomeController controller = Get.find();
   final MusicPlayerController playerController = Get.find();
   final ThemeController themeController = Get.find();
   final ScrollController _scrollController = ScrollController();
@@ -304,14 +304,14 @@ class _MusicHomePageState extends State<MusicHomePage> {
   }
 
   Widget _buildPlayRecordList() {
-    String listkey = MusicSPManage.getCurrentPlayType();
+    PlayRecordList playRecordType = MusicSPManage.getCurrentPlayType();
     return ListView.builder(
         padding: EdgeInsets.zero,
         shrinkWrap: true,
         itemCount: controller.recordList.value.length,
         itemBuilder: (context, index) {
           var record = controller.recordList.value[index];
-          print('_buildPlayRecordList record = $record');
+          print('_buildPlayRecordList record = ${record.name}  record.key = ${record.key}');
           List<MusicBean> playList = MusicSPManage.getPlayList(record.key);
           return GestureDetector(
             behavior: HitTestBehavior.translucent, // ✅ 允许空白区域也响应点击
@@ -342,7 +342,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
                               Text(
                                 record.name,
                                 style: TextStyle(
-                                  color: record.key == listkey
+                                  color: record.key == playRecordType.key
                                       ? themeController
                                           .currentAppTheme.selectedTextColor
                                       : themeController
@@ -356,7 +356,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
                               Text(
                                 '${playList.length}首',
                                 style: TextStyle(
-                                  color: record.key == listkey
+                                  color: record.key == playRecordType.key
                                       ? themeController
                                           .currentAppTheme.selectedTextColor
                                       : Colors.grey,
