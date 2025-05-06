@@ -11,6 +11,7 @@ import 'package:xml/xml.dart';
 import '../http/HttpService.dart';
 import '../http/data/RealVideo.dart';
 import '../http/data/storehouse_bean_entity.dart';
+import '../music/player/music_controller.dart';
 import '../mywidget/MyLoadingIndicator.dart';
 import '../player/VideoPlayerScreen.dart';
 import '../util/CommonUtil.dart';
@@ -26,7 +27,7 @@ class _DetailScreenState extends State<DetailScreen> {
   String vodId = '';
 
   late StorehouseBeanSites site;
-
+  MusicPlayerController musicPlayController = Get.find();
   final HistoryController historyController =
       Get.put(HistoryController()); // 依赖注入
   final HttpService _httpService = HttpService();
@@ -50,6 +51,9 @@ class _DetailScreenState extends State<DetailScreen> {
     vodId = args['vodId'];
     site = args['site'];
     _fetchDetail(); // 请求详情数据
+   if (musicPlayController.player.playing){
+     musicPlayController.player.pause();
+   }
   }
 
   // 异步加载视频进度
