@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 import 'package:marquee/marquee.dart';
+import '../../../util/widget/LoadingImage.dart';
 import '../PlayListHistory.dart';
 import '../music_controller.dart';
 import 'music_bottom_bar.dart';
@@ -28,7 +29,8 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
   bool showMiniBar = false;
   MusicPlayerController playerController = Get.find();
   Rx<PlayMode> playMode = (MusicSPManage.getCurrentPlayMode()).obs;
-
+  late AnimationController _needleController;
+  late Animation<double> _needleAnimation;
   @override
   void initState() {
     super.initState();
@@ -40,6 +42,19 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
     }
     playerController.checkSongIsCollected();
     _initPlayerAndData();
+
+    _needleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+
+    _needleAnimation = Tween<double>(
+      begin: -0.5, // -0.5 radians ≈ -30度，移开状态
+      end: 0.0,    // 0 radians，贴合状态
+    ).animate(CurvedAnimation(
+      parent: _needleController,
+      curve: Curves.easeInOut,
+    ));
   }
 
   Future<void> _initPlayerAndData() async {
@@ -54,8 +69,10 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
         // 检查 Widget 是否还挂载
         if (state.playing) {
           _rotationController.repeat();
+          _needleController.forward(); // 针靠近
         } else {
           _rotationController.stop();
+          _needleController.reverse(); // 针移开
         }
       }
     });
@@ -99,91 +116,110 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
   void dispose() {
     _scrollController.dispose();
     _rotationController.dispose();
+    _needleController.reverse(); // 针移开
+    _needleController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Obx(() => Scaffold(
-          body: Stack(
-            fit: StackFit.expand,
-            children: [
-              Stack(
-                children: [
-                  Positioned.fill(
-                    child: CachedNetworkImage(
-                      imageUrl: playerController.getCover(),
-                      width: double.infinity,
-                      height: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            // 背景模糊图层...
+            Stack(
+              children: [
+                Positioned.fill(
+                  child: CachedNetworkImage(
+                    imageUrl: playerController.getCover(),
+                    width: double.infinity,
+                    height: double.infinity,
+                    fit: BoxFit.cover,
                   ),
-                  Positioned.fill(
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(
-                          sigmaX: 40.0, sigmaY: 40.0), // 设置模糊程度
-                      child: Container(
-                        color: Colors.black.withOpacity(0.2), // 可以设置背景的透明度
-                      ),
-                    ),
+                ),
+                Positioned.fill(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 40.0, sigmaY: 40.0),
+                    child: Container(color: Colors.black.withOpacity(0.2)),
                   ),
-                  // _buildCustomScrollView(), // 将页面内容放置在背景之上
-                ],
-              ),
-              // Image.asset(
-              //   bgImageName,
-              //   fit: BoxFit.cover,
-              // ),
-              Container(color: Colors.black.withOpacity(0.4)),
-              playerController.isLoading.value
-                  ? const Center(child: CircularProgressIndicator())
-                  : Column(
-                      children: [
-                        const SizedBox(height: 120),
-                        RotationTransition(
-                          turns: _rotationController,
-                          child: CircleAvatar(
-                            radius: 60,
-                            backgroundImage:
-                                AssetImage('assets/music/record.png'),
+                ),
+              ],
+            ),
+
+            Container(color: Colors.black.withOpacity(0.4)),
+
+            playerController.isLoading.value
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+              children: [
+                const SizedBox(height: 120),
+                // 🎯 将唱针与唱片用 Stack 包裹起来
+                Stack(
+                  alignment: Alignment.topCenter,
+                  children: [
+                    RotationTransition(
+                      turns: _rotationController,
+                      child: CircleAvatar(
+                        radius: 60,
+                        child: ClipOval(
+                          child: LoadingImage(
+                            pic: playerController.getCover(),
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        Expanded(
-                          child: _buildLyricList(),
-                        ),
-                        MusicBottomBar(
-                          isPlaying: playerController.player.playing,
-                          position: playerController.currentPosition.value,
-                          total: playerController.totalDuration.value,
-                          onPlayPause: () {
-                            playerController.player.playing
-                                ? playerController.player.pause()
-                                : playerController.player.play();
-                          },
-                          onPrev: () {
-                            playerController.onPrev();
-                          },
-                          onNext: () {
-                            playerController.onNext();
-                          },
-                          showMenu: () {
-                            showBottomMenu();
-                          },
-                          onSeek: (value) {
-                            final newPos = Duration(seconds: value.toInt());
-                            playerController.player.pause();
-                            playerController.player.seek(newPos);
-                            playerController.player.play();
-                          },
-                        ),
-                      ],
+                      ),
                     ),
-              playerController.isLoading.value
-                  ? SizedBox.shrink()
-                  : _buildTitle(),
-            ],
-          ),
+                    Positioned(
+                      top: -35,
+                      right: 20,
+                      child: AnimatedBuilder(
+                        animation: _needleAnimation,
+                        builder: (context, child) {
+                          return Transform.rotate(
+                            angle: _needleAnimation.value,
+                            alignment: Alignment.topLeft,
+                            child: child,
+                          );
+                        },
+                        child: Image.asset(
+                          'assets/music/needle.png',
+                          width: 60,
+                          height: 100,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                Expanded(child: _buildLyricList()),
+
+                MusicBottomBar(
+                  isPlaying: playerController.player.playing,
+                  position: playerController.currentPosition.value,
+                  total: playerController.totalDuration.value,
+                  onPlayPause: () {
+                    playerController.player.playing
+                        ? playerController.player.pause()
+                        : playerController.player.play();
+                  },
+                  onPrev: playerController.onPrev,
+                  onNext: playerController.onNext,
+                  showMenu: showBottomMenu,
+                  onSeek: (value) {
+                    final newPos = Duration(seconds: value.toInt());
+                    playerController.player.pause();
+                    playerController.player.seek(newPos);
+                    playerController.player.play();
+                  },
+                ),
+              ],
+            ),
+
+            playerController.isLoading.value ? SizedBox.shrink() : _buildTitle(),
+          ],
+        ),
         ));
   }
 
