@@ -68,15 +68,21 @@ class _PlayListPageState extends State<PlayListPage> {
               ))
             else
               Flexible(
-                child: ListView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  shrinkWrap: true,
-                  itemCount: controller.playList.length,
-                  itemBuilder: (context, index) {
-                    final item = controller.playList[index];
-                    return PlayListCell(item: item, index: index,isBottomSheet: false,);
-                  },
-                ),
+                child: Obx(() {
+                  final list = controller.playList;
+                  print('list = ${list.length}');
+                  return ListView.builder(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    itemCount: list.length,
+                    itemBuilder: (context, index) {
+                      return PlayListCell(
+                        item: list[index],
+                        index: index,
+                        isBottomSheet: false,
+                      );
+                    },
+                  );
+                }),
               ),
           ],
         );

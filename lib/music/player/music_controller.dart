@@ -34,7 +34,6 @@ class MusicPlayerController extends GetxController {
           artwork: '')
       .obs;
   var lyrics = <LyricLine>[].obs;
-  var _currentSongPath = ''.obs;
   var isLoading = true.obs;
 
   var playList = <MusicBean>[].obs;
@@ -141,7 +140,6 @@ class MusicPlayerController extends GetxController {
       );
       MusicSPManage.savePlayList(listHistory, MusicSPManage.history);
       playList.refresh();
-      // listHistory.refresh();
     }
     isLoading.value = false;
   }
@@ -316,11 +314,15 @@ class MusicPlayerController extends GetxController {
 
   void removeSongInList(MusicBean musicBean) {
     var listName = MusicSPManage.getCurrentPlayType();
-    playList.removeWhere((item) => item.songBean.id == musicBean.songBean.id);
-    MusicSPManage.savePlayList(playList, listName.key);
+    var playListNow = playList.value;
+    playListNow
+        .removeWhere((item) => item.songBean.id == musicBean.songBean.id);
+    MusicSPManage.savePlayList(playListNow, listName.key);
     var id = musicBean.songBean.id;
     var platform = musicBean.songBean.platform;
     MusicCacheUtil.deleteAllCacheForSong(id, platform);
+    playList.value = playListNow;
+    playList.refresh();
   }
 }
 
