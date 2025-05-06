@@ -65,6 +65,7 @@ flutter:
   assets:
     - assets/music/
     - assets/sounds/begin_record.mp3
+    - assets/app_icon.png
 launcher_name:
   default: "LM_SQPlayer"
 #  dart run launcher_name:main

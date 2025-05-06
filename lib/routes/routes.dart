@@ -5,6 +5,7 @@ import 'package:lemon_tv/search/SearchScreen.dart';
 import 'package:lemon_tv/subscrip/PluginsPage.dart';
 import 'package:lemon_tv/subscrip/SubscriptionPage.dart';
 
+import '../home/HomeScreen.dart';
 import '../http/data/storehouse_bean_entity.dart';
 import '../mine/SettingPage.dart';
 import '../music/data/PlayRecordList.dart';
@@ -14,6 +15,8 @@ import '../music/player/widget/music_play.dart';
 import '../music/search/widget/music_search.dart';
 
 abstract class Routes {
+  /// 影视首页
+  static const String movieHomePage = '/movieHome';
   /// 详情页
   static const String detailPage = '/detail';
 
@@ -44,6 +47,9 @@ abstract class Routes {
   // 播放列表
   static const String musicPlayListPage = '/PlayListPage';
 
+  static goMovieHomelPage() {
+    Get.toNamed(movieHomePage);
+  }
   static goDetailPage(String vodId, StorehouseBeanSites site) {
     Get.toNamed(detailPage, arguments: {'vodId': vodId, 'site': site});
   }
@@ -85,6 +91,7 @@ abstract class Routes {
   }
 
   static final routePage = [
+    GetPage(name: movieHomePage, page: () => MovieHomeScreen()),
     GetPage(name: detailPage, page: () => DetailScreen()),
     GetPage(name: searchPage, page: () => SearchScreen()),
     GetPage(name: subscripPage, page: () => SubscriptionPage()),

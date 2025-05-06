@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/routes/routes.dart';
+import 'package:lemon_tv/splash_page/splash_page.dart';
 import 'package:lemon_tv/util/Injection.dart';
 import 'package:lemon_tv/util/SPManager.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
@@ -61,7 +62,7 @@ class ElectronicsStoreApp extends StatelessWidget {
               IconThemeData(color: themeController.currentAppTheme.iconColor),
           primaryColor: themeController.currentAppTheme.buttonColor,
         ),
-        home: HomePage(),
+        home: const SplashPage(),
         // home: (!isRealFun && Platform.isIOS) ? SecendHomePage() : HomePage(),
       );
     });
