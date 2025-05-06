@@ -106,6 +106,7 @@ class PlayListCell extends StatelessWidget {
                         playerController.onNext();
                       }
                       playerController.removeSongInList(item);
+                      controller.removeSongInList(item);
                     },
                     child: const Padding(
                       padding: EdgeInsets.all(8.0),
