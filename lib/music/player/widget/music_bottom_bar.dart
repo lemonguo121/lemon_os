@@ -56,6 +56,25 @@ class MusicBottomBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center, // 加这个也有帮助
             children: [
+              // 收藏
+              Obx(() {
+                final isFav = playerController.isCurrentSongFavorite.value;
+                return SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: IconButton(
+                    icon: Icon(
+                      isFav ? Icons.favorite : Icons.favorite_border,
+                      size: 24,
+                      color: isFav ? Colors.redAccent : Colors.white,
+                    ),
+                    onPressed: () {
+                      playerController.toggleFavorite();
+                    },
+                  ),
+                );
+              }),
+              const SizedBox(width: 15),
               // 上一首
               SizedBox(
                 width: 48,
@@ -87,7 +106,7 @@ class MusicBottomBar extends StatelessWidget {
                   onPressed: onNext,
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 20),
               // 菜单
               SizedBox(
                 width: 48,
@@ -97,25 +116,6 @@ class MusicBottomBar extends StatelessWidget {
                   onPressed: showMenu,
                 ),
               ),
-              const SizedBox(width: 10),
-              // 收藏
-              Obx(() {
-                final isFav = playerController.isCurrentSongFavorite.value;
-                return SizedBox(
-                  width: 48,
-                  height: 48,
-                  child: IconButton(
-                    icon: Icon(
-                      isFav ? Icons.favorite : Icons.favorite_border,
-                      size: 24,
-                      color: isFav ? Colors.redAccent : Colors.white,
-                    ),
-                    onPressed: () {
-                      playerController.toggleFavorite();
-                    },
-                  ),
-                );
-              }),
             ],
           ),
 
