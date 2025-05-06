@@ -121,7 +121,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                     itemBuilder: (context, index) {
                       final item = controller.playList[index];
                       return PlayListCell(
-                          item: item, index: index, isBottomSheet: true,onDelete: deleteItem,);
+                          item: item, index: index, isBottomSheet: true,isNeedDelete:true,onDelete: deleteItem,onClickItem: clickItem,);
                     },
                   ),
                 ),
@@ -140,5 +140,8 @@ class _PlayListHistoryState extends State<PlayListHistory> {
   void deleteItem(MusicBean item) {
     playerController.removeSongInList(item);
     playListController.playList.refresh();
+  }
+
+  void clickItem() {
   }
 }

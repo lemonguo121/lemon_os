@@ -15,15 +15,19 @@ import '../playlist/PlayListController.dart';
 class PlayListCell extends StatelessWidget {
   final MusicBean item;
   final int index;
-  final bool isBottomSheet; //用来区分是底部弹起列表还是普通列表
+  final bool isBottomSheet; //用来区分是底部弹起列表还是普通列表,底部弹窗背景一直是白色，所以要单独处理眼
+  final bool isNeedDelete; //用来区分是榜单详情，不需要删除按钮
   final ValueChanged<MusicBean> onDelete;
+  final VoidCallback onClickItem;
 
   PlayListCell(
       {super.key,
       required this.item,
       required this.index,
       required this.isBottomSheet,
-      required this.onDelete});
+      required this.isNeedDelete,
+      required this.onDelete,
+      required this.onClickItem});
 
   final ThemeController themeController = Get.find();
   final PlayListController controller = Get.find();
@@ -111,6 +115,7 @@ class PlayListCell extends StatelessWidget {
                           : Colors.grey,
                     ),
                   ),
+                  isNeedDelete?
                   InkWell(
                     onTap: () {
                       if (isPlaying &&
@@ -124,7 +129,7 @@ class PlayListCell extends StatelessWidget {
                       padding: EdgeInsets.all(8.0),
                       child: Icon(Icons.close, color: Colors.red, size: 18),
                     ),
-                  ),
+                  ):SizedBox.shrink(),
                 ],
               )
             ],
@@ -147,6 +152,7 @@ class PlayListCell extends StatelessWidget {
         controller.recordBean?.key == MusicSPManage.getCurrentPlayType().key) {
       Routes.goMusicPage();
     } else {
+      onClickItem();
       playerController.playIndex.value = index;
       playerController.updataMedia(item);
       playerController.upDataPlayList(controller.recordBean);

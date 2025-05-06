@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/music/data/SongBean.dart';
+import 'package:lemon_tv/music/playlist/PlayListController.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
 
 import '../../routes/routes.dart';
@@ -29,6 +30,7 @@ class _HotDetailPageState extends State<HotDetailPage> {
   final MusicHomeController controller = Get.find();
   final MusicPlayerController playerController = Get.find();
   final ThemeController themeController = Get.find();
+  final PlayListController playListController = Get.find();
 
   @override
   void initState() {
@@ -38,6 +40,10 @@ class _HotDetailPageState extends State<HotDetailPage> {
     controller.checkIsColled(topListItem);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       load();
+      playListController.recordBean = PlayRecordList(
+          name: topListItem?.title ?? '未知列表',
+          key: topListItem?.id??'topListItem',
+          canDelete: true);
     });
   }
 
@@ -99,8 +105,8 @@ class _HotDetailPageState extends State<HotDetailPage> {
                       CommonUtil.showToast('列表已存在');
                     } else {
                       var playrecord = PlayRecordList(
-                          name: topListItem?.title ?? "",
-                          key: topListItem?.id ?? "",
+                          name: topListItem?.title ?? "未知列表",
+                          key: topListItem?.id ?? "topListItem",
                           canDelete: true);
                       var recordList = controller.recordList.value;
                       recordList.add(playrecord);
@@ -203,123 +209,26 @@ class _HotDetailPageState extends State<HotDetailPage> {
     return list.asMap().entries.map((entry) {
       final index = entry.key;
       final item = entry.value;
-      return GestureDetector(
-        onTap: () {
-          if (item.songBean.id != null) {
-            playerController.updataMedia(item);
-            Routes.goMusicPage();
-          }
-        },
-        child: PlayListCell(
-          item:item,
-          index:index,
-          isBottomSheet:false,
+      return PlayListCell(
+          item: item,
+          index: index,
+          isBottomSheet: false,
+          isNeedDelete: false,
           onDelete: deleteItem,
-        ),
-      );
+          onClickItem: clickItem);
     }).toList();
   }
 
-  // Widget playListCell(SongBean item, int index) {
-  //   final bool isPlaying = item.id == playerController.songBean.value.id;
-  //
-  //   return Padding(
-  //     padding: const EdgeInsets.symmetric(vertical: 8),
-  //     child: InkWell(
-  //       onTap: () {
-  //         playerController.playIndex.value = index;
-  //         playerController.upDataSong(item);
-  //         // var playRecordType = MusicSPManage.getCurrentPlayType();
-  //         // MusicSPManage.saveCurrentPlayIndex(playRecordType.key, index);
-  //       },
-  //       child: Row(
-  //         crossAxisAlignment: CrossAxisAlignment.center,
-  //         children: [
-  //           isPlaying
-  //               ? SizedBox(
-  //                   width: 30,
-  //                   height: 30,
-  //                   child: AudioBarsAnimated(
-  //                     barWidth: 2,
-  //                     barHeight: 10,
-  //                     color: Colors.redAccent,
-  //                   ),
-  //                 )
-  //               : const SizedBox.shrink(),
-  //           const SizedBox(width: 8),
-  //           SizedBox(
-  //             width: 36,
-  //             height: 36,
-  //             child: ClipOval(
-  //               child: LoadingImage(pic: getCover(item)),
-  //             ),
-  //           ),
-  //           const SizedBox(width: 10),
-  //           Expanded(
-  //             child: Column(
-  //               crossAxisAlignment: CrossAxisAlignment.start,
-  //               children: [
-  //                 Text(
-  //                   item.title.isNotEmpty ? item.title : (item.artist ?? ""),
-  //                   style: TextStyle(
-  //                     // color: isPlaying
-  //                     //     ? themeController.currentAppTheme.selectedTextColor
-  //                     //     : themeController.currentAppTheme.normalTextColor,
-  //                     fontSize: 13,
-  //                     fontWeight: FontWeight.w500,
-  //                   ),
-  //                   maxLines: 1,
-  //                   overflow: TextOverflow.ellipsis,
-  //                 ),
-  //                 if (item.artist != null)
-  //                   Text(
-  //                     item.artist!,
-  //                     style: TextStyle(
-  //                       // color: isPlaying
-  //                       //     ? themeController.currentAppTheme.selectedTextColor
-  //                       //     : Colors.grey,
-  //                       fontSize: 12,
-  //                     ),
-  //                     maxLines: 1,
-  //                     overflow: TextOverflow.ellipsis,
-  //                   ),
-  //               ],
-  //             ),
-  //           ),
-  //           InkWell(
-  //             onTap: () {
-  //               controller.subModel.value.musicList.remove(item);
-  //             },
-  //             child: const Padding(
-  //               padding: EdgeInsets.all(8.0),
-  //               child: Icon(Icons.close, color: Colors.red, size: 18),
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // String getTitle(SongBean songBean) {
-  //   // var songBean = songBean.value;
-  //   var title = songBean.title;
-  //   var artist = songBean.artist;
-  //   if (artist.isEmpty && title.isEmpty) {
-  //     return '未知歌曲';
-  //   }
-  //   return '$title $artist';
-  // }
-
-  // String getCover(SongBean songBean) {
-  //   // var songBean = this.songBean.value;
-  //   var artwork = songBean.artwork;
-  //   var id = songBean.id;
-  //   if (artwork.isEmpty || !artwork.startsWith('http')) {
-  //     return CommonUtil.getCoverImg(id);
-  //   }
-  //   return artwork;
-  // }
-
   void deleteItem(MusicBean value) {}
+
+  void clickItem() {
+    var musicList = controller.subModel.value.musicList;
+    List<MusicBean> musicPlayList = [];
+    for (int i = 0; i < musicList.length; i++) {
+      final item = musicList[i];
+      var musicBean = MusicBean(songBean: item, rawLrc: [], url: '');
+      musicPlayList.add(musicBean);
+    }
+    MusicSPManage.savePlayList(musicPlayList, topListItem?.id ?? "");
+  }
 }
