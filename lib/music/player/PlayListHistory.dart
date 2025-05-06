@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:lemon_tv/music/data/MusicBean.dart';
 import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 import 'package:lemon_tv/music/playlist/PlayListController.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
@@ -120,7 +121,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                     itemBuilder: (context, index) {
                       final item = controller.playList[index];
                       return PlayListCell(
-                          item: item, index: index, isBottomSheet: true);
+                          item: item, index: index, isBottomSheet: true,onDelete: deleteItem,);
                     },
                   ),
                 ),
@@ -134,5 +135,10 @@ class _PlayListHistoryState extends State<PlayListHistory> {
   String getPlayListName() {
     var playRecord = MusicSPManage.getCurrentPlayType();
     return playRecord.name;
+  }
+
+  void deleteItem(MusicBean item) {
+    playerController.removeSongInList(item);
+    playListController.playList.refresh();
   }
 }

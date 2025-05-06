@@ -79,6 +79,7 @@ class _PlayListPageState extends State<PlayListPage> {
                         item: list[index],
                         index: index,
                         isBottomSheet: false,
+                        onDelete: deleteItem,
                       );
                     },
                   );
@@ -88,5 +89,9 @@ class _PlayListPageState extends State<PlayListPage> {
         );
       }),
     );
+  }
+  void deleteItem(MusicBean item) {
+    controller.removeSongInList(item);
+    playerController.playList.refresh();
   }
 }

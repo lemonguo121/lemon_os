@@ -15,9 +15,15 @@ import '../playlist/PlayListController.dart';
 class PlayListCell extends StatelessWidget {
   final MusicBean item;
   final int index;
-  final bool isBottomSheet;//用来区分是底部弹起列表还是普通列表
+  final bool isBottomSheet; //用来区分是底部弹起列表还是普通列表
+  final ValueChanged<MusicBean> onDelete;
 
-  PlayListCell({super.key, required this.item, required this.index, required this.isBottomSheet});
+  PlayListCell(
+      {super.key,
+      required this.item,
+      required this.index,
+      required this.isBottomSheet,
+      required this.onDelete});
 
   final ThemeController themeController = Get.find();
   final PlayListController controller = Get.find();
@@ -26,7 +32,8 @@ class PlayListCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final bool isPlaying = item.songBean.id == playerController.songBean.value.id;
+      final bool isPlaying =
+          item.songBean.id == playerController.songBean.value.id;
 
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
@@ -37,14 +44,14 @@ class PlayListCell extends StatelessWidget {
             children: [
               isPlaying
                   ? const SizedBox(
-                width: 30,
-                height: 30,
-                child: AudioBarsAnimated(
-                  barWidth: 2,
-                  barHeight: 10,
-                  color: Colors.redAccent,
-                ),
-              )
+                      width: 30,
+                      height: 30,
+                      child: AudioBarsAnimated(
+                        barWidth: 2,
+                        barHeight: 10,
+                        color: Colors.redAccent,
+                      ),
+                    )
                   : const SizedBox.shrink(), // 保持结构对齐
               const SizedBox(width: 6),
               SizedBox(
@@ -67,7 +74,10 @@ class PlayListCell extends StatelessWidget {
                       style: TextStyle(
                         color: isPlaying
                             ? themeController.currentAppTheme.selectedTextColor
-                            :isBottomSheet?Colors.black: themeController.currentAppTheme.normalTextColor,
+                            : isBottomSheet
+                                ? Colors.black
+                                : themeController
+                                    .currentAppTheme.normalTextColor,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),
@@ -79,7 +89,8 @@ class PlayListCell extends StatelessWidget {
                         item.songBean.artist!,
                         style: TextStyle(
                           color: isPlaying
-                              ? themeController.currentAppTheme.selectedTextColor
+                              ? themeController
+                                  .currentAppTheme.selectedTextColor
                               : Colors.grey,
                           fontSize: 12,
                         ),
@@ -102,11 +113,12 @@ class PlayListCell extends StatelessWidget {
                   ),
                   InkWell(
                     onTap: () {
-                      if(isPlaying){
+                      if (isPlaying &&
+                          controller.recordBean?.key ==
+                              MusicSPManage.getCurrentPlayType().key) {
                         playerController.onNext();
                       }
-                      playerController.removeSongInList(item);
-                      controller.removeSongInList(item);
+                      onDelete(item);
                     },
                     child: const Padding(
                       padding: EdgeInsets.all(8.0),

@@ -40,7 +40,6 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
     if (playerController.player.playerState.processingState==ProcessingState.idle) {
       playerController.upDataSong(playerController.songBean.value);
     }
-    playerController.checkSongIsCollected();
     _initPlayerAndData();
 
     _needleController = AnimationController(

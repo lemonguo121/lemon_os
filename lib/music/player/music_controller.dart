@@ -132,6 +132,7 @@ class MusicPlayerController extends GetxController {
     final bean = songBean.value;
     player.play();
     updateMediaItem(bean);
+    checkSongIsCollected();
     var listHistory = MusicSPManage.getPlayList(MusicSPManage.history);
     if (!listHistory.any((song) => song.songBean.id == songBean.value.id)) {
       listHistory.insert(
