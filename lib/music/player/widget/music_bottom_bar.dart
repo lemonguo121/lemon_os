@@ -48,56 +48,72 @@ class MusicBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(bottom: 24, left: 16, right: 16, top: 8),
-      color: Colors.black.withOpacity(0.6),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // 播放控制按钮
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center, // 加这个也有帮助
             children: [
-              IconButton(
-                icon: const Icon(Icons.skip_previous,
-                    color: Colors.white, size: 28),
-                onPressed: onPrev,
-              ),
-              IconButton(
-                icon: Icon(
-                  isPlaying
-                      ? Icons.pause_circle_filled
-                      : Icons.play_circle_filled,
-                  color: Colors.white,
-                  size: 42,
+              // 上一首
+              SizedBox(
+                width: 48,
+                height: 48,
+                child: IconButton(
+                  icon: const Icon(Icons.skip_previous, size: 28, color: Colors.white),
+                  onPressed: onPrev,
                 ),
-                onPressed: onPlayPause,
               ),
-              IconButton(
-                icon:
-                    const Icon(Icons.skip_next, color: Colors.white, size: 28),
-                onPressed: onNext,
-              ),
+              // 播放/暂停
               SizedBox(
-                width: 10,
+                width: 64,
+                height: 64,
+                child: IconButton(
+                  icon: Icon(
+                    isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
+                    size: 42,
+                    color: Colors.white,
+                  ),
+                  onPressed: onPlayPause,
+                ),
               ),
-              IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white, size: 24),
-                onPressed: showMenu,
-              ),
+              // 下一首
               SizedBox(
-                width: 10,
+                width: 48,
+                height: 48,
+                child: IconButton(
+                  icon: const Icon(Icons.skip_next, size: 28, color: Colors.white),
+                  onPressed: onNext,
+                ),
               ),
-              // ❤️ 收藏按钮
+              const SizedBox(width: 10),
+              // 菜单
+              SizedBox(
+                width: 48,
+                height: 48,
+                child: IconButton(
+                  icon: const Icon(Icons.menu, size: 24, color: Colors.white),
+                  onPressed: showMenu,
+                ),
+              ),
+              const SizedBox(width: 10),
+              // 收藏
               Obx(() {
                 final isFav = playerController.isCurrentSongFavorite.value;
-                return IconButton(
-                  icon: Icon(
-                    isFav ? Icons.favorite : Icons.favorite_border,
-                    color: isFav ? Colors.redAccent : Colors.white,
-                    size: 24,
+                return SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: IconButton(
+                    icon: Icon(
+                      isFav ? Icons.favorite : Icons.favorite_border,
+                      size: 24,
+                      color: isFav ? Colors.redAccent : Colors.white,
+                    ),
+                    onPressed: () {
+                      playerController.toggleFavorite();
+                    },
                   ),
-                  onPressed: () {
-                    playerController.toggleFavorite();
-                  },
                 );
               }),
             ],
