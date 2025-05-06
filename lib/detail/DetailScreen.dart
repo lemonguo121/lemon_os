@@ -5,7 +5,6 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:lemon_tv/home/VideoInfoWidget.dart';
 import 'package:xml/xml.dart';
 
