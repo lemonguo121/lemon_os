@@ -8,6 +8,7 @@ import '../../routes/routes.dart';
 import '../../util/CommonUtil.dart';
 import '../../util/widget/LoadingImage.dart';
 import '../../util/widget/NoDataView.dart';
+import '../common/PlayListCell.dart';
 import '../data/MusicBean.dart';
 import '../data/PlayRecordList.dart';
 import '../music_home/music_home_controller.dart';
@@ -63,7 +64,10 @@ class _HotDetailPageState extends State<HotDetailPage> {
       return const Center(child: CircularProgressIndicator());
     }
     if (controller.subModel.value.musicList.isEmpty) {
-      return NoDataView(reload: load,errorTips: '暂无数据，点击刷新',);
+      return NoDataView(
+        reload: load,
+        errorTips: '暂无数据，点击刷新',
+      );
     }
     return _buildInfoAndListWidget();
   }
@@ -164,8 +168,7 @@ class _HotDetailPageState extends State<HotDetailPage> {
                     style: TextStyle(
                         fontSize: constraints.maxWidth * 0.05, // 5%宽度作为字体大小
                         fontWeight: FontWeight.bold,
-                        color:
-                        themeController.currentAppTheme.normalTextColor),
+                        color: themeController.currentAppTheme.normalTextColor),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -180,7 +183,7 @@ class _HotDetailPageState extends State<HotDetailPage> {
                     style: TextStyle(
                         fontSize: constraints.maxWidth * 0.03,
                         color:
-                        themeController.currentAppTheme.selectedTextColor),
+                            themeController.currentAppTheme.selectedTextColor),
                   ),
                 ],
               ),
@@ -193,120 +196,130 @@ class _HotDetailPageState extends State<HotDetailPage> {
 
   List<Widget> _buildSongList() {
     final musicList = controller.subModel.value.musicList;
-
-    return musicList.asMap().entries.map((entry) {
+    List<MusicBean> list = [];
+    for (var songBean in musicList) {
+      list.add(MusicBean(songBean: songBean, rawLrc: [], url: ''));
+    }
+    return list.asMap().entries.map((entry) {
       final index = entry.key;
       final item = entry.value;
       return GestureDetector(
         onTap: () {
-          if (item.id != null) {
-            playerController.upDataSong(item);
+          if (item.songBean.id != null) {
+            playerController.updataMedia(item);
             Routes.goMusicPage();
           }
         },
-        child: playListCell(item, index),
+        child: PlayListCell(
+          item:item,
+          index:index,
+          isBottomSheet:false,
+          onDelete: deleteItem,
+        ),
       );
     }).toList();
   }
 
-  Widget playListCell(SongBean item, int index) {
-    final bool isPlaying = item.id == playerController.songBean.value.id;
+  // Widget playListCell(SongBean item, int index) {
+  //   final bool isPlaying = item.id == playerController.songBean.value.id;
+  //
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(vertical: 8),
+  //     child: InkWell(
+  //       onTap: () {
+  //         playerController.playIndex.value = index;
+  //         playerController.upDataSong(item);
+  //         // var playRecordType = MusicSPManage.getCurrentPlayType();
+  //         // MusicSPManage.saveCurrentPlayIndex(playRecordType.key, index);
+  //       },
+  //       child: Row(
+  //         crossAxisAlignment: CrossAxisAlignment.center,
+  //         children: [
+  //           isPlaying
+  //               ? SizedBox(
+  //                   width: 30,
+  //                   height: 30,
+  //                   child: AudioBarsAnimated(
+  //                     barWidth: 2,
+  //                     barHeight: 10,
+  //                     color: Colors.redAccent,
+  //                   ),
+  //                 )
+  //               : const SizedBox.shrink(),
+  //           const SizedBox(width: 8),
+  //           SizedBox(
+  //             width: 36,
+  //             height: 36,
+  //             child: ClipOval(
+  //               child: LoadingImage(pic: getCover(item)),
+  //             ),
+  //           ),
+  //           const SizedBox(width: 10),
+  //           Expanded(
+  //             child: Column(
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 Text(
+  //                   item.title.isNotEmpty ? item.title : (item.artist ?? ""),
+  //                   style: TextStyle(
+  //                     // color: isPlaying
+  //                     //     ? themeController.currentAppTheme.selectedTextColor
+  //                     //     : themeController.currentAppTheme.normalTextColor,
+  //                     fontSize: 13,
+  //                     fontWeight: FontWeight.w500,
+  //                   ),
+  //                   maxLines: 1,
+  //                   overflow: TextOverflow.ellipsis,
+  //                 ),
+  //                 if (item.artist != null)
+  //                   Text(
+  //                     item.artist!,
+  //                     style: TextStyle(
+  //                       // color: isPlaying
+  //                       //     ? themeController.currentAppTheme.selectedTextColor
+  //                       //     : Colors.grey,
+  //                       fontSize: 12,
+  //                     ),
+  //                     maxLines: 1,
+  //                     overflow: TextOverflow.ellipsis,
+  //                   ),
+  //               ],
+  //             ),
+  //           ),
+  //           InkWell(
+  //             onTap: () {
+  //               controller.subModel.value.musicList.remove(item);
+  //             },
+  //             child: const Padding(
+  //               padding: EdgeInsets.all(8.0),
+  //               child: Icon(Icons.close, color: Colors.red, size: 18),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: InkWell(
-        onTap: () {
-          playerController.playIndex.value = index;
-          playerController.upDataSong(item);
-          // var playRecordType = MusicSPManage.getCurrentPlayType();
-          // MusicSPManage.saveCurrentPlayIndex(playRecordType.key, index);
-        },
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            isPlaying
-                ? SizedBox(
-                    width: 30,
-                    height: 30,
-                    child: AudioBarsAnimated(
-                      barWidth: 2,
-                      barHeight: 10,
-                      color: Colors.redAccent,
-                    ),
-                  )
-                : const SizedBox.shrink(),
-            const SizedBox(width: 8),
-            SizedBox(
-              width: 36,
-              height: 36,
-              child: ClipOval(
-                child: LoadingImage(pic: getCover(item)),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.title.isNotEmpty ? item.title : (item.artist ?? ""),
-                    style: TextStyle(
-                      // color: isPlaying
-                      //     ? themeController.currentAppTheme.selectedTextColor
-                      //     : themeController.currentAppTheme.normalTextColor,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (item.artist != null)
-                    Text(
-                      item.artist!,
-                      style: TextStyle(
-                        // color: isPlaying
-                        //     ? themeController.currentAppTheme.selectedTextColor
-                        //     : Colors.grey,
-                        fontSize: 12,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                ],
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                controller.subModel.value.musicList.remove(item);
-              },
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Icon(Icons.close, color: Colors.red, size: 18),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // String getTitle(SongBean songBean) {
+  //   // var songBean = songBean.value;
+  //   var title = songBean.title;
+  //   var artist = songBean.artist;
+  //   if (artist.isEmpty && title.isEmpty) {
+  //     return '未知歌曲';
+  //   }
+  //   return '$title $artist';
+  // }
 
-  String getTitle(SongBean songBean) {
-    // var songBean = songBean.value;
-    var title = songBean.title;
-    var artist = songBean.artist;
-    if (artist.isEmpty && title.isEmpty) {
-      return '未知歌曲';
-    }
-    return '$title $artist';
-  }
+  // String getCover(SongBean songBean) {
+  //   // var songBean = this.songBean.value;
+  //   var artwork = songBean.artwork;
+  //   var id = songBean.id;
+  //   if (artwork.isEmpty || !artwork.startsWith('http')) {
+  //     return CommonUtil.getCoverImg(id);
+  //   }
+  //   return artwork;
+  // }
 
-  String getCover(SongBean songBean) {
-    // var songBean = this.songBean.value;
-    var artwork = songBean.artwork;
-    var id = songBean.id;
-    if (artwork.isEmpty || !artwork.startsWith('http')) {
-      return CommonUtil.getCoverImg(id);
-    }
-    return artwork;
-  }
+  void deleteItem(MusicBean value) {}
 }

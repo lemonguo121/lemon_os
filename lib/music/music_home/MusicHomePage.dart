@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/music/music_home/music_home_controller.dart';
@@ -31,6 +32,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
   final MusicPlayerController playerController = Get.find();
   final ThemeController themeController = Get.find();
   final ScrollController _scrollController = ScrollController();
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
@@ -41,29 +43,52 @@ class _MusicHomePageState extends State<MusicHomePage> {
     });
   }
 
+  void _handleKeyEvent(RawKeyEvent event) {
+    if (event is RawKeyDownEvent) {
+      if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+        playerController.adjustVolume(-1);
+      } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+        playerController.adjustVolume(1);
+      }
+    } else if (event is RawKeyUpEvent) {
+      // 键盘抬起时的事件
+    }
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      if (controller.isLoading.value) {
-        return Column(children: [
-          MyLoadingIndicator(isLoading: controller.isLoading.value)
-        ]);
-      }
-      var isVertical = CommonUtil.isVertical(context);
-      return Scaffold(
-        body: Column(
-          children: [
-            SizedBox(height: isVertical ? 55.0 : 40),
-            _buildSearch(),
-            SizedBox(
-              height: 16.0.h,
-            ),
-            Expanded(child: getErrorView()),
-            _buildMiniBar()
-          ],
-        ),
-      );
-    });
+    return RawKeyboardListener(
+      focusNode: _focusNode,
+      autofocus: true,
+      onKey: _handleKeyEvent,
+      child: Obx(() {
+        if (controller.isLoading.value) {
+          return Column(
+            children: [
+              MyLoadingIndicator(isLoading: controller.isLoading.value)
+            ],
+          );
+        }
+        var isVertical = CommonUtil.isVertical(context);
+        return Scaffold(
+          body: Column(
+            children: [
+              SizedBox(height: isVertical ? 55.0 : 40),
+              _buildSearch(),
+              SizedBox(height: 16.0.h),
+              Expanded(child: getErrorView()),
+              _buildMiniBar(),
+            ],
+          ),
+        );
+      }),
+    );
   }
 
   Widget _buildSearch() {
@@ -311,7 +336,8 @@ class _MusicHomePageState extends State<MusicHomePage> {
         itemCount: controller.recordList.value.length,
         itemBuilder: (context, index) {
           var record = controller.recordList.value[index];
-          print('_buildPlayRecordList record = ${record.name}  record.key = ${record.key}');
+          print(
+              '_buildPlayRecordList record = ${record.name}  record.key = ${record.key}');
           List<MusicBean> playList = MusicSPManage.getPlayList(record.key);
           return GestureDetector(
             behavior: HitTestBehavior.translucent, // ✅ 允许空白区域也响应点击
@@ -426,10 +452,10 @@ class _MusicHomePageState extends State<MusicHomePage> {
               SizedBox(
                 height: isVertical ? 290.h : 220.h, // 高度 = 每个 item 的高度 × 2 + 间距
                 child: GridView.builder(
-                  scrollDirection:isVertical? Axis.horizontal:Axis.vertical,
+                  scrollDirection: isVertical ? Axis.horizontal : Axis.vertical,
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount:isVertical? 2:3, // 显示两行
+                    crossAxisCount: isVertical ? 2 : 3, // 显示两行
                     mainAxisSpacing: 8.0, // item 横向间距
                     crossAxisSpacing: 8.0, // item 纵向间距
                     childAspectRatio: isVertical ? 1 : 1.2, // 宽高比，自行调整

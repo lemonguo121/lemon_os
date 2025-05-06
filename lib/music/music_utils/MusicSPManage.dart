@@ -25,6 +25,19 @@ class MusicSPManage {
   static const String music_play_record = "music_play_record"; //播放列表
   static const String music_customize = "customize"; //自定义文件名前缀
   static const String music_play_mode_key = 'music_play_mode'; // 播放模式key
+  static const String music_volume = 'music_volume'; // 音量key
+
+  // 获取当前的音乐媒体音量
+  static double getCurrentVolume() {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    return sp.getDouble(music_volume) ?? 1.0;
+  }
+
+  // 保存当前音量
+  static saveCurrentVolume(double volume) {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    return sp.setDouble(music_volume, volume);
+  }
 
   // 保存指定仓库
   static saveSubscription(List<StorehouseBean> subscriptions) {

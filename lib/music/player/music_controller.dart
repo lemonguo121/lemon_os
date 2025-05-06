@@ -23,6 +23,7 @@ class MusicPlayerController extends GetxController {
   var playIndex = 0.obs;
   Rx<PlayMode> playMode = (MusicSPManage.getCurrentPlayMode()).obs;
   RxBool isCurrentSongFavorite = false.obs;
+  var currentVolume = 1.0.obs;
 
   var songBean = SongBean(
           id: '',
@@ -93,6 +94,9 @@ class MusicPlayerController extends GetxController {
     var currentPlayType = MusicSPManage.getCurrentPlayType();
     playList.value = MusicSPManage.getPlayList(currentPlayType.key);
     playIndex.value = MusicSPManage.getCurrentPlayIndex(currentPlayType.key);
+
+
+    currentVolume.value = MusicSPManage.getCurrentVolume();
     if (playIndex.value > playList.length - 1) {
       playIndex.value = 0;
     }
@@ -110,6 +114,7 @@ class MusicPlayerController extends GetxController {
       }
     });
 
+    player.setVolume(currentVolume.value);
     // 监听播放进度
     player.positionStream.listen((position) {
       currentPosition.value = position;
@@ -143,6 +148,12 @@ class MusicPlayerController extends GetxController {
       playList.refresh();
     }
     isLoading.value = false;
+  }
+
+  void adjustVolume(double dy) async {
+    currentVolume.value = (currentVolume.value + dy * 0.01).clamp(0.0, 1.0);
+    await player.setVolume(currentVolume.value);
+    MusicSPManage.saveCurrentVolume(currentVolume.value);
   }
 
   Future<void> upDataSong(SongBean song) async {

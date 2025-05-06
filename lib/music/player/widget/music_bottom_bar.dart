@@ -14,6 +14,7 @@ class MusicBottomBar extends StatelessWidget {
   final VoidCallback onNext;
   final VoidCallback showMenu;
   final Function(double) onSeek;
+
   MusicBottomBar({
     super.key,
     required this.isPlaying,
@@ -25,6 +26,7 @@ class MusicBottomBar extends StatelessWidget {
     required this.showMenu,
     required this.onSeek,
   });
+
   final ThemeController themeController = Get.find();
   final MusicPlayerController playerController = Get.find();
 
@@ -37,10 +39,18 @@ class MusicBottomBar extends StatelessWidget {
   Widget _playModeIconWidget(PlayMode mode) {
     switch (MusicSPManage.getCurrentPlayMode()) {
       case PlayMode.single:
-        return Image.asset('assets/music/repeat.png', width: 20, height: 20,color: themeController.currentAppTheme.selectedTextColor,);
+        return Image.asset(
+          'assets/music/repeat.png',
+          width: 20,
+          height: 20,
+          color: themeController.currentAppTheme.selectedTextColor,
+        );
       case PlayMode.loop:
       default:
-        return Image.asset('assets/music/loop.png', width: 20, height: 20,color: themeController.currentAppTheme.selectedTextColor);
+        return Image.asset('assets/music/loop.png',
+            width: 20,
+            height: 20,
+            color: themeController.currentAppTheme.selectedTextColor);
     }
   }
 
@@ -53,7 +63,7 @@ class MusicBottomBar extends StatelessWidget {
         children: [
           // 播放控制按钮
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            // mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center, // 加这个也有帮助
             children: [
               // 收藏
@@ -74,39 +84,47 @@ class MusicBottomBar extends StatelessWidget {
                   ),
                 );
               }),
-              const SizedBox(width: 15),
               // 上一首
-              SizedBox(
-                width: 48,
-                height: 48,
-                child: IconButton(
-                  icon: const Icon(Icons.skip_previous, size: 28, color: Colors.white),
-                  onPressed: onPrev,
-                ),
-              ),
-              // 播放/暂停
-              SizedBox(
-                width: 64,
-                height: 64,
-                child: IconButton(
-                  icon: Icon(
-                    isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
-                    size: 42,
-                    color: Colors.white,
+              Expanded(
+                  child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: IconButton(
+                      icon: const Icon(Icons.skip_previous,
+                          size: 28, color: Colors.white),
+                      onPressed: onPrev,
+                    ),
                   ),
-                  onPressed: onPlayPause,
-                ),
-              ),
-              // 下一首
-              SizedBox(
-                width: 48,
-                height: 48,
-                child: IconButton(
-                  icon: const Icon(Icons.skip_next, size: 28, color: Colors.white),
-                  onPressed: onNext,
-                ),
-              ),
-              const SizedBox(width: 20),
+                  // 播放/暂停
+                  SizedBox(
+                    width: 64,
+                    height: 64,
+                    child: IconButton(
+                      icon: Icon(
+                        isPlaying
+                            ? Icons.pause_circle_filled
+                            : Icons.play_circle_filled,
+                        size: 42,
+                        color: Colors.white,
+                      ),
+                      onPressed: onPlayPause,
+                    ),
+                  ),
+                  // 下一首
+                  SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: IconButton(
+                      icon: const Icon(Icons.skip_next,
+                          size: 28, color: Colors.white),
+                      onPressed: onNext,
+                    ),
+                  ),
+                ],
+              )),
               // 菜单
               SizedBox(
                 width: 48,
@@ -118,8 +136,6 @@ class MusicBottomBar extends StatelessWidget {
               ),
             ],
           ),
-
-          const SizedBox(height: 0),
 
           // 时间 + 播放模式 + 进度条
           Row(
@@ -134,7 +150,8 @@ class MusicBottomBar extends StatelessWidget {
                       position.inSeconds.clamp(0, total.inSeconds).toDouble(),
                   min: 0,
                   max: total.inSeconds.toDouble(),
-                  activeColor: themeController.currentAppTheme.selectedTextColor,
+                  activeColor:
+                      themeController.currentAppTheme.selectedTextColor,
                   inactiveColor: Colors.white24,
                   onChanged: onSeek,
                 ),
@@ -143,7 +160,7 @@ class MusicBottomBar extends StatelessWidget {
                 _formatTime(total),
                 style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
-              Obx((){
+              Obx(() {
                 return IconButton(
                   icon: _playModeIconWidget(playerController.playMode.value),
                   onPressed: playerController.togglePlayMode,

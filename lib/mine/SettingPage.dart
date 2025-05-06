@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:lemon_tv/music/player/music_controller.dart';
 import 'package:lemon_tv/util/CommonUtil.dart';
 import 'package:lemon_tv/util/SPManager.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
@@ -16,6 +17,7 @@ class SettingPage extends StatefulWidget {
 
 class _SettingPageState extends State<SettingPage> {
   final ScrollController _scrollController = ScrollController();
+  MusicPlayerController playerController = Get.find();
   List<double> speedList = [2.0, 3.0, 4.0, 5.0];
   var _selecteIndex = 1;
   double longPressSpeed = 2.0;
@@ -42,7 +44,8 @@ class _SettingPageState extends State<SettingPage> {
                 color: themeController.currentAppTheme.normalTextColor),
             title: Text(
               '设置',
-              style: TextStyle(color: themeController.currentAppTheme.normalTextColor),
+              style: TextStyle(
+                  color: themeController.currentAppTheme.normalTextColor),
             ),
           ),
           body: Column(
@@ -55,7 +58,8 @@ class _SettingPageState extends State<SettingPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text('$longPressSpeed',
-                        style: TextStyle(color: themeController.currentAppTheme.titleColr)),
+                        style: TextStyle(
+                            color: themeController.currentAppTheme.titleColr)),
                     Icon(
                       Icons.keyboard_arrow_right,
                       color: themeController.currentAppTheme.titleColr,
@@ -63,6 +67,43 @@ class _SettingPageState extends State<SettingPage> {
                   ],
                 ),
                 onTap: (() => showSelectDialog()),
+              ),
+              ListTile(
+                title: Text('音乐音量',
+                    style: TextStyle(
+                        color: themeController.currentAppTheme.titleColr)),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('${(playerController.currentVolume.value * 100).toStringAsFixed(2)}%',
+                        style: TextStyle(
+                            color: themeController.currentAppTheme.titleColr)),
+                    SizedBox(
+                      width: 16,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        playerController.adjustVolume(-5);
+                      },
+                      child: Text('音量-',
+                          style: TextStyle(
+                              color:
+                                  themeController.currentAppTheme.titleColr)),
+                    ),
+                    SizedBox(
+                      width: 16,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        playerController.adjustVolume(5);
+                      },
+                      child: Text('音量+',
+                          style: TextStyle(
+                              color:
+                                  themeController.currentAppTheme.titleColr)),
+                    ),
+                  ],
+                ),
               )
             ],
           ),
