@@ -13,6 +13,7 @@ import '../music_home/music_home_controller.dart';
 import '../music_http/music_http_rquest.dart';
 import '../music_utils/MusicSPManage.dart';
 
+// 主要处理 当前播放的歌曲、列表等信息
 class MusicPlayerController extends GetxController {
   final AudioPlayer player = AudioPlayer();
   late final MyAudioHandler audioHandler;
@@ -25,6 +26,7 @@ class MusicPlayerController extends GetxController {
   RxBool isCurrentSongFavorite = false.obs;
   var currentVolume = 1.0.obs;
 
+  // 当前播放的歌曲信息
   var songBean = SongBean(
           id: '',
           platform: '',
@@ -36,10 +38,8 @@ class MusicPlayerController extends GetxController {
       .obs;
   var lyrics = <LyricLine>[].obs;
   var isLoading = true.obs;
-
   var playList = <MusicBean>[].obs;
 
-  // var listHistory = <MusicBean>[].obs;
 
   String getTitle() {
     // var songBean = songBean.value;

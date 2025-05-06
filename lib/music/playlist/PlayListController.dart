@@ -21,6 +21,5 @@ class PlayListController extends GetxController {
     var id = musicBean.songBean.id;
     var platform = musicBean.songBean.platform;
     MusicCacheUtil.deleteAllCacheForSong(id, platform);
-
   }
 }

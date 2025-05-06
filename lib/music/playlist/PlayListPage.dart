@@ -11,6 +11,7 @@ import '../../util/widget/LoadingImage.dart';
 import '../common/PlayListCell.dart';
 import '../data/MusicBean.dart';
 import '../data/SongBean.dart';
+import '../music_home/music_home_controller.dart';
 import '../music_utils/MusicSPManage.dart';
 import '../player/widget/music_yinfu.dart';
 import 'PlayListController.dart';
@@ -26,7 +27,7 @@ class _PlayListPageState extends State<PlayListPage> {
   ThemeController themeController = Get.find();
   PlayListController controller = Get.find();
   MusicPlayerController playerController = Get.find();
-
+  final MusicHomeController homeController = Get.find();
   @override
   void initState() {
     super.initState();
@@ -94,7 +95,10 @@ class _PlayListPageState extends State<PlayListPage> {
   }
   void deleteItem(MusicBean item) {
     controller.removeSongInList(item);
-    playerController.playList.refresh();
+    if(controller.recordBean?.key==  MusicSPManage.getCurrentPlayType().key){
+      playerController.removeSongInList(item);
+    }
+    homeController.recordList.refresh();
   }
 
   void clickItem() {
