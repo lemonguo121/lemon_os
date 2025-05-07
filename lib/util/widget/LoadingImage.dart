@@ -14,7 +14,7 @@ class LoadingImage extends StatelessWidget {
       imageUrl: pic,
       width: double.infinity,
       height: double.infinity,
-      fit: BoxFit.cover,
+      fit: BoxFit.cover ,
       placeholder: MyLoadingBuilder.placeholderBuilder,
       errorWidget: MyLoadingBuilder.errorBuilder,
     );
