@@ -1,5 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lemon_tv/music/data/MusicBean.dart';
@@ -39,7 +40,6 @@ class MusicPlayerController extends GetxController {
   var lyrics = <LyricLine>[].obs;
   var isLoading = true.obs;
   var playList = <MusicBean>[].obs;
-
 
   String getTitle() {
     // var songBean = songBean.value;
@@ -95,7 +95,6 @@ class MusicPlayerController extends GetxController {
     playList.value = MusicSPManage.getPlayList(currentPlayType.key);
     playIndex.value = MusicSPManage.getCurrentPlayIndex(currentPlayType.key);
 
-
     currentVolume.value = MusicSPManage.getCurrentVolume();
     if (playIndex.value > playList.length - 1) {
       playIndex.value = 0;
@@ -138,6 +137,8 @@ class MusicPlayerController extends GetxController {
     player.play();
     updateMediaItem(bean);
     checkSongIsCollected();
+
+    // 更新历史记录
     var listHistory = MusicSPManage.getPlayList(MusicSPManage.history);
     if (!listHistory.any((song) => song.songBean.id == songBean.value.id)) {
       listHistory.insert(
@@ -145,6 +146,10 @@ class MusicPlayerController extends GetxController {
         MusicBean(songBean: songBean.value, rawLrc: lyrics, url: url),
       );
       MusicSPManage.savePlayList(listHistory, MusicSPManage.history);
+      // 如果当前是在播放历史记录，更新当前播放列表
+      if (MusicSPManage.history == MusicSPManage.getCurrentPlayType().key) {
+        playList.value = listHistory;
+      }
       playList.refresh();
     }
     isLoading.value = false;
@@ -207,39 +212,48 @@ class MusicPlayerController extends GetxController {
     isLoading.value = true;
     final song = songBean.value;
     final platform = song.platform ?? '';
+    try {
+      // ===== 尝试加载音频缓存 =====
+      final hasAudioCache =
+          await MusicCacheUtil.hasAudioCache(song.id, platform);
+      String playUrl;
 
-    // ===== 尝试加载音频缓存 =====
-    final hasAudioCache = await MusicCacheUtil.hasAudioCache(song.id, platform);
-    String playUrl;
+      if (hasAudioCache) {
+        final file = await MusicCacheUtil.getCachedFile(song.id, platform);
+        playUrl = file.path;
+      } else {
+        final audioResp = await NetworkManager().get('/getMediaSource',
+            queryParameters: {'id': song.id, 'plugin': platform});
+        playUrl = audioResp.data['url'];
+        await MusicCacheUtil.downloadAndCache(playUrl, song.id, platform);
+      }
 
-    if (hasAudioCache) {
-      final file = await MusicCacheUtil.getCachedFile(song.id, platform);
-      playUrl = file.path;
-    } else {
-      final audioResp = await NetworkManager().get('/getMediaSource',
-          queryParameters: {'id': song.id, 'plugin': platform});
-      playUrl = audioResp.data['url'];
-      await MusicCacheUtil.downloadAndCache(playUrl, song.id, platform);
+      // ===== 歌词缓存处理 =====
+      final hasLyricCache =
+          await MusicCacheUtil.hasLyricCache(song.id, platform);
+      String rawLrc;
+
+      if (hasLyricCache) {
+        rawLrc = await MusicCacheUtil.getCachedLyric(song.id, platform);
+      } else {
+        final rawLrcResp = await NetworkManager().get('/lyric',
+            queryParameters: {'id': song.id, 'plugin': platform});
+        rawLrc = rawLrcResp.data['rawLrc'] ?? '';
+        await MusicCacheUtil.saveLyric(rawLrc, song.id, platform);
+      }
+
+      // ===== 设置播放器并开始播放 =====
+      lyrics.value = _parseLrc(rawLrc);
+      print(
+          '********* platform = $platform   hasAudioCache = $hasAudioCache  playUrl = $playUrl');
+      await initPlayer(playUrl, hasAudioCache);
+    } on DioException catch (e) {
+      print('请求失败：$e');
+      onNext();
+    } catch (e) {
+      print(e);
+      onNext();
     }
-
-    // ===== 歌词缓存处理 =====
-    final hasLyricCache = await MusicCacheUtil.hasLyricCache(song.id, platform);
-    String rawLrc;
-
-    if (hasLyricCache) {
-      rawLrc = await MusicCacheUtil.getCachedLyric(song.id, platform);
-    } else {
-      final rawLrcResp = await NetworkManager()
-          .get('/lyric', queryParameters: {'id': song.id, 'plugin': platform});
-      rawLrc = rawLrcResp.data['rawLrc'] ?? '';
-      await MusicCacheUtil.saveLyric(rawLrc, song.id, platform);
-    }
-
-    // ===== 设置播放器并开始播放 =====
-    lyrics.value = _parseLrc(rawLrc);
-    print(
-        '********* platform = $platform   hasAudioCache = $hasAudioCache  playUrl = $playUrl');
-    await initPlayer(playUrl, hasAudioCache);
   }
 
   List<LyricLine> _parseLrc(String rawLrc) {
