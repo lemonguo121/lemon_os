@@ -5,12 +5,13 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 class CacheUtil {
   /// 获取缓存大小 (返回 MB)
   static Future<double> getCacheSize() async {
-    final cacheDir = await getTemporaryDirectory();
+    final tempDir = await getTemporaryDirectory(); // 图片缓存
+    final docDir = await getApplicationDocumentsDirectory(); // 歌曲 + 歌词缓存
 
     final List<Directory> targetDirs = [
-      Directory("${cacheDir.path}/libCachedImageData"), // flutter_cache_manager
-      Directory("${cacheDir.path}/music_cache"),         // 歌曲缓存
-      Directory("${cacheDir.path}/lyric_cache"),         // 歌词缓存
+      Directory("${tempDir.path}/libCachedImageData"), // flutter_cache_manager
+      Directory("${docDir.path}/music_cache"),         // 歌曲缓存
+      Directory("${docDir.path}/lyric_cache"),         // 歌词缓存
     ];
 
     int totalSize = 0;
@@ -29,12 +30,13 @@ class CacheUtil {
 
   /// 清理缓存
   static Future<void> clearCache() async {
-    final cacheDir = await getTemporaryDirectory();
+    final tempDir = await getTemporaryDirectory();
+    final docDir = await getApplicationDocumentsDirectory();
 
     final List<Directory> targetDirs = [
-      Directory("${cacheDir.path}/libCachedImageData"),
-      Directory("${cacheDir.path}/music_cache"),
-      Directory("${cacheDir.path}/lyric_cache"),
+      Directory("${tempDir.path}/libCachedImageData"),
+      Directory("${docDir.path}/music_cache"),
+      Directory("${docDir.path}/lyric_cache"),
     ];
 
     for (var dir in targetDirs) {

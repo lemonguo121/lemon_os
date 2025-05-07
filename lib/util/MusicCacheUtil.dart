@@ -2,30 +2,31 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 class MusicCacheUtil {
-  /// 获取缓存目录（平台 + 类型）
+  /// 获取持久缓存目录（避免系统清理）
   static Future<String> _getBasePath() async {
-    final dir = await getTemporaryDirectory();
+    final dir = await getApplicationDocumentsDirectory(); // 改这里
     return dir.path;
   }
 
-  /// 获取缓存文件路径
+  /// 获取音频缓存文件路径
   static Future<File> _getFile(String id, String platform, String ext) async {
     final base = await _getBasePath();
     return File('$base/music_cache/${platform}_$id.$ext');
   }
 
+  /// 获取歌词缓存文件路径
   static Future<File> _getLyricFile(String id, String platform) async {
     final base = await _getBasePath();
     return File('$base/lyric_cache/${platform}_$id.lrc');
   }
 
-  /// 检查是否有音频缓存
+  /// 是否有音频缓存
   static Future<bool> hasAudioCache(String id, String platform) async {
     final file = await _getFile(id, platform, 'mp3');
     return file.exists();
   }
 
-  /// 检查是否有歌词缓存
+  /// 是否有歌词缓存
   static Future<bool> hasLyricCache(String id, String platform) async {
     final file = await _getLyricFile(id, platform);
     return file.exists();
@@ -64,7 +65,7 @@ class MusicCacheUtil {
     await file.writeAsString(lyric);
   }
 
-  /// 删除指定音频缓存文件
+  /// 删除音频缓存
   static Future<void> deleteAudioCache(String id, String platform) async {
     final file = await _getFile(id, platform, 'mp3');
     if (await file.exists()) {
@@ -72,7 +73,7 @@ class MusicCacheUtil {
     }
   }
 
-  /// 删除指定歌词缓存文件
+  /// 删除歌词缓存
   static Future<void> deleteLyricCache(String id, String platform) async {
     final file = await _getLyricFile(id, platform);
     if (await file.exists()) {
@@ -80,7 +81,7 @@ class MusicCacheUtil {
     }
   }
 
-  // 删除某首歌歌词和音频缓存
+  /// 删除某首歌的全部缓存
   static Future<void> deleteAllCacheForSong(String id, String platform) async {
     await deleteAudioCache(id, platform);
     await deleteLyricCache(id, platform);
