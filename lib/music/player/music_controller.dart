@@ -214,11 +214,8 @@ class MusicPlayerController extends GetxController {
     final song = songBean.value;
     final platform = song.platform ?? '';
     try {
-      // ===== 尝试加载音频缓存 =====
-      final hasAudioCache =
-          await MusicCacheUtil.hasAudioCache(song.id, platform);
       String playUrl;
-
+      final hasAudioCache = await MusicCacheUtil.hasAudioCache(song.id, platform);
       if (hasAudioCache) {
         final file = await MusicCacheUtil.getCachedFile(song.id, platform);
         playUrl = file.path;
@@ -226,13 +223,13 @@ class MusicPlayerController extends GetxController {
         final audioResp = await NetworkManager().get('/getMediaSource',
             queryParameters: {'id': song.id, 'plugin': platform});
         playUrl = audioResp.data['url'];
-        await MusicCacheUtil.downloadAndCache(playUrl, song.id, platform);
+        MusicCacheUtil.downloadAndCache(playUrl, song.id, platform)
+            .catchError((e) => print('音频缓存失败：$e'));
       }
-
       // ===== 歌词缓存处理 =====
-      final hasLyricCache =
-          await MusicCacheUtil.hasLyricCache(song.id, platform);
       String rawLrc;
+      final hasLyricCache =
+      await MusicCacheUtil.hasLyricCache(song.id, platform);
 
       if (hasLyricCache) {
         rawLrc = await MusicCacheUtil.getCachedLyric(song.id, platform);
@@ -240,13 +237,12 @@ class MusicPlayerController extends GetxController {
         final rawLrcResp = await NetworkManager().get('/lyric',
             queryParameters: {'id': song.id, 'plugin': platform});
         rawLrc = rawLrcResp.data['rawLrc'] ?? '';
-        await MusicCacheUtil.saveLyric(rawLrc, song.id, platform);
+        // 异步缓存歌词
+        MusicCacheUtil.saveLyric(rawLrc, song.id, platform)
+            .catchError((e) => print('歌词缓存失败：$e'));
       }
-
-      // ===== 设置播放器并开始播放 =====
       lyrics.value = _parseLrc(rawLrc);
-      print(
-          '********* platform = $platform   hasAudioCache = $hasAudioCache  playUrl = $playUrl');
+      print('********* hasAudioCache = $hasAudioCache  playUrl = $playUrl ');
       await initPlayer(playUrl, hasAudioCache);
     } on DioException catch (e) {
       print('请求失败：$e');
