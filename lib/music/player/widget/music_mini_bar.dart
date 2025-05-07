@@ -175,14 +175,14 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
           ),
         ));
   }
-  Widget _playModeIconWidget(PlayMode mode) {
+  Widget _playModeIconWidget(LoopMode mode) {
     switch (mode) {
-      case PlayMode.single:
+      case LoopMode.one:
         return Image.asset('assets/music/repeat.png',
             width: 20,
             height: 20,
             color: themeController.currentAppTheme.selectedTextColor);
-      case PlayMode.loop:
+      case LoopMode.off:
       default:
         return Image.asset('assets/music/loop.png',
             width: 20,

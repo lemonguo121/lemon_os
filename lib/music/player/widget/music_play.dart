@@ -28,7 +28,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
   static const double _lineHeight = 37;
   bool showMiniBar = false;
   MusicPlayerController playerController = Get.find();
-  Rx<PlayMode> playMode = (MusicSPManage.getCurrentPlayMode()).obs;
+  Rx<LoopMode> playMode = (MusicSPManage.getCurrentPlayMode()).obs;
   late AnimationController _needleController;
   late Animation<double> _needleAnimation;
   @override

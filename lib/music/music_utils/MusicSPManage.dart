@@ -2,14 +2,13 @@ import 'dart:convert';
 import 'dart:core';
 
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:lemon_tv/music/data/MusicBean.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../http/data/SubscripBean.dart';
 import '../data/PlayRecordList.dart';
 import '../data/PluginBean.dart';
-
-enum PlayMode { loop, single }
 
 class MusicSPManage {
   static const String music_plugins = "music_plugins";
@@ -194,14 +193,14 @@ class MusicSPManage {
   }
 
   // 获取当前的播放模式
-  static PlayMode getCurrentPlayMode() {
+  static LoopMode getCurrentPlayMode() {
     SharedPreferences sp = Get.find<SharedPreferences>();
-    int index = sp.getInt(music_play_mode_key) ?? 0; // 默认 loop
-    return PlayMode.values[index];
+    int index = sp.getInt(music_play_mode_key) ?? 0; //
+    return LoopMode.values[index];
   }
 
   // 保存当前的播放模式
-  static void saveCurrentPlayMode(PlayMode mode) {
+  static void saveCurrentPlayMode(LoopMode mode) {
     SharedPreferences sp = Get.find<SharedPreferences>();
     sp.setInt(music_play_mode_key, mode.index);
   }

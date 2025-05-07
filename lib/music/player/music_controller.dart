@@ -23,7 +23,7 @@ class MusicPlayerController extends GetxController {
   var currentPosition = Duration.zero.obs;
   var totalDuration = Duration.zero.obs;
   var playIndex = 0.obs;
-  Rx<PlayMode> playMode = (MusicSPManage.getCurrentPlayMode()).obs;
+  Rx<LoopMode> playMode = (MusicSPManage.getCurrentPlayMode()).obs;
   RxBool isCurrentSongFavorite = false.obs;
   var currentVolume = 1.0.obs;
 
@@ -111,9 +111,11 @@ class MusicPlayerController extends GetxController {
           player.loopMode != LoopMode.one) {
         onNext();
       }
+      print(' player.loopMode = ${player.loopMode}');
     });
-
+    playMode.value = MusicSPManage.getCurrentPlayMode();
     player.setVolume(currentVolume.value);
+    player.setLoopMode(playMode.value);
     // 监听播放进度
     player.positionStream.listen((position) {
       currentPosition.value = position;
@@ -291,16 +293,15 @@ class MusicPlayerController extends GetxController {
     player.seek(position);
   }
 
-  void togglePlayMode() {
-    if (playMode.value == PlayMode.loop) {
-      playMode.value = PlayMode.single;
+  void togglePlayMode() async {
+    if (playMode.value == LoopMode.off) {
+      playMode.value = LoopMode.one;
     } else {
-      playMode.value = PlayMode.loop;
+      playMode.value = LoopMode.off;
     }
     MusicSPManage.saveCurrentPlayMode(playMode.value);
-    player.setLoopMode(
-      playMode.value == PlayMode.loop ? LoopMode.all : LoopMode.one,
-    );
+    await player.setLoopMode(playMode.value);
+    print(' player.loopMode = ${playMode.value}');
   }
 
   @override

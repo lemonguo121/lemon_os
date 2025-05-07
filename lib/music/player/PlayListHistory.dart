@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:lemon_tv/music/data/MusicBean.dart';
 import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 import 'package:lemon_tv/music/playlist/PlayListController.dart';
@@ -21,14 +22,14 @@ class _PlayListHistoryState extends State<PlayListHistory> {
   final PlayListController playListController = Get.find();
   final ThemeController themeController = Get.find();
 
-  Widget _playModeIconWidget(PlayMode mode) {
+  Widget _playModeIconWidget(LoopMode mode) {
     switch (mode) {
-      case PlayMode.single:
+      case LoopMode.one:
         return Image.asset('assets/music/repeat.png',
             width: 20,
             height: 20,
             color: themeController.currentAppTheme.selectedTextColor);
-      case PlayMode.loop:
+      case LoopMode.off:
       default:
         return Image.asset('assets/music/loop.png',
             width: 20,

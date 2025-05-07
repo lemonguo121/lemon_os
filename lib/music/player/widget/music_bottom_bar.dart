@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 import 'package:lemon_tv/music/player/music_controller.dart';
 
@@ -36,16 +37,16 @@ class MusicBottomBar extends StatelessWidget {
     return '$minutes:$seconds';
   }
 
-  Widget _playModeIconWidget(PlayMode mode) {
+  Widget _playModeIconWidget(LoopMode mode) {
     switch (MusicSPManage.getCurrentPlayMode()) {
-      case PlayMode.single:
+      case LoopMode.one:
         return Image.asset(
           'assets/music/repeat.png',
           width: 20,
           height: 20,
           color: themeController.currentAppTheme.selectedTextColor,
         );
-      case PlayMode.loop:
+      case LoopMode.off:
       default:
         return Image.asset('assets/music/loop.png',
             width: 20,
