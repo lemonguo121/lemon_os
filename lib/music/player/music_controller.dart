@@ -287,7 +287,6 @@ class MusicPlayerController extends GetxController {
     player.setLoopMode(
       playMode.value == PlayMode.loop ? LoopMode.all : LoopMode.one,
     );
-    print('当前播放器的模式：${playMode.value}');
   }
 
   @override

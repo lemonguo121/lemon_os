@@ -21,8 +21,6 @@ class _PlayListHistoryState extends State<PlayListHistory> {
   final PlayListController playListController = Get.find();
   final ThemeController themeController = Get.find();
 
-  final MusicPlayerController playerController = Get.find();
-
   Widget _playModeIconWidget(PlayMode mode) {
     switch (mode) {
       case PlayMode.single:
@@ -92,10 +90,10 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                     ),
                     IconButton(
                       icon:
-                          _playModeIconWidget(playerController.playMode.value),
+                          _playModeIconWidget(controller.playMode.value),
                       // 你已有的方法，返回一个Icon组件
                       onPressed: () {
-                        playerController.togglePlayMode();
+                        controller.togglePlayMode();
                       },
                     ),
                     SizedBox(width: 24.w)
@@ -138,7 +136,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
   }
 
   void deleteItem(MusicBean item) {
-    playerController.removeSongInList(item);
+    controller.removeSongInList(item);
     playListController.playList.refresh();
   }
 

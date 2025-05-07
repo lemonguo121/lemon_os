@@ -115,21 +115,42 @@ class PlayListCell extends StatelessWidget {
                           : Colors.grey,
                     ),
                   ),
-                  isNeedDelete?
-                  InkWell(
-                    onTap: () {
-                      if (isPlaying &&
-                          controller.recordBean?.key ==
-                              MusicSPManage.getCurrentPlayType().key) {
-                        playerController.onNext();
-                      }
-                      onDelete(item);
-                    },
-                    child: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Icon(Icons.close, color: Colors.red, size: 18),
-                    ),
-                  ):SizedBox.shrink(),
+                  isNeedDelete
+                      ? InkWell(
+                          onTap: () {
+                            onDelete(item);
+
+                            if (controller.recordBean?.key ==
+                                MusicSPManage.getCurrentPlayType().key) {
+                              if (index < playerController.playIndex.value) {
+                                playerController.playIndex.value--;
+                                MusicSPManage.saveCurrentPlayIndex(
+                                    controller.recordBean?.key ?? '',
+                                    playerController.playIndex.value);
+                              } else if (index ==
+                                  playerController.playIndex.value) {
+//                    ************这里一定要区分是播放列表数据，还是播放器此时的数据，弄混了就导致对应的数据无法刷新**************
+                                if (controller.playList.value.isNotEmpty) {
+                                  playerController
+                                      .updataMedia(controller.playList[index]);
+                                } else {
+                                  playerController.updataMedia(
+                                      playerController.playList[index]);
+                                }
+//                    ************这里一定要区分是播放列表数据，还是播放器此时的数据，弄混了就导致对应的数据无法刷新**************
+                                playerController.playIndex.value = index;
+                                MusicSPManage.saveCurrentPlayIndex(
+                                    controller.recordBean?.key ?? '', index);
+                              }
+                            }
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child:
+                                Icon(Icons.close, color: Colors.red, size: 18),
+                          ),
+                        )
+                      : SizedBox.shrink(),
                 ],
               )
             ],
