@@ -111,7 +111,6 @@ class MusicPlayerController extends GetxController {
           player.loopMode != LoopMode.one) {
         onNext();
       }
-      print(' player.loopMode = ${player.loopMode}');
     });
     playMode.value = MusicSPManage.getCurrentPlayMode();
     player.setVolume(currentVolume.value);
@@ -301,7 +300,6 @@ class MusicPlayerController extends GetxController {
     }
     MusicSPManage.saveCurrentPlayMode(playMode.value);
     await player.setLoopMode(playMode.value);
-    print(' player.loopMode = ${playMode.value}');
   }
 
   @override

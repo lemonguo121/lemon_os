@@ -84,179 +84,179 @@ class _MenuContainerState extends State<MenuContainer> {
     var bufferedProgress = widget.controller.value.buffered.isNotEmpty
         ? widget.controller.value.buffered.last.end.inMilliseconds.toDouble()
         : 0.0;
-    double bottomBarHeight = widget.isFullScreen ? 120.0.h : 100.0.h;
     var size = widget.controller.value.size;
 
     return Stack(
       children: [
         if (!widget.isScreenLocked)
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 顶部控制栏
               Container(
-                height: 90.0.h,
                 color: Colors.black.withOpacity(0.2),
-                padding:  EdgeInsets.only(left: 8.w, right: 16.w),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // 返回按钮 + 标题
-                    Expanded(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        // 保证返回按钮和标题垂直对齐
-                        children: [
-                          Padding(
-                            padding:  EdgeInsets.only(top: 35.h),
-                            child: IconButton(
-                              padding: EdgeInsets.zero,
-                              icon: const Icon(Icons.arrow_back,
-                                  color: Colors.white),
-                              onPressed: () {
-                                if (widget.isFullScreen) {
-                                  widget.toggleFullScreen();
-                                } else {
-                                  Navigator.pop(context);
-                                }
-                              },
-                            ),
-                          ),
-                           SizedBox(width: 4.w), // 按钮和标题之间的间距
-                          Expanded(
-                            child: Padding(
-                              padding:  EdgeInsets.only(top: 35.0.h),
-                              child: Text(
-                                widget.videoTitle,
-                                style:  TextStyle(
-                                    color: Colors.white, fontSize: 14),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                padding: EdgeInsets.only(left: 8.w, right: 16.w),
+                child: Padding(
+                  padding: EdgeInsets.only(top: 15.h),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // 返回按钮 + 标题
+                      Expanded(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          // 保证返回按钮和标题垂直对齐
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(top: 35.h),
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                icon: const Icon(Icons.arrow_back,
+                                    color: Colors.white),
+                                onPressed: () {
+                                  if (widget.isFullScreen) {
+                                    widget.toggleFullScreen();
+                                  } else {
+                                    Navigator.pop(context);
+                                  }
+                                },
                               ),
                             ),
-                          ),
-                        ],
+                            SizedBox(width: 4.w), // 按钮和标题之间的间距
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.only(top: 35.0.h),
+                                child: Text(
+                                  widget.videoTitle,
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 14),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    // 电量 & 时间
-                    Align(
-                      alignment: Alignment.topCenter,
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 10.0.h, right: 16.w),
-                        child: BatteryTimeWidget(
-                            isFullScreen:
-                                widget.isFullScreen || widget.isAlsoShowTime),
+                      // 电量 & 时间
+                      Align(
+                        alignment: Alignment.topCenter,
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 10.0.h, right: 16.w),
+                          child: BatteryTimeWidget(
+                              isFullScreen:
+                                  widget.isFullScreen || widget.isAlsoShowTime),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-              const Spacer(flex: 4),
+              SizedBox(
+                height: 10.h,
+              ),
+              _buildMenuText("${size.width.toInt()} x ${size.height.toInt()}"),
+              const Spacer(flex: 1),
               // 底部菜单
               Container(
-                height: bottomBarHeight,
                 color: Colors.black.withOpacity(0.2),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      height: 30.h,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            child: IconButton(
-                              padding: EdgeInsets.zero,
-                              icon: const Icon(Icons.skip_previous,
-                                  color: Colors.white),
-                              onPressed: widget.playPreviousVideo,
-                            ),
+                    SizedBox(height: 15.h,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: const Icon(Icons.skip_previous,
+                                color: Colors.white),
+                            onPressed: widget.playPreviousVideo,
                           ),
-                          Padding(
-                            padding:  EdgeInsets.only(top: 2.h),
-                            child: _buildMenuText(CommonUtil.formatDuration(
-                                widget.controller.value.position)),
-                          ),
-                          Expanded(
-                            child: SizedBox(
-                              child: Slider(
-                                  value: !isAdjustProgress
-                                      ? widget.controller.value.position
-                                          .inMilliseconds
-                                          .toDouble()
-                                      : changeProgress.inMilliseconds
-                                          .toDouble(),
-                                  min: 0.0,
-                                  max: widget
-                                      .controller.value.duration.inMilliseconds
-                                      .toDouble(),
-                                  onChanged: (double value) {
-                                    setState(() {
-                                      isAdjustProgress = true;
-                                      widget.changingProgress(isAdjustProgress);
-                                      changeProgress =
-                                          Duration(milliseconds: value.toInt());
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 2.h),
+                          child: _buildMenuText(CommonUtil.formatDuration(
+                              widget.controller.value.position)),
+                        ),
+                        Expanded(
+                          child: SizedBox(
+                            child: Slider(
+                                value: !isAdjustProgress
+                                    ? widget.controller.value.position
+                                        .inMilliseconds
+                                        .toDouble()
+                                    : changeProgress.inMilliseconds.toDouble(),
+                                min: 0.0,
+                                max: widget
+                                    .controller.value.duration.inMilliseconds
+                                    .toDouble(),
+                                onChanged: (double value) {
+                                  setState(() {
+                                    isAdjustProgress = true;
+                                    widget.changingProgress(isAdjustProgress);
+                                    changeProgress =
+                                        Duration(milliseconds: value.toInt());
 
-                                      widget.playPositonTips(
-                                          "${CommonUtil.formatDuration(changeProgress)}/${CommonUtil.formatDuration(widget.controller.value.duration)}");
-                                    });
-                                  },
-                                  onChangeStart: (double value) {
+                                    widget.playPositonTips(
+                                        "${CommonUtil.formatDuration(changeProgress)}/${CommonUtil.formatDuration(widget.controller.value.duration)}");
+                                  });
+                                },
+                                onChangeStart: (double value) {
+                                  setState(() {
+                                    isAdjustProgress = true;
+                                    widget.changingProgress(isAdjustProgress);
+                                    widget.showSkipFeedback(true);
+                                    widget.playPositonTips(
+                                        "${CommonUtil.formatDuration(changeProgress)}/${CommonUtil.formatDuration(widget.controller.value.duration)}");
+                                  });
+                                },
+                                onChangeEnd: (double value) {
+                                  widget.seekToPosition(
+                                      Duration(milliseconds: value.toInt()));
+                                  Future.delayed(Duration(seconds: 1), () {
                                     setState(() {
-                                      isAdjustProgress = true;
+                                      isAdjustProgress = false;
                                       widget.changingProgress(isAdjustProgress);
-                                      widget.showSkipFeedback(true);
-                                      widget.playPositonTips(
-                                          "${CommonUtil.formatDuration(changeProgress)}/${CommonUtil.formatDuration(widget.controller.value.duration)}");
+                                      widget.showSkipFeedback(false);
                                     });
-                                  },
-                                  onChangeEnd: (double value) {
-                                    widget.seekToPosition(
-                                        Duration(milliseconds: value.toInt()));
-                                    Future.delayed(Duration(seconds: 1), () {
-                                      setState(() {
-                                        isAdjustProgress = false;
-                                        widget
-                                            .changingProgress(isAdjustProgress);
-                                        widget.showSkipFeedback(false);
-                                      });
-                                    });
-                                  },
-                                  activeColor: Colors.white,
-                                  // 自定义颜色
-                                  inactiveColor: Colors.white54,
-                                  // 自定义颜色
-                                  secondaryActiveColor: Colors.grey,
-                                  secondaryTrackValue: bufferedProgress),
-                            ),
+                                  });
+                                },
+                                activeColor: Colors.white,
+                                // 自定义颜色
+                                inactiveColor: Colors.white54,
+                                // 自定义颜色
+                                secondaryActiveColor: Colors.grey,
+                                secondaryTrackValue: bufferedProgress),
                           ),
-                          Padding(
-                              padding:  EdgeInsets.only(top: 2.h),
-                              child: _buildMenuText(CommonUtil.formatDuration(
-                                  widget.controller.value.duration))),
-                          SizedBox(
-                            child: IconButton(
+                        ),
+                        Padding(
+                            padding: EdgeInsets.only(top: 2.h),
+                            child: _buildMenuText(CommonUtil.formatDuration(
+                                widget.controller.value.duration))),
+                        SizedBox(
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: const Icon(Icons.skip_next,
+                                color: Colors.white),
+                            onPressed: widget.playNextVideo,
+                          ),
+                        ),
+                        SizedBox(
+                          child: IconButton(
                               padding: EdgeInsets.zero,
-                              icon: const Icon(Icons.skip_next,
-                                  color: Colors.white),
-                              onPressed: widget.playNextVideo,
-                            ),
-                          ),
-                          SizedBox(
-                            child: IconButton(
-                                padding: EdgeInsets.zero,
-                                icon: Icon(
-                                  widget.isFullScreen
-                                      ? Icons.fullscreen_exit
-                                      : Icons.fullscreen,
-                                  color: Colors.white,
-                                ),
-                                onPressed: widget.toggleFullScreen),
-                          ),
-                        ],
-                      ),
+                              icon: Icon(
+                                widget.isFullScreen
+                                    ? Icons.fullscreen_exit
+                                    : Icons.fullscreen,
+                                color: Colors.white,
+                              ),
+                              onPressed: widget.toggleFullScreen),
+                        ),
+                      ],
                     ),
                     Container(
-                        margin: const EdgeInsets.only(top: 0),
-                        height: 30,
                         width: double.infinity,
                         padding: EdgeInsets.zero,
                         child: SingleChildScrollView(
@@ -361,7 +361,10 @@ class _MenuContainerState extends State<MenuContainer> {
                                               widget.videoId))),
                                 ),
                               ],
-                            )))
+                            ))),
+                    SizedBox(
+                      height: 20.h,
+                    ),
                   ],
                 ),
               ),
@@ -380,12 +383,6 @@ class _MenuContainerState extends State<MenuContainer> {
               size: 30,
             ),
           ),
-        ),
-        Positioned(
-          left: 30.0.w,
-          top: 95.0.h,
-          child:
-              _buildMenuText("${size.width.toInt()} x ${size.height.toInt()}"),
         ),
       ],
     );
