@@ -13,12 +13,12 @@ import '../music_utils/MusicSPManage.dart';
 class MusicHomeController extends GetxController
     with GetSingleTickerProviderStateMixin {
   var tabs = <TopListItem>[].obs;
+
   // 这个loading是给音乐首页用的，别的页面不能随便改变这个，会导致音乐销毁
   var isLoading = false.obs;
   var isLoading2 = false.obs;
   final SubscriptionsUtil subscriptionsUtil = SubscriptionsUtil();
-  Rx<PluginInfo> currentSite =
-      PluginInfo(platform: "", name: "").obs;
+  Rx<PluginInfo> currentSite = PluginInfo(platform: "", name: "").obs;
   var errorType = (-1).obs; //0:作为成功；1：订阅为空；2:站点不可用；
   var selecteSitedIndex = (0).obs;
 
@@ -56,8 +56,9 @@ class MusicHomeController extends GetxController
   }
 
   Future<void> getHotBannerList() async {
-    isLoading.value = true;
+    // isLoading.value = true;
     try {
+      tabs.value.clear();
       var currentSite = MusicSPManage.getCurrentSite();
       final response = await NetworkManager().get('/getTopLists',
           queryParameters: {
@@ -85,6 +86,7 @@ class MusicHomeController extends GetxController
   Rx<HotSubModel> subModel = HotSubModel().obs;
 
   Future<void> getHotList({String? id}) async {
+    subModel.value = HotSubModel(id: '',musicList:[]);
     isLoading2.value = true;
     try {
       final response = await NetworkManager().get(

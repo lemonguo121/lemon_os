@@ -68,13 +68,6 @@ class _MusicHomePageState extends State<MusicHomePage> {
       autofocus: true,
       onKey: _handleKeyEvent,
       child: Obx(() {
-        if (controller.isLoading.value) {
-          return Column(
-            children: [
-              MyLoadingIndicator(isLoading: controller.isLoading.value)
-            ],
-          );
-        }
         var isVertical = CommonUtil.isVertical(context);
         return Scaffold(
           body: Column(
@@ -263,9 +256,6 @@ class _MusicHomePageState extends State<MusicHomePage> {
   }
 
   Widget _buildTopicWidget() {
-    if (controller.isLoading.value) {
-      return const Center(child: CircularProgressIndicator());
-    }
     return Expanded(child: _buildweidget());
   }
 
@@ -411,8 +401,22 @@ class _MusicHomePageState extends State<MusicHomePage> {
 
   Widget _buildHotWidget() {
     var isVertical = CommonUtil.isVertical(context);
+    if (controller.isLoading.value) {
+      return SizedBox(
+        height: 280.r,
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     return controller.tabs.isEmpty
-        ? SizedBox.shrink()
+    // return true
+        ? SizedBox(
+            height: 280.r,
+            child: Center(
+              child: NoDataView(reload: loadData, errorTips: ''),
+            ),
+          )
         : Column(
             children: [
               Padding(

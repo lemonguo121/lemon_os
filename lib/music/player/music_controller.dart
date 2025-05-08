@@ -128,6 +128,18 @@ class MusicPlayerController extends GetxController {
 
   /// 设置歌曲并播放
   Future<void> initPlayer(String url, bool hasCache) async {
+    // try {
+    //   await player.setUrl('http://ws.stream.qqmusic.qq.com/M800002202B43Cq4V4.mp3?uin=3417441718&fromtag=0&vkey=D86877988559A0AE70AB81CAE53436DC32842A061276D695D4124746A30E77AC826942A74D1BA0B57FE3B1765A39486D98012DB78E5BC1AA__v2b9abf5c&guid=ffffffff1e6f5affffffffedffeb7f'
+    //       ,headers:{
+    //         'referer': 'https://y.qq.com',
+    //         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36',
+    //         'Cookie': 'uin=3417441718',
+    //       } );
+    // } catch (e) {
+    //   print('*******   播放出错   e = $e');
+    // }
+
+
     if (hasCache) {
       await player.setFilePath(url);
     } else {
