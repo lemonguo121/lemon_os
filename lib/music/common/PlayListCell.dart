@@ -17,6 +17,7 @@ class PlayListCell extends StatelessWidget {
   final int index;
   final bool isBottomSheet; //用来区分是底部弹起列表还是普通列表,底部弹窗背景一直是白色，所以要单独处理眼
   final bool isNeedDelete; //用来区分是榜单详情，不需要删除按钮
+  // final ScrollController scrollController;
   final ValueChanged<MusicBean> onDelete;
   final VoidCallback onClickItem;
 
@@ -26,6 +27,7 @@ class PlayListCell extends StatelessWidget {
       required this.index,
       required this.isBottomSheet,
       required this.isNeedDelete,
+      // required this.scrollController,
       required this.onDelete,
       required this.onClickItem});
 

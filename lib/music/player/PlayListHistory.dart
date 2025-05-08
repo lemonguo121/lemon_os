@@ -21,7 +21,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
   final MusicPlayerController controller = Get.find();
   final PlayListController playListController = Get.find();
   final ThemeController themeController = Get.find();
-
+  final ScrollController scrollController = ScrollController();
   Widget _playModeIconWidget(LoopMode mode) {
     switch (mode) {
       case LoopMode.one:
@@ -42,6 +42,19 @@ class _PlayListHistoryState extends State<PlayListHistory> {
   void initState() {
     super.initState();
     playListController.recordBean = MusicSPManage.getCurrentPlayType();
+
+  }
+
+  void scrollToIndex(int index) {
+    if (!scrollController.hasClients) return;
+
+    const double itemHeight = 50.0;
+
+    scrollController.animateTo(
+      itemHeight * index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
@@ -58,6 +71,19 @@ class _PlayListHistoryState extends State<PlayListHistory> {
         ),
         child: Obx(() {
           final list = controller.playList;
+          final currentIndex = controller.playIndex.value;
+
+          // 只要 playIndex 变化就执行滚动
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (scrollController.hasClients) {
+              const itemHeight = 50.0; // 替换为你的实际高度
+              scrollController.animateTo(
+                currentIndex * itemHeight,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInOut,
+              );
+            }
+          });
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -117,6 +143,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
                   child: ListView.builder(
                     shrinkWrap: true,
                     itemCount: controller.playList.length,
+                    controller: scrollController,
                     itemBuilder: (context, index) {
                       final item = controller.playList[index];
                       return PlayListCell(
