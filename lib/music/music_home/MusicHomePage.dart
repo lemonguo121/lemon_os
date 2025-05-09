@@ -243,9 +243,6 @@ class _MusicHomePageState extends State<MusicHomePage> {
     if (controller.errorType.value == 1) {
       // 订阅为空
       return NoSubscriptionView(onAddSubscription: Routes.goPluginPage);
-    } else if (controller.errorType.value == 2) {
-      // 站点不可用
-      return SiteInvileView(reload: loadData);
     } else {
       return _buildTopicWidget();
     }
@@ -400,19 +397,28 @@ class _MusicHomePageState extends State<MusicHomePage> {
   }
 
   Widget _buildHotWidget() {
+    var hotViewHeight = 290.h;
     var isVertical = CommonUtil.isVertical(context);
     if (controller.isLoading.value) {
       return SizedBox(
-        height: 290.h,
+        height: hotViewHeight,
         child: Center(
           child: CircularProgressIndicator(),
         ),
       );
     }
+
+    if (controller.errorType.value == 2) {
+      // 站点不可用
+      return SizedBox(
+        height: hotViewHeight,
+        child: SiteInvileView(reload: loadData),
+      );
+    }
     return controller.tabs.isEmpty
         // return true
         ? SizedBox(
-            height: 290.h,
+            height: hotViewHeight,
             child: Center(
               child: NoDataView(reload: loadData, errorTips: ''),
             ),
@@ -453,7 +459,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
               ),
               isVertical
                   ? SizedBox(
-                      height: 290.h,
+                      height: hotViewHeight,
                       child: buildHotGrid(isVertical),
                     )
                   : Expanded(

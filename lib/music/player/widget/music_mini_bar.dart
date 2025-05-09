@@ -65,7 +65,7 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
               boxShadow: [
                 BoxShadow(
                   color: themeController.currentAppTheme.normalTextColor
-                      .withOpacity(0.5),
+                      .withOpacity(0.2),
                   blurRadius: 16.r,
                 ),
               ],
