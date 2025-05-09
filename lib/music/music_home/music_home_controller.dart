@@ -27,7 +27,6 @@ class MusicHomeController extends GetxController
 
   Future<void> loadSite() async {
     isLoading.value = true;
-
     var currentStorehouse = MusicSPManage.getCurrentSubscription();
     if (currentStorehouse == null) {
       errorType.value = 1;
@@ -56,7 +55,7 @@ class MusicHomeController extends GetxController
   }
 
   Future<void> getHotBannerList() async {
-    // isLoading.value = true;
+    isLoading.value = true;
     try {
       tabs.value.clear();
       var currentSite = MusicSPManage.getCurrentSite();

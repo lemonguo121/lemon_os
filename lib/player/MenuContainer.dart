@@ -109,17 +109,21 @@ class _MenuContainerState extends State<MenuContainer> {
                           children: [
                             Padding(
                               padding: EdgeInsets.only(top: 35.h),
-                              child: IconButton(
-                                padding: EdgeInsets.zero,
-                                icon: const Icon(Icons.arrow_back,
-                                    color: Colors.white),
-                                onPressed: () {
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque, // 保证整个区域可点击
+                                onTap: () {
                                   if (widget.isFullScreen) {
                                     widget.toggleFullScreen();
                                   } else {
                                     Navigator.pop(context);
                                   }
                                 },
+                                child: Container(
+                                  width: 48,  // 扩大点击区域
+                                  height: 48,
+                                  alignment: Alignment.center,
+                                  child: const Icon(Icons.arrow_back, color: Colors.white),
+                                ),
                               ),
                             ),
                             SizedBox(width: 4.w), // 按钮和标题之间的间距

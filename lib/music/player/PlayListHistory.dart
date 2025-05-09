@@ -67,7 +67,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
               var itemHeight = 95.0.r; // 替换为你的实际高度
               scrollController.animateTo(
                 currentIndex * itemHeight,
-                duration: const Duration(milliseconds: 500),
+                duration: const Duration(milliseconds: 100),
                 curve: Curves.easeInOut,
               );
             }

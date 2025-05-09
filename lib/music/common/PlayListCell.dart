@@ -18,7 +18,6 @@ class PlayListCell extends StatelessWidget {
   final int index;
   final bool isBottomSheet; //用来区分是底部弹起列表还是普通列表,底部弹窗背景一直是白色，所以要单独处理眼
   final bool isNeedDelete; //用来区分是榜单详情，不需要删除按钮
-  // final ScrollController scrollController;
   final ValueChanged<MusicBean> onDelete;
   final VoidCallback onClickItem;
 
@@ -28,7 +27,6 @@ class PlayListCell extends StatelessWidget {
       required this.index,
       required this.isBottomSheet,
       required this.isNeedDelete,
-      // required this.scrollController,
       required this.onDelete,
       required this.onClickItem});
 
@@ -122,7 +120,6 @@ class PlayListCell extends StatelessWidget {
                       ? InkWell(
                           onTap: () {
                             onDelete(item);
-
                             if (controller.recordBean?.key ==
                                 MusicSPManage.getCurrentPlayType().key) {
                               if (index < playerController.playIndex.value) {
@@ -132,7 +129,7 @@ class PlayListCell extends StatelessWidget {
                                     playerController.playIndex.value);
                               } else if (index ==
                                   playerController.playIndex.value) {
-//                    ************这里一定要区分是播放列表数据，还是播放器此时的数据，弄混了就导致对应的数据无法刷新**************
+//                    ************这里一定要区分是播放列表数据controller.playList，还是播放器此时的数据playerController.playList，弄混了就导致对应的数据无法刷新  **************
                                 if (controller.playList.value.isNotEmpty) {
                                   playerController
                                       .updataMedia(controller.playList[index]);
@@ -140,7 +137,7 @@ class PlayListCell extends StatelessWidget {
                                   playerController.updataMedia(
                                       playerController.playList[index]);
                                 }
-//                    ************这里一定要区分是播放列表数据，还是播放器此时的数据，弄混了就导致对应的数据无法刷新**************
+//                    ************这里一定要区分是播放列表数据controller.playList，还是播放器此时的数据playerController.playList，弄混了就导致对应的数据无法刷新  **************
                                 playerController.playIndex.value = index;
                                 MusicSPManage.saveCurrentPlayIndex(
                                     controller.recordBean?.key ?? '', index);
