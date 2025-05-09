@@ -1,7 +1,7 @@
 class LyricLine {
   final Duration time;
   final String text;
-
+  double? height;
   LyricLine(this.time, this.text);
 
   factory LyricLine.fromJson(Map<String, dynamic> json) {
@@ -15,6 +15,7 @@ class LyricLine {
     return {
       'time': time.inMilliseconds,
       'text': text,
+      'height':height
     };
   }
 }

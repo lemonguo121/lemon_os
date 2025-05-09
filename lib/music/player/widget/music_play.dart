@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
@@ -20,28 +21,28 @@ class MusicPlayerPage extends StatefulWidget {
 
 class _MusicPlayerPageState extends State<MusicPlayerPage>
     with TickerProviderStateMixin {
-
   int _currentIndex = 0;
   final _scrollController = ScrollController();
 
   late AnimationController _rotationController;
-  static const double _lineHeight = 37;
+
   bool showMiniBar = false;
   MusicPlayerController playerController = Get.find();
   Rx<LoopMode> playMode = (MusicSPManage.getCurrentPlayMode()).obs;
   late AnimationController _needleController;
   late Animation<double> _needleAnimation;
+
   @override
   void initState() {
     super.initState();
     _rotationController =
         AnimationController(vsync: this, duration: const Duration(seconds: 20))
           ..repeat();
-    if (playerController.player.playerState.processingState==ProcessingState.idle) {
+    if (playerController.player.playerState.processingState ==
+        ProcessingState.idle) {
       playerController.upDataSong(playerController.songBean.value);
     }
     _initPlayerAndData();
-
     _needleController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
@@ -49,7 +50,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
 
     _needleAnimation = Tween<double>(
       begin: -0.5, // -0.5 radians ≈ -30度，移开状态
-      end: 0.0,    // 0 radians，贴合状态
+      end: 0.0, // 0 radians，贴合状态
     ).animate(CurvedAnimation(
       parent: _needleController,
       curve: Curves.easeInOut,
@@ -76,36 +77,46 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
       }
     });
   }
-  void _onPositionChanged() {
-    var _lyrics = playerController.lyrics.value;
-    var position = playerController.currentPosition.value;
 
-    for (int i = 0; i < _lyrics.length - 1; i++) {
-      if (position >= _lyrics[i].time && position < _lyrics[i + 1].time) {
+  void _onPositionChanged() {
+    final lyrics = playerController.lyrics.value;
+    final position = playerController.currentPosition.value;
+
+    for (int i = 0; i < lyrics.length - 1; i++) {
+      if (position >= lyrics[i].time && position < lyrics[i + 1].time) {
         if (_currentIndex != i) {
           setState(() => _currentIndex = i);
-
-          final targetOffset = (i - 4) * _lineHeight;
-          final safeOffset = max(
-            0.0,
-            min(
-              targetOffset.toDouble(),
-              _scrollController.position.maxScrollExtent,
-            ),
-          );
-
-          _scrollController.animateTo(
-            safeOffset,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
+          _scrollToIndex(i);
         }
-        break;
+        return;
       }
+    }
+
+    // 到最后一行
+    if (position >= lyrics.last.time) {
+      setState(() => _currentIndex = lyrics.length - 1);
+      _scrollToIndex(lyrics.length - 1);
     }
   }
 
+  void _scrollToIndex(int i) {
+    final lyrics = playerController.lyrics.value;
+    double offset = 0.0;
+    for (int j = 0; j < i - 3 && j < lyrics.length; j++) {
+      offset += lyrics[j].height ?? 0.0;
+    }
 
+    final safeOffset = offset.clamp(
+      _scrollController.position.minScrollExtent,
+      _scrollController.position.maxScrollExtent,
+    );
+
+    _scrollController.animateTo(
+      safeOffset,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
 
   void _handleBackPressed() {
     Navigator.pop(context);
@@ -123,107 +134,110 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
   @override
   Widget build(BuildContext context) {
     return Obx(() => Scaffold(
-        body: Stack(
-          fit: StackFit.expand,
-          children: [
-            // 背景模糊图层...
-            Stack(
-              children: [
-                Positioned.fill(
-                  child: CachedNetworkImage(
-                    imageUrl: playerController.getCover(),
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                Positioned.fill(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 40.0, sigmaY: 40.0),
-                    child: Container(color: Colors.black.withOpacity(0.2)),
-                  ),
-                ),
-              ],
-            ),
-
-            Container(color: Colors.black.withOpacity(0.4)),
-
-            playerController.isLoading.value
-                ? const Center(child: CircularProgressIndicator())
-                : Column(
-              children: [
-                const SizedBox(height: 120),
-                // 🎯 将唱针与唱片用 Stack 包裹起来
-                Stack(
-                  alignment: Alignment.topCenter,
-                  children: [
-                    RotationTransition(
-                      turns: _rotationController,
-                      child: CircleAvatar(
-                        radius: 60,
-                        child: ClipOval(
-                          child: LoadingImage(
-                            pic: playerController.getCover(),
-                          ),
-                        ),
-                      ),
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              // 背景模糊图层...
+              Stack(
+                children: [
+                  Positioned.fill(
+                    child: CachedNetworkImage(
+                      imageUrl: playerController.getCover(),
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.cover,
                     ),
-                    Positioned(
-                      top: -35,
-                      right: 20,
-                      child: AnimatedBuilder(
-                        animation: _needleAnimation,
-                        builder: (context, child) {
-                          return Transform.rotate(
-                            angle: _needleAnimation.value,
-                            alignment: Alignment.topLeft,
-                            child: child,
-                          );
-                        },
-                        child: Image.asset(
-                          'assets/music/needle.png',
-                          width: 60,
-                          height: 100,
-                        ),
-                      ),
+                  ),
+                  Positioned.fill(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 40.0, sigmaY: 40.0),
+                      child: Container(color: Colors.black.withOpacity(0.2)),
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
 
-                const SizedBox(height: 20),
+              Container(color: Colors.black.withOpacity(0.4)),
 
-                Expanded(child: _buildLyricList()),
+              playerController.isLoading.value
+                  ? const Center(child: CircularProgressIndicator())
+                  : Column(
+                      children: [
+                        const SizedBox(height: 120),
+                        // 🎯 将唱针与唱片用 Stack 包裹起来
+                        Stack(
+                          alignment: Alignment.topCenter,
+                          children: [
+                            RotationTransition(
+                              turns: _rotationController,
+                              child: CircleAvatar(
+                                radius: 60,
+                                child: ClipOval(
+                                  child: LoadingImage(
+                                    pic: playerController.getCover(),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: -35,
+                              right: 20,
+                              child: AnimatedBuilder(
+                                animation: _needleAnimation,
+                                builder: (context, child) {
+                                  return Transform.rotate(
+                                    angle: _needleAnimation.value,
+                                    alignment: Alignment.topLeft,
+                                    child: child,
+                                  );
+                                },
+                                child: Image.asset(
+                                  'assets/music/needle.png',
+                                  width: 60,
+                                  height: 100,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
 
-                MusicBottomBar(
-                  isPlaying: playerController.player.playing,
-                  position: playerController.currentPosition.value,
-                  total: playerController.totalDuration.value,
-                  onPlayPause: () {
-                    playerController.player.playing
-                        ? playerController.player.pause()
-                        : playerController.player.play();
-                  },
-                  onPrev: playerController.onPrev,
-                  onNext: playerController.onNext,
-                  showMenu: showBottomMenu,
-                  onSeek: (value) {
-                    final newPos = Duration(seconds: value.toInt());
-                    playerController.player.pause();
-                    playerController.player.seek(newPos);
-                    playerController.player.play();
-                  },
-                ),
-              ],
-            ),
+                        const SizedBox(height: 20),
 
-            playerController.isLoading.value ? SizedBox.shrink() : _buildTitle(),
-          ],
-        ),
+                        Expanded(child: _buildLyricList()),
+
+                        MusicBottomBar(
+                          isPlaying: playerController.player.playing,
+                          position: playerController.currentPosition.value,
+                          total: playerController.totalDuration.value,
+                          onPlayPause: () {
+                            playerController.player.playing
+                                ? playerController.player.pause()
+                                : playerController.player.play();
+                          },
+                          onPrev: playerController.onPrev,
+                          onNext: playerController.onNext,
+                          showMenu: showBottomMenu,
+                          onSeek: (value) {
+                            final newPos = Duration(seconds: value.toInt());
+                            playerController.player.pause();
+                            playerController.player.seek(newPos);
+                            playerController.player.play();
+                          },
+                        ),
+                      ],
+                    ),
+
+              playerController.isLoading.value
+                  ? SizedBox.shrink()
+                  : _buildTitle(),
+            ],
+          ),
         ));
   }
 
   Widget _buildLyricList() {
     var _lyrics = playerController.lyrics.value;
+
     return ListView.builder(
       controller: _scrollController,
       itemCount: _lyrics.length,
@@ -233,23 +247,37 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
         final distance = (i - _currentIndex).abs();
         final opacity = (1.0 - distance * 0.2).clamp(0.2, 1.0);
 
-        return Opacity(
-          opacity: opacity,
-          child: SizedBox(
-            height: _lineHeight,
-            child: Center(
-              child: Text(
-                line.text,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: i == _currentIndex ? Colors.blue : Colors.white70,
-                  fontWeight:
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final renderBox = context.findRenderObject();
+              if (renderBox is RenderBox) {
+                final newHeight = renderBox.size.height;
+                if (line.height != newHeight) {
+                  line.height = newHeight;
+                }
+              }
+            });
+
+            return Opacity(
+              opacity: opacity,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                child: Center(
+                  child: Text(
+                    line.text,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: i == _currentIndex ? Colors.blue : Colors.white70,
+                      fontWeight:
                       i == _currentIndex ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -307,5 +335,4 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
       ),
     );
   }
-
 }
