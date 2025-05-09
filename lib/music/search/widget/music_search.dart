@@ -61,7 +61,10 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
 
   Widget _buildHistoryItem(String keyword) {
     return ListTile(
-      leading:  Icon(Icons.history,color: themeController.currentAppTheme.normalTextColor.withOpacity(0.3),),
+      leading: Icon(
+        Icons.history,
+        color: themeController.currentAppTheme.normalTextColor.withOpacity(0.3),
+      ),
       title: Text(keyword,
           style: TextStyle(
               color: themeController.currentAppTheme.normalTextColor)),
@@ -93,51 +96,52 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
           ),
           body: Column(
             children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child:  Expanded(
-                  child: SizedBox(
-                    height: 40,
-                    child: TextField(
-                      controller: _editController,
-                      focusNode: _focusNode,
-                      onSubmitted: (value) => controller.searchMusic(_editController.text),
-                      decoration: InputDecoration(
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: themeController.currentAppTheme.selectedTextColor,
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
+              SizedBox(
+                height: 40,
+                width: double.infinity,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: TextField(
+                    controller: _editController,
+                    focusNode: _focusNode,
+                    onSubmitted: (value) =>
+                        controller.searchMusic(_editController.text),
+                    decoration: InputDecoration(
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color:
+                              themeController.currentAppTheme.selectedTextColor,
+                          width: 1,
                         ),
-                        hintText: "输入歌曲名、歌手名或专辑名",
-                        hintStyle: TextStyle(
-                            color: themeController.currentAppTheme.contentColor),
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: themeController.currentAppTheme.contentColor,
-                        ),
-
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.grey, // 设置你想要的颜色
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.grey, // 设置你想要的颜色
-                            width: 1.0,
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        contentPadding:
-                        EdgeInsets.symmetric(vertical: 0.0, horizontal: 12.0),
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
-                      style: TextStyle(
-                          fontSize: 16.0,
-                          color: themeController.currentAppTheme.titleColr),
+                      hintText: "输入歌曲名、歌手名或专辑名",
+                      hintStyle: TextStyle(
+                          color: themeController.currentAppTheme.contentColor),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: themeController.currentAppTheme.contentColor,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 0.0, horizontal: 12.0),
+                    ),
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: themeController.currentAppTheme.titleColr,
                     ),
                   ),
                 ),
@@ -206,7 +210,8 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: themeController.currentAppTheme.selectedTextColor.withOpacity(0.4),
+                    color: themeController.currentAppTheme.selectedTextColor
+                        .withOpacity(0.4),
                     blurRadius: 16.r,
                     offset: Offset(0, 6.h),
                   ),
@@ -253,9 +258,7 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
               controller.currentSite.value = plugin.platform;
               controller.searchMusic(_editController.text);
               // 不知道这里为什么触发不了obx的刷新，只能使用setState代替刷新了
-              setState(() {
-
-              });
+              setState(() {});
             },
             child: SizedBox(
               width: 120.w,
@@ -268,7 +271,9 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: themeController.currentAppTheme.selectedTextColor.withOpacity(0.4),
+                            color: themeController
+                                .currentAppTheme.selectedTextColor
+                                .withOpacity(0.4),
                             blurRadius: 16.r,
                             offset: Offset(0, 6.h),
                           ),
@@ -279,7 +284,7 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
                   child: Text(
                     plugin.name,
                     style: TextStyle(
-                      fontSize: 28.sp,
+                      // fontSize: 28.sp,
                       color: isSelected
                           ? Colors.white
                           : themeController.currentAppTheme.normalTextColor,
