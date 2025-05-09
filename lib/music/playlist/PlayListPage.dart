@@ -59,7 +59,7 @@ class _PlayListPageState extends State<PlayListPage> {
             musicBean.songBean.id == playerController.songBean.value.id);
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (scrollController.hasClients) {
-            var itemHeight = 95.0.r; // 替换为你的实际高度
+            var itemHeight = 105.0.r; // 替换为你的实际高度
             scrollController.animateTo(
               index * itemHeight,
               duration: const Duration(milliseconds: 100),

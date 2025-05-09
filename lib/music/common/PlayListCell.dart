@@ -49,19 +49,19 @@ class PlayListCell extends StatelessWidget {
             children: [
               isPlaying
                   ? SizedBox(
-                      width: 50.r,
-                      height: 50.r,
+                      width: 40.w,
+                      height: 30.h,
                       child: AudioBarsAnimated(
-                        barWidth: 2.w,
-                        barHeight: 10.h,
+                        barWidth: 4.w,
+                        barHeight: 25.h,
                         color: Colors.redAccent,
                       ),
                     )
                   : const SizedBox.shrink(), // 保持结构对齐
               SizedBox(width: 6.w),
               SizedBox(
-                width: 62.r,
-                height: 62.r,
+                width: 80.r,
+                height: 80.r,
                 child: ClipOval(
                   child: LoadingImage(pic: getCover(item.songBean)),
                 ),
