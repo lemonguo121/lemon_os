@@ -79,6 +79,7 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
   }
 
   void _onPositionChanged() {
+    if (!mounted || !_scrollController.hasClients) return;
     final lyrics = playerController.lyrics.value;
     final position = playerController.currentPosition.value;
 

@@ -254,7 +254,7 @@ class MusicPlayerController extends GetxController {
             .catchError((e) => print('歌词缓存失败：$e'));
       }
       lyrics.value = _parseLrc(rawLrc);
-      print('********* hasAudioCache = $hasAudioCache  playUrl = $playUrl ');
+      print('********* hasAudioCache = $hasAudioCache  playUrl = $playUrl rawLrc = $rawLrc');
       await initPlayer(playUrl, hasAudioCache);
     } on DioException catch (e) {
       print('请求失败：$e');
