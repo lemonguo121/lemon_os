@@ -15,6 +15,7 @@ import 'SearchHistoryList.dart';
 import 'SearchResultList.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:just_audio/just_audio.dart';
+
 class SearchScreen extends StatefulWidget {
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -56,6 +57,7 @@ class _SearchScreenState extends State<SearchScreen>
     await Future.wait([_loadSearchHistory(), _loadSubscriptions()]);
     _startQucikSearch();
   }
+
   Future<void> _playSound(String assetPath) async {
     try {
       await _audioPlayer.setAudioSource(AudioSource.asset(assetPath));
@@ -64,6 +66,7 @@ class _SearchScreenState extends State<SearchScreen>
       print("播放提示音失败: $e");
     }
   }
+
   // 加载已订阅站点
   Future<void> _loadSubscriptions() async {
     selectStorehouse = SubscriptionsUtil().selectStorehouse;
@@ -251,16 +254,28 @@ class _SearchScreenState extends State<SearchScreen>
                   },
                   onSubmitted: (value) => _searchVideos(),
                   decoration: InputDecoration(
-                    focusColor:
-                        themeController.currentAppTheme.selectedTextColor,
-                    hoverColor:
-                        themeController.currentAppTheme.selectedTextColor,
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color:
+                            themeController.currentAppTheme.selectedTextColor,
+                        width: 1,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
                     hintText: "输入搜索内容",
                     hintStyle: TextStyle(
                         color: themeController.currentAppTheme.contentColor),
                     prefixIcon: Icon(
                       Icons.search,
                       color: themeController.currentAppTheme.contentColor,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color:
+                            themeController.currentAppTheme.selectedTextColor,
+                        width: 1,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
                     ),
                     border: OutlineInputBorder(),
                     contentPadding:
@@ -274,15 +289,16 @@ class _SearchScreenState extends State<SearchScreen>
             ),
             SizedBox(width: 10.0),
             SizedBox(
-              height: 30,
-              width: 30,
-              child:Obx(()=> GestureDetector(
-                child: Icon(_isListening ? Icons.mic : Icons.mic_none,
-                    color: themeController.currentAppTheme.contentColor),
-                onLongPressStart: (_) => _startListening(),
-                onLongPressEnd: (_) => _stopListening(),
-              ),)
-            ),
+                height: 30,
+                width: 30,
+                child: Obx(
+                  () => GestureDetector(
+                    child: Icon(_isListening ? Icons.mic : Icons.mic_none,
+                        color: themeController.currentAppTheme.contentColor),
+                    onLongPressStart: (_) => _startListening(),
+                    onLongPressEnd: (_) => _stopListening(),
+                  ),
+                )),
             SizedBox(width: 8.0),
           ],
         );

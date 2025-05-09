@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/music/data/SongBean.dart';
 import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 import 'package:lemon_tv/routes/routes.dart';
+import 'package:lemon_tv/util/SubscriptionsUtil.dart';
 
 import '../../../../util/ThemeController.dart';
 import '../../../util/widget/NoDataView.dart';
@@ -28,6 +30,7 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
   void initState() {
     super.initState();
     controller.loadSearchHistory(); // 加载本地搜索记录
+    controller.pluginList.value = SubscriptionsUtil().pluginsList;
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         controller.showHistory.value = controller.searchHistory.isNotEmpty;
@@ -58,12 +61,11 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
 
   Widget _buildHistoryItem(String keyword) {
     return ListTile(
-      leading: const Icon(Icons.history),
+      leading:  Icon(Icons.history,color: themeController.currentAppTheme.normalTextColor.withOpacity(0.3),),
       title: Text(keyword,
           style: TextStyle(
               color: themeController.currentAppTheme.normalTextColor)),
       onTap: () {
-        print("onTap keyword = $keyword");
         _editController.text = keyword;
         controller.searchMusic(keyword);
       },
@@ -80,55 +82,87 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: IconThemeData(
-            color: themeController.currentAppTheme.normalTextColor),
-        title: Text('音乐搜索',
-            style: TextStyle(
-                color: themeController.currentAppTheme.normalTextColor)),
-        centerTitle: true,
-      ),
-      body: Obx(() => Column(
+    return Obx(() => Scaffold(
+          appBar: AppBar(
+            iconTheme: IconThemeData(
+                color: themeController.currentAppTheme.normalTextColor),
+            title: Text('音乐搜索',
+                style: TextStyle(
+                    color: themeController.currentAppTheme.normalTextColor)),
+            centerTitle: true,
+          ),
+          body: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child:  Expanded(
+                  child: SizedBox(
+                    height: 40,
+                    child: TextField(
+                      controller: _editController,
+                      focusNode: _focusNode,
+                      onSubmitted: (value) => controller.searchMusic(_editController.text),
+                      decoration: InputDecoration(
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: themeController.currentAppTheme.selectedTextColor,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        hintText: "输入歌曲名、歌手名或专辑名",
+                        hintStyle: TextStyle(
+                            color: themeController.currentAppTheme.contentColor),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: themeController.currentAppTheme.contentColor,
+                        ),
+
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.grey, // 设置你想要的颜色
+                            width: 1.0,
+                          ),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.grey, // 设置你想要的颜色
+                            width: 1.0,
+                          ),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        contentPadding:
+                        EdgeInsets.symmetric(vertical: 0.0, horizontal: 12.0),
+                      ),
+                      style: TextStyle(
+                          fontSize: 16.0,
+                          color: themeController.currentAppTheme.titleColr),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 22.h,
+              ),
+              _buildSiteList(),
+              SizedBox(
+                height: 22.h,
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                height: 50.h,
                 child: Row(
                   children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _editController,
-                        focusNode: _focusNode,
-                        style: TextStyle(
-                            fontSize: 16.0,
-                            color: themeController.currentAppTheme.titleColr),
-                        onSubmitted: (_) =>
-                            controller.searchMusic(_editController.text),
-                        decoration: InputDecoration(
-                          hintText: '输入歌曲名、歌手名或专辑名',
-                          hintStyle: TextStyle(
-                              color:
-                                  themeController.currentAppTheme.contentColor),
-                          border: OutlineInputBorder(),
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.search),
-                            onPressed: (() {
-                              goSearch;
-                            }),
-                          ),
-                        ),
-                      ),
-                    ),
+                    _buildSearchType('音乐', 'music'),
+                    _buildSearchType('专辑', 'album'),
+                    _buildSearchType('作者', 'artist'),
+                    _buildSearchType('歌单', 'sheet'),
                   ],
                 ),
               ),
-              Row(
-                children: [
-                  _buildSearchType('音乐', 'music'),
-                  _buildSearchType('专辑', 'album'),
-                  _buildSearchType('作者', 'artist'),
-                  _buildSearchType('歌单', 'sheet'),
-                ],
+              SizedBox(
+                height: 10.h,
               ),
               if (controller.showHistory.value)
                 Expanded(
@@ -156,26 +190,107 @@ class _MusicSearchPageState extends State<MusicSearchPage> {
                   ),
                 ),
             ],
-          )),
-    );
+          ),
+        ));
   }
 
   Widget _buildSearchType(String content, String type) {
+    final isSelected = controller.searchType.value == type;
     return Expanded(
-        child: InkWell(
-      onTap: (() {
-        controller.searchType.value = type;
-        controller.searchMusic(_editController.text);
-      }),
-      child: Text(
-        content,
-        style:
-            TextStyle(color: themeController.currentAppTheme.normalTextColor),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: isSelected
+              ? themeController.currentAppTheme.selectedTextColor
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(16.r),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: themeController.currentAppTheme.selectedTextColor.withOpacity(0.4),
+                    blurRadius: 16.r,
+                    offset: Offset(0, 6.h),
+                  ),
+                ]
+              : [],
+        ),
+        child: Center(
+          child: InkWell(
+            onTap: () {
+              controller.searchType.value = type;
+              controller.searchMusic(_editController.text);
+            },
+            child: Text(
+              content,
+              style: TextStyle(
+                color: isSelected
+                    ? Colors.white
+                    : themeController.currentAppTheme.normalTextColor,
+              ),
+            ),
+          ),
+        ),
       ),
-    ));
+    );
   }
 
   goSearch() {
     controller.searchMusic(_editController.text);
+  }
+
+  Widget _buildSiteList() {
+    return Container(
+      height: 50.h,
+      padding: EdgeInsets.symmetric(horizontal: 16.0),
+      width: MediaQuery.of(context).size.width,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: controller.pluginList.value.length,
+        itemBuilder: (context, index) {
+          var plugin = controller.pluginList.value[index];
+          final isSelected = controller.currentSite.value == plugin.platform;
+          return InkWell(
+            onTap: () {
+              controller.currentSite.value = plugin.platform;
+              controller.searchMusic(_editController.text);
+              // 不知道这里为什么触发不了obx的刷新，只能使用setState代替刷新了
+              setState(() {
+
+              });
+            },
+            child: SizedBox(
+              width: 120.w,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? themeController.currentAppTheme.selectedTextColor
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(16.r),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: themeController.currentAppTheme.selectedTextColor.withOpacity(0.4),
+                            blurRadius: 16.r,
+                            offset: Offset(0, 6.h),
+                          ),
+                        ]
+                      : [],
+                ),
+                child: Center(
+                  child: Text(
+                    plugin.name,
+                    style: TextStyle(
+                      fontSize: 28.sp,
+                      color: isSelected
+                          ? Colors.white
+                          : themeController.currentAppTheme.normalTextColor,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }

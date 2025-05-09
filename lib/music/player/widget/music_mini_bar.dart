@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:lemon_tv/util/CommonUtil.dart';
@@ -61,8 +62,15 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
             padding: const EdgeInsets.symmetric(horizontal: 12),
             height: 60,
             decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: themeController.currentAppTheme.normalTextColor
+                      .withOpacity(0.5),
+                  blurRadius: 16.r,
+                ),
+              ],
               color: Colors.black87,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16.r),
             ),
             child: Obx(() {
               // 仅当依赖的 Rx 变量发生变化时更新以下部分
@@ -161,9 +169,10 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
                     constraints: const BoxConstraints(),
                   ),
                   const SizedBox(width: 4),
-                  Obx((){
+                  Obx(() {
                     return IconButton(
-                      icon: _playModeIconWidget(playerController.playMode.value), // 你已有的方法，返回一个Icon组件
+                      icon: _playModeIconWidget(
+                          playerController.playMode.value), // 你已有的方法，返回一个Icon组件
                       onPressed: () {
                         playerController.togglePlayMode();
                       },
@@ -175,6 +184,7 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
           ),
         ));
   }
+
   Widget _playModeIconWidget(LoopMode mode) {
     switch (mode) {
       case LoopMode.one:
@@ -190,6 +200,7 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
             color: themeController.currentAppTheme.selectedTextColor);
     }
   }
+
   void showBottomMenu() {
     showModalBottomSheet(
       context: context,
@@ -211,7 +222,8 @@ class _MiniMusicPlayerBarState extends State<MiniMusicPlayerBar>
   }
 
   goPlay() {
-    if (playerController.player.playerState.processingState==ProcessingState.ready) {
+    if (playerController.player.playerState.processingState ==
+        ProcessingState.ready) {
       playerController.playPause();
     } else {
       playerController.upDataSong(playerController.songBean.value);

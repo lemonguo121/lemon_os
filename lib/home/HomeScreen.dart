@@ -288,8 +288,8 @@ class _MovieHomeScreenState extends State<MovieHomeScreen>
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.menu,
-                  size: 30,
+              Icon(Icons.public,
+                  size: 20,
                   color: themeController.currentAppTheme.selectedTextColor),
               const SizedBox(width: 4),
               SizedBox(

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:get/get.dart';
 import 'package:lemon_tv/http/data/ParesVideo.dart';
+import 'package:lemon_tv/util/CommonUtil.dart';
 
 import '../http/data/RealVideo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -114,8 +115,7 @@ class SPManager {
   }
 
   // 记录跳过片尾
-  static saveSkipTailTimes(
-      String videoId,Duration tailTime) {
+  static saveSkipTailTimes(String videoId, Duration tailTime) {
     SharedPreferences sp = Get.find<SharedPreferences>();
     sp.setInt("$_skipTailKey-$videoId", tailTime.inMilliseconds);
   }
@@ -222,6 +222,13 @@ class SPManager {
   // 删除指定仓库
   static removeSubscription(String name) {
     List<StorehouseBean> subscriptions = getSubscriptions();
+    var storehouseBean = SPManager.getCurrentSubscription();
+
+    // 如果删除的仓库是当前正在使用的，要把站点清掉
+    if (storehouseBean?.name == name) {
+      cleanCurrentSite();
+      cleanCurrentSubscription();
+    }
     subscriptions.removeWhere((item) {
       return item.name == name;
     });
@@ -263,6 +270,12 @@ class SPManager {
       return StorehouseBeanSites.fromJson(siteMap);
     }
     return null;
+  }
+
+  // 清理当前仓库
+  static cleanCurrentSubscription() {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    sp.remove(_currentSubscriptinKey);
   }
 
   // 清除当前站点

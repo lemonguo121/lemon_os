@@ -148,8 +148,8 @@ class _MusicHomePageState extends State<MusicHomePage> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.menu,
-                  size: 30,
+              Icon(Icons.public,
+                  size: 20,
                   color: themeController.currentAppTheme.selectedTextColor),
               const SizedBox(width: 4),
               SizedBox(
@@ -403,16 +403,16 @@ class _MusicHomePageState extends State<MusicHomePage> {
     var isVertical = CommonUtil.isVertical(context);
     if (controller.isLoading.value) {
       return SizedBox(
-        height: 280.r,
+        height: 290.h,
         child: Center(
           child: CircularProgressIndicator(),
         ),
       );
     }
     return controller.tabs.isEmpty
-    // return true
+        // return true
         ? SizedBox(
-            height: 280.r,
+            height: 290.h,
             child: Center(
               child: NoDataView(reload: loadData, errorTips: ''),
             ),

@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 
 import '../../../util/SubscriptionsUtil.dart';
+import '../data/PluginBean.dart';
 import '../music_http/music_http_rquest.dart';
 import '../music_utils/MusicSPManage.dart';
 
@@ -14,6 +15,8 @@ class SearchControll extends GetxController {
   RxList<String> searchHistory = <String>[].obs;
   var showHistory = false.obs;
   var searchType = 'music'.obs;
+  var currentSite = 'aiting'.obs;
+  var pluginList = <PluginInfo>[].obs;
 
   Future<void> searchMusic(String? query) async {
     if (query == null || query.isEmpty == true) return;
@@ -21,10 +24,9 @@ class SearchControll extends GetxController {
     songs.value = [];
     showHistory.value = false;
     try {
-      var currentSite = MusicSPManage.getCurrentSite();
       final response = await NetworkManager().get('/search', queryParameters: {
         'query': query,
-        'plugin': currentSite?.platform ?? "",
+        'plugin': currentSite.value,
         'type': searchType.value
       });
 
