@@ -45,18 +45,6 @@ class _PlayListHistoryState extends State<PlayListHistory> {
 
   }
 
-  void scrollToIndex(int index) {
-    if (!scrollController.hasClients) return;
-
-    const double itemHeight = 50.0;
-
-    scrollController.animateTo(
-      itemHeight * index,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -76,7 +64,7 @@ class _PlayListHistoryState extends State<PlayListHistory> {
           // 只要 playIndex 变化就执行滚动
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (scrollController.hasClients) {
-              const itemHeight = 50.0; // 替换为你的实际高度
+              var itemHeight = 95.0.r; // 替换为你的实际高度
               scrollController.animateTo(
                 currentIndex * itemHeight,
                 duration: const Duration(milliseconds: 500),

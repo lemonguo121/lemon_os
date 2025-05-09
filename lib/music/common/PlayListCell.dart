@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../routes/routes.dart';
@@ -42,32 +43,32 @@ class PlayListCell extends StatelessWidget {
           item.songBean.id == playerController.songBean.value.id;
 
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: EdgeInsets.symmetric(vertical: 16.r),
         child: InkWell(
           onTap: () => playIndex(index, item),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               isPlaying
-                  ? const SizedBox(
-                      width: 30,
-                      height: 30,
+                  ? SizedBox(
+                      width: 50.r,
+                      height: 50.r,
                       child: AudioBarsAnimated(
-                        barWidth: 2,
-                        barHeight: 10,
+                        barWidth: 2.w,
+                        barHeight: 10.h,
                         color: Colors.redAccent,
                       ),
                     )
                   : const SizedBox.shrink(), // 保持结构对齐
-              const SizedBox(width: 6),
+              SizedBox(width: 6.w),
               SizedBox(
-                width: 36,
-                height: 36,
+                width: 62.r,
+                height: 62.r,
                 child: ClipOval(
                   child: LoadingImage(pic: getCover(item.songBean)),
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.h),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
