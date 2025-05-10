@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:lemon_tv/home/VideoInfoWidget.dart';
 import 'package:xml/xml.dart';
 
+import '../download/DownloadController.dart';
 import '../http/HttpService.dart';
 import '../http/data/RealVideo.dart';
 import '../http/data/storehouse_bean_entity.dart';
@@ -42,6 +43,7 @@ class _DetailScreenState extends State<DetailScreen> {
   int _selectedPlayFromIndex = 0; // 用于跟踪当前选中播放的播放源
   bool _isFullScreen = false; // 存储全屏状态
   final ScrollController _scrollController = ScrollController();
+  final downloadController = Get.find<DownloadController>();
   int _selectFromIndex = 0; // 用于跟踪当前选中查看的播放源
 
   @override
@@ -51,9 +53,9 @@ class _DetailScreenState extends State<DetailScreen> {
     vodId = args['vodId'];
     site = args['site'];
     _fetchDetail(); // 请求详情数据
-   if (musicPlayController.player.playing){
-     musicPlayController.player.pause();
-   }
+    if (musicPlayController.player.playing) {
+      musicPlayController.player.pause();
+    }
   }
 
   // 异步加载视频进度
@@ -346,11 +348,43 @@ class _DetailScreenState extends State<DetailScreen> {
                     ],
                   ),
                   const SizedBox(height: 6.0),
-                  Videoinfowidget(
-                      title: "播放地址（长按链接复制）",
-                      content: playList[_selectedPlayFromIndex][_selectedIndex]
-                              ['url'] ??
-                          ""),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "播放地址（长按链接复制）",
+                        style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                      const SizedBox(
+                        height: 2.0,
+                      ),
+                      GestureDetector(
+                        onLongPress: () {
+                          Clipboard.setData(
+                              ClipboardData(text: '播放地址（长按链接复制）'));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("文本已复制")),
+                          );
+                        },
+                        onTap: () {
+                          downloadController.startDownload(
+                            playList[_selectedPlayFromIndex][_selectedIndex]
+                            ['url'] ??
+                                "",
+                          );
+                        },
+                        child: Text(
+                            playList[_selectedPlayFromIndex][_selectedIndex]
+                                    ['url'] ??
+                                "",
+                            style: const TextStyle(
+                                fontSize: 12.0, color: Colors.white)),
+                      ),
+                    ],
+                  )
                 ],
               )),
           const SizedBox(height: 6.0),

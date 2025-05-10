@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:lemon_tv/detail/DetailScreen.dart';
+import 'package:lemon_tv/download/DownloadPage.dart';
 import 'package:lemon_tv/music/playlist/PlayListPage.dart';
 import 'package:lemon_tv/search/SearchScreen.dart';
 import 'package:lemon_tv/subscrip/PluginsPage.dart';
@@ -47,6 +48,9 @@ abstract class Routes {
   // 播放列表
   static const String musicPlayListPage = '/PlayListPage';
 
+  // 下载页
+  static const String downloadPage = '/downloadPage';
+
   static goMovieHomelPage() {
     Get.toNamed(movieHomePage);
   }
@@ -90,6 +94,9 @@ abstract class Routes {
     Get.toNamed(musicPlayListPage,arguments: {'record':record});
   }
 
+  static goDownloadPage() {
+    Get.toNamed(downloadPage);
+  }
   static final routePage = [
     GetPage(name: movieHomePage, page: () => MovieHomeScreen()),
     GetPage(name: detailPage, page: () => DetailScreen()),
@@ -101,5 +108,6 @@ abstract class Routes {
     GetPage(name: musicSearchPage, page: () => MusicSearchPage()),
     GetPage(name: musicHotDetalPage, page: () => HotDetailPage()),
     GetPage(name: musicPlayListPage, page: () => PlayListPage()),
+    GetPage(name: downloadPage, page: () => DownloadPage()),
   ];
 }

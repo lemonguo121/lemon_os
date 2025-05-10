@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:lemon_tv/download/DownloadController.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../history/HistoryController.dart';
@@ -20,6 +21,7 @@ class Injection {
     Get.lazyPut(() => MusicHomeController(), fenix: true);
     Get.lazyPut(() => PlayListController(), fenix: true);
     Get.lazyPut(() => SplashController(), fenix: true);
+    Get.lazyPut(() => DownloadController(), fenix: true);
 
     // 创建并注入 musicPlayerController
     var musicPlayerController = MusicPlayerController();

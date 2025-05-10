@@ -81,6 +81,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
               ListTile(
+                leading: Icon(Icons.download,
+                    color: themeController.currentAppTheme.unselectedTextColor),
+                title: Text("影视下载管理",
+                    style: TextStyle(
+                        color: themeController.currentAppTheme.titleColr)),
+                onTap: () {
+                  Routes.goDownloadPage();
+                },
+              ),
+              ListTile(
                 leading: Icon(Icons.extension,
                     color: themeController.currentAppTheme.unselectedTextColor),
                 title: Text("音乐插件管理",
