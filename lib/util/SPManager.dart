@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:lemon_tv/http/data/ParesVideo.dart';
 import 'package:lemon_tv/util/CommonUtil.dart';
 
+import '../download/DownloadItem.dart';
 import '../http/data/RealVideo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,6 +28,7 @@ class SPManager {
   static const String is_agree = "is_agree";
   static const String selectedTheme = "selectedTheme";
   static const String longPressSpeed = "longPressSpeed";
+  static const String downloadkey = "downloadkey";
 
   static bool isRealFun() {
     SharedPreferences sp = Get.find<SharedPreferences>();
@@ -326,5 +328,29 @@ class SPManager {
 
   static void setLongPressSpeed(double speed) {
     Get.find<SharedPreferences>().setDouble(longPressSpeed, speed);
+  }
+
+  // 加载保存的下载状态
+  static List<DownloadItem> getDownloads() {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    final savedDownloads = sp.getString(downloadkey);
+    List<DownloadItem> downloads = [];
+    if (savedDownloads != null) {
+      final List<dynamic> decodedData = json.decode(savedDownloads);
+      for (var itemData in decodedData) {
+        final item = DownloadItem.fromJson(itemData);
+        downloads.add(item);
+      }
+    }
+    return downloads;
+  }
+
+  // 保存下载状态
+  static saveDownloads( List<DownloadItem> downloads) {
+    final List<Map<String, dynamic>> downloadDataList =
+        downloads.map((item) => item.toJson()).toList();
+    final String encodedData = json.encode(downloadDataList);
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    sp.setString(downloadkey, encodedData);
   }
 }

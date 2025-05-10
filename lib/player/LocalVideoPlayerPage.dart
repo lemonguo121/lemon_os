@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
@@ -13,9 +15,7 @@ import '../util/CommonUtil.dart';
 import '../util/SPManager.dart';
 
 class LocalVideoPlayerPage extends StatefulWidget {
-  final AssetEntity video;
-
-  LocalVideoPlayerPage({required this.video});
+  LocalVideoPlayerPage();
 
   @override
   _LocalVideoPlayerPageState createState() => _LocalVideoPlayerPageState();
@@ -41,18 +41,21 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
   bool _isLoadVideoPlayed = false; // 新增的标志，确保下一集只跳转一次
   String videoId = ""; // 新增的标志，确保下一集只跳转一次
   Timer? _timer;
+  File file = File('');
 
   @override
   void initState() {
     super.initState();
+    var arguments = Get.arguments;
+    file = arguments['file'];
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     initializePlayer();
     autoCloseMenuTimer();
   }
 
   Future<void> initializePlayer() async {
-    videoId = widget.video.id;
-    final file = await widget.video.file;
+    videoId = file.path;
+
     if (file != null) {
       _controller = VideoPlayerController.file(file)
         ..initialize().then((_) async {
@@ -61,10 +64,10 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
           _isPlaying = true;
           _isLoadVideoPlayed = false; // 确保每次初始化时复位
           var isSkipTail = false;
-          final savedPosition = await SPManager.getProgress(widget.video.id);
-          videoId = widget.video.id;
+          final savedPosition = await SPManager.getProgress(file.path);
+          videoId = file.path;
           // 获取跳过时间
-          headTime = await SPManager.getSkipHeadTimes(videoId);
+          headTime = SPManager.getSkipHeadTimes(videoId);
 
           if (savedPosition > Duration.zero && savedPosition > headTime) {
             _controller.seekTo(savedPosition);
@@ -146,8 +149,7 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
   }
 
   _saveProgressAndIndex() {
-    SPManager.saveProgress(
-        widget.video.file.toString(), _controller.value.position);
+    SPManager.saveProgress(file.toString(), _controller.value.position);
   }
 
   void _playPreviousVideo() {
@@ -163,13 +165,13 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
   _setSkipHead() {
     autoCloseMenuTimer();
     headTime = _controller.value.position;
-    SPManager.saveSkipHeadTimes(widget.video.id, headTime);
+    SPManager.saveSkipHeadTimes(file.path, headTime);
     setState(() {});
   }
 
   _cleanSkipHead() {
     autoCloseMenuTimer();
-    SPManager.clearSkipHeadTimes(widget.video.id);
+    SPManager.clearSkipHeadTimes(file.path);
     setState(() {});
   }
 
@@ -177,7 +179,7 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
     autoCloseMenuTimer();
     tailTime = _controller.value.position;
     SPManager.saveSkipTailTimes(
-      widget.video.id,
+      file.path,
       tailTime,
     );
     setState(() {});
@@ -185,7 +187,7 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
 
   Future<void> _cleanSkipTail() async {
     autoCloseMenuTimer();
-    await SPManager.clearSkipTailTimes(widget.video.id);
+    await SPManager.clearSkipTailTimes(file.path);
     setState(() {});
   }
 
@@ -412,8 +414,8 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
                 ),
               if (_isControllerVisible)
                 MenuContainer(
-                  videoId: widget.video.id,
-                  videoTitle: widget.video.title ?? "",
+                  videoId: file.path,
+                  videoTitle: file.path ?? "",
                   controller: _controller,
                   showSkipFeedback: showSkipFeedback,
                   playPositonTips: playPositonTips,

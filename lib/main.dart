@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:lemon_tv/download/DownloadController.dart';
 import 'package:lemon_tv/routes/routes.dart';
 import 'package:lemon_tv/splash_page/splash_page.dart';
 import 'package:lemon_tv/util/Injection.dart';
@@ -20,6 +21,7 @@ void main() async {
   HttpOverrides.global = MyHttpOverrides();
   await Injection.init();
   var isRealFun = SPManager.isRealFun();
+
   runApp(
     ScreenUtilInit(
       designSize: const Size(750, 1334),
@@ -30,6 +32,12 @@ void main() async {
       },
     ),
   );
+  initDownLoad();
+}
+
+void initDownLoad() {
+  DownloadController downloadController = Get.find();
+  downloadController.downloads.value = SPManager.getDownloads();
 }
 
 class ElectronicsStoreApp extends StatelessWidget {
@@ -127,7 +135,7 @@ class _HomePageState extends State<HomePage> {
           type: BottomNavigationBarType.fixed,
           backgroundColor: themeController.currentAppTheme.backgroundColor,
           unselectedItemColor: themeController.currentAppTheme.normalTextColor,
-          fixedColor:  themeController.currentAppTheme.selectedTextColor,
+          fixedColor: themeController.currentAppTheme.selectedTextColor,
           elevation: 1.0,
           currentIndex: _currentIndex,
           onTap: (index) {

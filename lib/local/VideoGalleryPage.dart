@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:lemon_tv/util/ThemeController.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 import '../player/LocalVideoPlayerPage.dart';
+import '../routes/routes.dart';
 
 class VideoGalleryPage extends StatefulWidget {
   const VideoGalleryPage({super.key});
@@ -47,12 +49,16 @@ class _VideoGalleryPageState extends State<VideoGalleryPage> {
     setState(() => isLoading = false);
   }
 
-  void playVideo(AssetEntity video) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => LocalVideoPlayerPage(video: video)),
-    );
+  Future<void> playVideo(AssetEntity video) async {
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //       builder: (context) => LocalVideoPlayerPage(video: video)),
+    // );
+    var file = await video.file;
+    if (file != null) {
+      Routes.goLocalVideoPage(file);
+    }
   }
 
   @override

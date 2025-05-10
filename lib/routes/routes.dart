@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:lemon_tv/detail/DetailScreen.dart';
 import 'package:lemon_tv/download/DownloadPage.dart';
@@ -14,10 +16,12 @@ import '../music/music_hot/HotDetailPage.dart';
 import '../music/music_hot/hot_model/hot_Model.dart';
 import '../music/player/widget/music_play.dart';
 import '../music/search/widget/music_search.dart';
+import '../player/LocalVideoPlayerPage.dart';
 
 abstract class Routes {
   /// 影视首页
   static const String movieHomePage = '/movieHome';
+  static const String localVideoPage = '/localVideoPage';
   /// 详情页
   static const String detailPage = '/detail';
 
@@ -97,8 +101,13 @@ abstract class Routes {
   static goDownloadPage() {
     Get.toNamed(downloadPage);
   }
+
+  static goLocalVideoPage(File file) {
+    Get.toNamed(localVideoPage,arguments: {'file':file});
+  }
   static final routePage = [
     GetPage(name: movieHomePage, page: () => MovieHomeScreen()),
+    GetPage(name: localVideoPage, page: () => LocalVideoPlayerPage()),
     GetPage(name: detailPage, page: () => DetailScreen()),
     GetPage(name: searchPage, page: () => SearchScreen()),
     GetPage(name: subscripPage, page: () => SubscriptionPage()),

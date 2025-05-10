@@ -21,8 +21,9 @@ class Injection {
     Get.lazyPut(() => MusicHomeController(), fenix: true);
     Get.lazyPut(() => PlayListController(), fenix: true);
     Get.lazyPut(() => SplashController(), fenix: true);
-    Get.lazyPut(() => DownloadController(), fenix: true);
 
+    var downloadController = DownloadController();
+    Get.lazyPut(() => downloadController, fenix: true);
     // 创建并注入 musicPlayerController
     var musicPlayerController = MusicPlayerController();
     Get.lazyPut(() => musicPlayerController, fenix: true);
