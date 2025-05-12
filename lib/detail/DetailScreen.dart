@@ -371,10 +371,12 @@ class _DetailScreenState extends State<DetailScreen> {
                         },
                         onTap: () {
                           downloadController.startDownload(
-                            playList[_selectedPlayFromIndex][_selectedIndex]
-                            ['url'] ??
-                                "",
-                          );
+                              playList[_selectedPlayFromIndex][_selectedIndex]
+                                      ['url'] ??
+                                  "",
+                              playList[_selectedPlayFromIndex][_selectedIndex]['title']??'$_selectedIndex',
+                              _selectedIndex,
+                              video);
                         },
                         child: Text(
                             playList[_selectedPlayFromIndex][_selectedIndex]

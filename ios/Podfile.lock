@@ -15,15 +15,11 @@ PODS:
   - ffmpeg_kit_flutter_new/full-gpl-lts (1.0.0):
     - Flutter
   - Flutter (1.0.0)
-  - flutter_vlc_player (3.0.3):
-    - Flutter
-    - MobileVLCKit (~> 3.6.0b12)
   - fluttertoast (0.0.2):
     - Flutter
   - just_audio (0.0.1):
     - Flutter
     - FlutterMacOS
-  - MobileVLCKit (3.6.1b1)
   - package_info_plus (0.4.5):
     - Flutter
   - path_provider_foundation (0.0.1):
@@ -42,6 +38,7 @@ PODS:
     - FlutterMacOS
   - speech_to_text (0.0.1):
     - Flutter
+    - FlutterMacOS
     - Try
   - sqflite_darwin (0.0.4):
     - Flutter
@@ -58,7 +55,6 @@ DEPENDENCIES:
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - ffmpeg_kit_flutter_new (from `.symlinks/plugins/ffmpeg_kit_flutter_new/ios`)
   - Flutter (from `Flutter`)
-  - flutter_vlc_player (from `.symlinks/plugins/flutter_vlc_player/ios`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - just_audio (from `.symlinks/plugins/just_audio/darwin`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
@@ -67,13 +63,12 @@ DEPENDENCIES:
   - photo_manager (from `.symlinks/plugins/photo_manager/ios`)
   - screen_brightness_ios (from `.symlinks/plugins/screen_brightness_ios/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
-  - speech_to_text (from `.symlinks/plugins/speech_to_text/ios`)
+  - speech_to_text (from `.symlinks/plugins/speech_to_text/darwin`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
   - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/darwin`)
 
 SPEC REPOS:
   trunk:
-    - MobileVLCKit
     - ReachabilitySwift
     - Try
 
@@ -90,8 +85,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/ffmpeg_kit_flutter_new/ios"
   Flutter:
     :path: Flutter
-  flutter_vlc_player:
-    :path: ".symlinks/plugins/flutter_vlc_player/ios"
   fluttertoast:
     :path: ".symlinks/plugins/fluttertoast/ios"
   just_audio:
@@ -109,7 +102,7 @@ EXTERNAL SOURCES:
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   speech_to_text:
-    :path: ".symlinks/plugins/speech_to_text/ios"
+    :path: ".symlinks/plugins/speech_to_text/darwin"
   sqflite_darwin:
     :path: ".symlinks/plugins/sqflite_darwin/darwin"
   video_player_avfoundation:
@@ -122,10 +115,8 @@ SPEC CHECKSUMS:
   connectivity_plus: 481668c94744c30c53b8895afb39159d1e619bdf
   ffmpeg_kit_flutter_new: 32ce101912f06b552393fecbeb6b465255bfed25
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_vlc_player: adffbf4816d69407ca712e4cc1ff1d257b4fd0a9
   fluttertoast: 2c67e14dce98bbdb200df9e1acf610d7a6264ea1
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
-  MobileVLCKit: 2d9c7c373393ae43086aeeff890bf0b1afc15c5c
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
@@ -133,7 +124,7 @@ SPEC CHECKSUMS:
   ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
   screen_brightness_ios: 28c5fbdb40634de44f86025d84470158ad4df48c
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
-  speech_to_text: ae2abc312e619ff1c53e675a9fc4d785a15c03bb
+  speech_to_text: 9dc43a5df3cbc2813f8c7cc9bd0fbf94268ed7ac
   sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
   Try: 5ef669ae832617b3cee58cb2c6f99fb767a4ff96
   video_player_avfoundation: 2cef49524dd1f16c5300b9cd6efd9611ce03639b

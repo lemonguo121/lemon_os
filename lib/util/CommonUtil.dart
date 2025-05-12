@@ -73,25 +73,19 @@ class CommonUtil {
   }
 
   static bool isVertical(BuildContext context) {
-    Size screenSize = MediaQuery
-        .of(context)
-        .size;
+    Size screenSize = MediaQuery.of(context).size;
     var screenHeight = screenSize.height;
     var screenWidth = screenSize.width;
     return screenHeight > screenWidth ? true : false;
   }
 
   static double getScreenWidth(BuildContext context) {
-    Size screenSize = MediaQuery
-        .of(context)
-        .size;
+    Size screenSize = MediaQuery.of(context).size;
     return screenSize.width;
   }
 
   static double getScreenHeight(BuildContext context) {
-    Size screenSize = MediaQuery
-        .of(context)
-        .size;
+    Size screenSize = MediaQuery.of(context).size;
     return screenSize.height;
   }
 
@@ -99,4 +93,16 @@ class CommonUtil {
     return 'https://picsum.photos/seed/$key/300/200';
   }
 
+  static String formatSize(double size) {
+    // double size = bytes.toDouble();
+    if (size >= 1024 * 1024 * 1024) {
+      return '${(size / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
+    } else if (size >= 1024 * 1024) {
+      return '${(size / (1024 * 1024)).toStringAsFixed(2)} MB';
+    } else if (size >= 1024) {
+      return '${(size / 1024).toStringAsFixed(2)} KB';
+    } else {
+      return '${size.toStringAsFixed(2)} B';
+    }
+  }
 }

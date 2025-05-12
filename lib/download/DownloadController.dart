@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:lemon_tv/http/data/RealVideo.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:dio/dio.dart';
@@ -14,7 +16,8 @@ class DownloadController extends GetxController {
 
   final Dio dio = Dio();
 
-  void startDownload(String url) {
+  void startDownload(
+      String url, String playTitle, int playIndex, RealVideo video) {
     if (downloads.any((d) => d.url == url)) {
       print("任务已存在: $url");
       return;
@@ -23,11 +26,18 @@ class DownloadController extends GetxController {
     final cancelToken = CancelToken();
     final newItem = DownloadItem(
       url: url,
+      vodId: '${video.vodId}',
+      vodPic: video.vodPic,
+      playTitle: playTitle,
+      playIndex: playIndex,
+      vodName: video.vodName,
+      site: video.site,
       progress: 0,
       status: DownloadStatus.downloading,
       localPath: '',
       cancelToken: cancelToken,
       currentIndex: 0,
+      downloadedBytes: 0,
       localSegments: [],
     );
     downloads.add(newItem);
@@ -64,15 +74,6 @@ class DownloadController extends GetxController {
     }
   }
 
-  void deleteDownload(String url) {
-    final index = downloads.indexWhere((d) => d.url == url);
-    if (index != -1) {
-      downloads.removeAt(index);
-      downloads.refresh();
-      SPManager.saveDownloads(downloads);
-    }
-  }
-
   void updateStatus(String url, DownloadStatus status) {
     final index = downloads.indexWhere((d) => d.url == url);
     if (index != -1) {
@@ -82,10 +83,11 @@ class DownloadController extends GetxController {
     }
   }
 
-  void updateProgress(String url, int progress) {
+  void updateProgress(String url, int progress, double downloadedBytes) {
     final index = downloads.indexWhere((d) => d.url == url);
     if (index != -1) {
       downloads[index].progress = progress;
+      downloads[index].downloadedBytes = downloadedBytes;
       downloads.refresh();
       SPManager.saveDownloads(downloads);
     }
@@ -137,7 +139,8 @@ class DownloadController extends GetxController {
             int fullLength = downloadedLength + total;
             final progress =
                 (((downloadedLength + received) / fullLength) * 100).toInt();
-            updateProgress(url, progress);
+
+            updateProgress(url, progress, fullLength.toDouble());
           }
         },
         deleteOnError: false,
@@ -159,7 +162,7 @@ class DownloadController extends GetxController {
   Future<void> _downloadM3u8(String url) async {
     final item = downloads.firstWhereOrNull((d) => d.url == url);
     if (item == null) return;
-
+    var downloadedBytes = item.downloadedBytes;
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode != 200) {
@@ -173,7 +176,7 @@ class DownloadController extends GetxController {
           .toList();
 
       final dir = await _getDownloadDirectory();
-      final folder = p.join(dir, 'm3u8_${url.hashCode}');
+      final folder = p.join(dir, item.vodName);
       await Directory(folder).create(recursive: true);
 
       for (int i = item.currentIndex; i < segmentUrls.length; i++) {
@@ -198,8 +201,9 @@ class DownloadController extends GetxController {
           item.localSegments.add(savePath);
           item.currentIndex = i + 1;
 
+          downloadedBytes += res.data!.length;
           final percent = ((i + 1) / segmentUrls.length * 100).toInt();
-          updateProgress(url, percent);
+          updateProgress(url, percent, downloadedBytes);
         } catch (e) {
           print("下载切片失败: $segmentUrl - $e");
           updateStatus(url, DownloadStatus.paused);
@@ -208,12 +212,14 @@ class DownloadController extends GetxController {
       }
 
       // 合并
+      updateStatus(url, DownloadStatus.conversioning);
       final concatList = File(p.join(folder, 'input.txt'));
       await concatList.writeAsString(
         item.localSegments.map((p) => "file '$p'").join('\n'),
       );
 
-      final outputPath = p.join(folder, 'output.mp4');
+      final outputPath =
+          p.join(folder, '${item.vodName}_${item.playTitle}.mp4');
       await FFmpegKit.execute(
           "-f concat -safe 0 -i '${concatList.path}' -c copy '$outputPath'");
       updateLocalPath(url, outputPath);
@@ -229,6 +235,45 @@ class DownloadController extends GetxController {
     } catch (e) {
       print("解析 m3u8 失败: $e");
       updateStatus(url, DownloadStatus.paused);
+    }
+  }
+
+  void deleteDownload(String url) {
+    final index = downloads.indexWhere((d) => d.url == url);
+    if (index != -1) {
+      final item = downloads[index];
+
+      // 判断是否已完成下载并合成了 mp4 文件
+      final mp4FilePath = p.join(p.dirname(item.localSegments.first),
+          '${item.vodName}_${item.playTitle}.mp4');
+      final mp4File = File(mp4FilePath);
+      print('deleteDownload mp4File = ${mp4File.path}');
+      if (mp4File.existsSync()) {
+        // 如果合成的 mp4 文件存在，则删除它
+        mp4File.deleteSync();
+        print("删除合成的 MP4 文件: $mp4FilePath");
+      } else {
+        // 如果没有合成的 mp4 文件，删除切片文件
+        for (var segment in item.localSegments) {
+          final file = File(segment);
+          if (file.existsSync()) {
+            file.deleteSync(); // 删除切片文件
+            print("删除切片文件: $segment");
+          }
+        }
+      }
+
+      // 删除文件夹（如果文件夹为空）
+      final dir = Directory(p.dirname(item.localSegments.first)); // 获取文件夹路径
+      if (dir.existsSync() && dir.listSync().isEmpty) {
+        dir.deleteSync(); // 仅当文件夹为空时删除
+        print("删除空文件夹: ${dir.path}");
+      }
+
+      // 从下载列表中移除
+      downloads.removeAt(index);
+      downloads.refresh();
+      SPManager.saveDownloads(downloads); // 保存修改后的下载列表
     }
   }
 }
