@@ -28,11 +28,11 @@ class DownloadController extends GetxController {
 
   final Dio dio = Dio();
 
-  void startDownload(
+  bool startDownload(
       String url, String playTitle, int playIndex, RealVideo video) {
     if (downloads.any((d) => d.url == url)) {
       print("任务已存在: $url");
-      return;
+      return false;
     }
 
     final cancelToken = CancelToken();
@@ -61,6 +61,7 @@ class DownloadController extends GetxController {
     } else {
       _downloadVideo(url);
     }
+    return true;
   }
 
   void pauseDownload(String url) {
@@ -89,7 +90,7 @@ class DownloadController extends GetxController {
   void updateStatus(String url, DownloadStatus status) {
     final index = downloads.indexWhere((d) => d.url == url);
     if (index != -1) {
-      downloads[index].status = status;
+      downloads[index].status.value = status;
       downloads.refresh();
       SPManager.saveDownloads(downloads);
     }
@@ -98,7 +99,7 @@ class DownloadController extends GetxController {
   void updateProgress(String url, int progress, double downloadedBytes) {
     final index = downloads.indexWhere((d) => d.url == url);
     if (index != -1) {
-      downloads[index].progress = progress;
+      downloads[index].progress.value = progress;
       downloads[index].downloadedBytes = downloadedBytes;
       downloads.refresh();
       SPManager.saveDownloads(downloads);

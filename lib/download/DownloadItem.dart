@@ -1,9 +1,15 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:get/get.dart';
 
 import '../http/data/storehouse_bean_entity.dart';
 
-enum DownloadStatus { downloading, paused, conversioning, completed, failed }
+enum DownloadStatus {
+  downloading,
+  paused,
+  conversioning,
+  completed,
+  failed,
+}
 
 class DownloadItem {
   final String url;
@@ -13,8 +19,10 @@ class DownloadItem {
   final int playIndex;
   final String vodName;
   final StorehouseBeanSites site;
-  int progress;
-  DownloadStatus status;
+
+  final RxInt progress;
+  final Rx<DownloadStatus> status;
+
   String? localPath;
   CancelToken cancelToken;
   int currentIndex;
@@ -29,51 +37,52 @@ class DownloadItem {
     required this.playIndex,
     required this.vodName,
     required this.site,
-    required this.progress,
-    required this.status,
-    required this.localPath,
-    required this.cancelToken,
-    required this.currentIndex,
-    required this.downloadedBytes,
-    required this.localSegments,
-  });
+    required int progress,
+    required DownloadStatus status,
+    this.localPath,
+    CancelToken? cancelToken,
+    this.currentIndex = 0,
+    this.downloadedBytes = 0.0,
+    List<String>? localSegments,
+  })  : progress = progress.obs,
+        status = status.obs,
+        cancelToken = cancelToken ?? CancelToken(),
+        localSegments = localSegments ?? [];
 
-  /// 从 JSON 恢复 DownloadItem（cancelToken 始终新建）
+  /// 从 JSON 恢复 DownloadItem（Rx 包装）
   factory DownloadItem.fromJson(Map<String, dynamic> json) {
     return DownloadItem(
-        url: json['url'],
-        vodId: json['vodId'],
-        vodPic: json['vodPic'],
-        playTitle: json['playTitle'],
-        playIndex: json['playIndex'],
-        site: StorehouseBeanSites.fromJson(json['site']),
-        vodName: json['vodName'],
-        progress: json['progress'],
-        status: DownloadStatus.values[json['status']],
-        localPath: json['localPath'],
-        cancelToken: CancelToken(),
-        // 始终新建一个新的 cancelToken
-        currentIndex: json['currentIndex'] ?? 0,
-        downloadedBytes: json['downloadedBytes'],
-        localSegments: (json['localSegments'] as List<dynamic>?)
-                ?.map((e) => e.toString())
-                .toList() ??
-            [],
+      url: json['url'],
+      vodId: json['vodId'],
+      vodPic: json['vodPic'],
+      playTitle: json['playTitle'],
+      playIndex: json['playIndex'],
+      vodName: json['vodName'],
+      site: StorehouseBeanSites.fromJson(json['site']),
+      progress: json['progress'] ?? 0,
+      status: DownloadStatus.values[json['status'] ?? 0],
+      localPath: json['localPath'],
+      currentIndex: json['currentIndex'] ?? 0,
+      downloadedBytes: (json['downloadedBytes'] ?? 0).toDouble(),
+      localSegments: (json['localSegments'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList() ??
+          [],
     );
   }
 
-  /// 转换为 JSON（cancelToken 不可序列化）
+  /// 转换为 JSON（Rx.value 序列化）
   Map<String, dynamic> toJson() {
     return {
       'url': url,
       'vodId': vodId,
       'vodPic': vodPic,
-      'playIndex': playIndex,
       'playTitle': playTitle,
+      'playIndex': playIndex,
       'vodName': vodName,
-      'site': site,
-      'progress': progress,
-      'status': status.index,
+      'site': site.toJson(),
+      'progress': progress.value,
+      'status': status.value.index,
       'localPath': localPath,
       'currentIndex': currentIndex,
       'downloadedBytes': downloadedBytes,
@@ -81,7 +90,7 @@ class DownloadItem {
     };
   }
 
-  /// 更新 DownloadItem 实例（不可变）
+  /// 创建一个新对象副本（Rx 类型保留 .value）
   DownloadItem copyWith({
     String? url,
     String? vodId,
@@ -106,8 +115,8 @@ class DownloadItem {
       playIndex: playIndex ?? this.playIndex,
       vodName: vodName ?? this.vodName,
       site: site ?? this.site,
-      progress: progress ?? this.progress,
-      status: status ?? this.status,
+      progress: progress ?? this.progress.value,
+      status: status ?? this.status.value,
       localPath: localPath ?? this.localPath,
       cancelToken: cancelToken ?? this.cancelToken,
       currentIndex: currentIndex ?? this.currentIndex,
@@ -115,4 +124,10 @@ class DownloadItem {
       localSegments: localSegments ?? List.from(this.localSegments),
     );
   }
+
+  /// 是否处于下载中
+  bool get isDownloading => status.value == DownloadStatus.downloading;
+
+  /// 是否已完成
+  bool get isCompleted => status.value == DownloadStatus.completed;
 }

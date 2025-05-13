@@ -136,14 +136,14 @@ class _EpisodeListPageState extends State<EpisodeListPage> {
                               downloadController.deleteDownload(item.url);
                             },
                           ),
-                          if (item.status == DownloadStatus.downloading)
+                          if (item.status.value == DownloadStatus.downloading)
                             IconButton(
                               icon: Icon(Icons.pause, color: Colors.orange),
                               onPressed: () {
                                 downloadController.pauseDownload(item.url);
                               },
                             ),
-                          if (item.status == DownloadStatus.paused)
+                          if (item.status.value == DownloadStatus.paused)
                             IconButton(
                               icon: Icon(Icons.play_arrow, color: Colors.green),
                               onPressed: () {
@@ -164,7 +164,7 @@ class _EpisodeListPageState extends State<EpisodeListPage> {
   }
 
   String getDownloadStatus(DownloadItem item) {
-    switch (item.status) {
+    switch (item.status.value) {
       case DownloadStatus.completed:
         return CommonUtil.formatSize(getFileSize(item.localPath ?? ''));
       case DownloadStatus.downloading:

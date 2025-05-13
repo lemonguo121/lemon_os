@@ -9,6 +9,7 @@ import 'package:lemon_tv/home/VideoInfoWidget.dart';
 import 'package:xml/xml.dart';
 
 import '../download/DownloadController.dart';
+import '../download/DownloadItem.dart';
 import '../http/HttpService.dart';
 import '../http/data/RealVideo.dart';
 import '../http/data/storehouse_bean_entity.dart';
@@ -24,7 +25,7 @@ class DetailScreen extends StatefulWidget {
   _DetailScreenState createState() => _DetailScreenState();
 }
 
-class _DetailScreenState extends State<DetailScreen> {
+class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMixin{
   String vodId = '';
 
   late StorehouseBeanSites site;
@@ -45,6 +46,11 @@ class _DetailScreenState extends State<DetailScreen> {
   final ScrollController _scrollController = ScrollController();
   final downloadController = Get.find<DownloadController>();
   int _selectFromIndex = 0; // 用于跟踪当前选中查看的播放源
+  late AnimationController _iconController;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _fadeAnimation;
+
+
 
   @override
   void initState() {
@@ -56,6 +62,7 @@ class _DetailScreenState extends State<DetailScreen> {
     if (musicPlayController.player.playing) {
       musicPlayController.player.pause();
     }
+    initAnimation();
   }
 
   // 异步加载视频进度
@@ -118,6 +125,7 @@ class _DetailScreenState extends State<DetailScreen> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     _scrollController.dispose();
     VideoPlayerScreen.of(context)?.dispose();
+    _iconController.dispose();
     super.dispose();
   }
 
@@ -369,15 +377,6 @@ class _DetailScreenState extends State<DetailScreen> {
                             const SnackBar(content: Text("文本已复制")),
                           );
                         },
-                        onTap: () {
-                          downloadController.startDownload(
-                              playList[_selectedPlayFromIndex][_selectedIndex]
-                                      ['url'] ??
-                                  "",
-                              playList[_selectedPlayFromIndex][_selectedIndex]['title']??'$_selectedIndex',
-                              _selectedIndex,
-                              video);
-                        },
                         child: Text(
                             playList[_selectedPlayFromIndex][_selectedIndex]
                                     ['url'] ??
@@ -452,46 +451,85 @@ class _DetailScreenState extends State<DetailScreen> {
           .playList[_selectedPlayFromIndex]
           .length,
       itemBuilder: (context, index) {
-        return _buildGridItem(index, playList);
+        return Obx(()=>_buildGridItem(index, playList)) ;
       },
     );
   }
 
   Widget _buildGridItem(int index, List<List<Map<String, String>>> playList) {
     final playItem = playList[_selectFromIndex][index];
-    final title = playItem['title']!; // 播放标题
+    final title = playItem['title']!;
+    final url = playItem['url']!;
+
+    // 找到是否存在下载任务
+    final item = downloadController.downloads
+        .firstWhereOrNull((e) => e.url == url);
+
+    Widget? prefixIcon;
+    if (item != null) {
+      if (item.status.value == DownloadStatus.downloading ||
+          item.status.value == DownloadStatus.paused ||
+          item.status.value == DownloadStatus.conversioning) {
+        prefixIcon = SlideTransition(
+          position: _slideAnimation,
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: Icon(Icons.download, size: 14, color: Colors.white),
+          ),
+        );
+      } else if (item.status.value == DownloadStatus.completed) {
+        prefixIcon = Icon(Icons.check_circle, size: 14, color: Colors.green);
+      }
+    }
+
     return GestureDetector(
       onTap: () {
         _changePlayPosition(index);
+      },
+      onLongPress: () {
+        if (downloadController.startDownload(url, title, index, video)) {
+          CommonUtil.showToast('添加成功');
+        } else {
+          CommonUtil.showToast('任务已存在');
+        }
       },
       child: Container(
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: _selectedIndex == index &&
-                  _selectedPlayFromIndex == _selectFromIndex
-              ? Colors.blueAccent // 选中时改变背景色
-              : Colors.transparent, // 未选中时背景透明
+              _selectedPlayFromIndex == _selectFromIndex
+              ? Colors.blueAccent
+              : Colors.transparent,
           border: Border.all(
             color: Colors.white,
             width: _selectedIndex == index &&
-                    _selectedPlayFromIndex == _selectFromIndex
+                _selectedPlayFromIndex == _selectFromIndex
                 ? 0
                 : 1,
           ),
-          borderRadius: BorderRadius.circular(3.0), // 圆角边框
+          borderRadius: BorderRadius.circular(3.0),
         ),
-        child: Text(
-          title,
-          style: TextStyle(
-            color: _selectedIndex == index &&
-                    _selectedPlayFromIndex == _selectFromIndex
-                ? Colors.white // 选中时字体颜色
-                : Colors.white,
-            fontSize: 10.0,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis, // 超出显示省略号
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (prefixIcon != null) ...[
+              prefixIcon,
+              SizedBox(width: 4),
+            ],
+            Flexible(
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10.0,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -522,5 +560,37 @@ class _DetailScreenState extends State<DetailScreen> {
             ),
           );
         });
+  }
+
+  void initAnimation() {
+    _iconController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: Offset(0, -0.1),
+      end: Offset(0, 0.2),
+    ).animate(CurvedAnimation(
+      parent: _iconController,
+      curve: Curves.easeInOut,
+    ));
+
+    _fadeAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(CurvedAnimation(
+      parent: _iconController,
+      curve: Curves.linear,
+    ));
+
+    // 循环播放，从上到下，然后跳回上面重新开始
+    _iconController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _iconController.forward(from: 0); // 重新从头开始，而不是倒播
+      }
+    });
+
+    _iconController.forward(); // 启动动画
   }
 }
