@@ -16,16 +16,14 @@ class DownloadItem {
   final String vodId;
   final String vodPic;
   final String playTitle;
-  final int playIndex;
+  final int playIndex;//这是剧集中的索引
   final String vodName;
   final StorehouseBeanSites site;
-
   final RxInt progress;
   final Rx<DownloadStatus> status;
-
   String? localPath;
   CancelToken cancelToken;
-  int currentIndex;
+  int currentIndex;//这是下载的m3u8中的ts切片索引
   double downloadedBytes;
   List<String> localSegments;
 

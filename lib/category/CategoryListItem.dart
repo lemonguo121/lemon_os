@@ -26,7 +26,7 @@ class _CategoryListItemState extends State<CategoryListItem> {
   Widget _buildGridItem() {
     return GestureDetector(
       onTap: () {
-        Routes.goDetailPage('${widget.realVideo.vodId}', widget.realVideo.site);
+        Routes.goDetailPage('${widget.realVideo.vodId}', widget.realVideo.site,-1);
       },
       onLongPress: () {
         setState(() {

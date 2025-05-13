@@ -25,8 +25,10 @@ class DetailScreen extends StatefulWidget {
   _DetailScreenState createState() => _DetailScreenState();
 }
 
-class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMixin{
+class _DetailScreenState extends State<DetailScreen>
+    with TickerProviderStateMixin {
   String vodId = '';
+  int playIndex = -1;
 
   late StorehouseBeanSites site;
   MusicPlayerController musicPlayController = Get.find();
@@ -50,14 +52,13 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
 
-
-
   @override
   void initState() {
     super.initState();
     final args = Get.arguments;
     vodId = args['vodId'];
     site = args['site'];
+    playIndex = args['playIndex'];
     _fetchDetail(); // 请求详情数据
     if (musicPlayController.player.playing) {
       musicPlayController.player.pause();
@@ -67,7 +68,13 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
 
   // 异步加载视频进度
   _loadProgress() {
-    int? progress = SPManager.getIndex(vodId) ?? 0;
+    int progress = 0;
+    if (playIndex == -1) {
+      progress = SPManager.getIndex(vodId) ?? 0;
+    } else {
+      progress = playIndex;
+    }
+
     int? fromIndex = SPManager.getFromIndex(vodId) ?? 0;
     setState(() {
       _selectedIndex = progress;
@@ -109,6 +116,10 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
         video = videos[0];
         isLoading = false; // 数据加载完成
         _scrollToSelectedItem(_selectedIndex);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          // 此时 scrollController 已经绑定可用了
+          _scrollToSelectedItem(_selectedIndex);
+        });
         historyController.saveHistory(video);
       });
     } catch (e) {
@@ -171,13 +182,15 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
 
   void _scrollToSelectedItem(int index) {
     // 延迟一点时间，确保列表尺寸和 maxScrollExtent 是准确的
-    Future.delayed(Duration(milliseconds: 10), () {
+    Future.delayed(Duration(milliseconds: 20), () {
+      print('_scrollToSelectedItem  _scrollController.hasClients = ${_scrollController.hasClients} ');
       if (!_scrollController.hasClients) return;
       final double itemHeight = 38;
       const int itemsPerRow = 3;
       final double scrollPosition = (index ~/ itemsPerRow) * itemHeight;
       final double maxScrollExtent = _scrollController.position.maxScrollExtent;
       final double targetScroll = scrollPosition.clamp(0.0, maxScrollExtent);
+      print('_scrollToSelectedItem  scrollPosition = $scrollPosition   maxScrollExtent = $maxScrollExtent  targetScroll  = $targetScroll');
       _scrollController.animateTo(
         targetScroll,
         duration: const Duration(milliseconds: 300),
@@ -451,7 +464,7 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
           .playList[_selectedPlayFromIndex]
           .length,
       itemBuilder: (context, index) {
-        return Obx(()=>_buildGridItem(index, playList)) ;
+        return Obx(() => _buildGridItem(index, playList));
       },
     );
   }
@@ -462,8 +475,8 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
     final url = playItem['url']!;
 
     // 找到是否存在下载任务
-    final item = downloadController.downloads
-        .firstWhereOrNull((e) => e.url == url);
+    final item =
+        downloadController.downloads.firstWhereOrNull((e) => e.url == url);
 
     Widget? prefixIcon;
     if (item != null) {
@@ -497,13 +510,13 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: _selectedIndex == index &&
-              _selectedPlayFromIndex == _selectFromIndex
+                  _selectedPlayFromIndex == _selectFromIndex
               ? Colors.blueAccent
               : Colors.transparent,
           border: Border.all(
             color: Colors.white,
             width: _selectedIndex == index &&
-                _selectedPlayFromIndex == _selectFromIndex
+                    _selectedPlayFromIndex == _selectFromIndex
                 ? 0
                 : 1,
           ),
@@ -564,7 +577,7 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
 
   void initAnimation() {
     _iconController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1100),
       vsync: this,
     );
 
@@ -573,7 +586,7 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
       end: Offset(0, 0.2),
     ).animate(CurvedAnimation(
       parent: _iconController,
-      curve: Curves.easeInOut,
+      curve: Curves.linear,
     ));
 
     _fadeAnimation = Tween<double>(

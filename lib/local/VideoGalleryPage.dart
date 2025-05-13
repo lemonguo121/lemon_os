@@ -50,15 +50,10 @@ class _VideoGalleryPageState extends State<VideoGalleryPage> {
   }
 
   Future<void> playVideo(AssetEntity video) async {
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //       builder: (context) => LocalVideoPlayerPage(video: video)),
-    // );
-    var file = await video.file;
-    if (file != null) {
-      Routes.goLocalVideoPage(file);
-    }
+    // var file = await video.file;
+    // if (file != null) {
+    //   Routes.goLocalVideoPage(file);
+    // }
   }
 
   @override

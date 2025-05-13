@@ -298,4 +298,12 @@ class DownloadController extends GetxController {
     SPManager.saveDownloads(downloads);
     SPManager.removeProgress(item.localPath??'');
   }
+
+  List<DownloadItem> getCurrentVodEpisodes(String vodId) {
+    final list = downloads
+        .where((e) => e.vodId == vodId)
+        .toList()
+      ..sort((a, b) => a.playIndex.compareTo(b.playIndex)); // 保证按剧集顺序
+    return list;
+  }
 }

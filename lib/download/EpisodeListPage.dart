@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
+import '../mywidget/MiniIconButton.dart';
 import '../routes/routes.dart';
 import '../util/CommonUtil.dart';
 import '../util/SPManager.dart';
@@ -23,6 +24,7 @@ class _EpisodeListPageState extends State<EpisodeListPage> {
   String vodName = '';
   var downloadController = Get.find<DownloadController>();
   var themeController = Get.find<ThemeController>();
+  var isShowEdit = false;
 
   @override
   void initState() {
@@ -42,122 +44,171 @@ class _EpisodeListPageState extends State<EpisodeListPage> {
           title: Text(
             vodName,
             style: TextStyle(
-                color: themeController.currentAppTheme.normalTextColor),
+              color: themeController.currentAppTheme.normalTextColor,
+            ),
           ),
           iconTheme: IconThemeData(
             color: themeController.currentAppTheme.normalTextColor,
           ),
-        ),
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: ListView.builder(
-            itemCount: episodes.length,
-            itemBuilder: (context, index) {
-              final item = episodes[index];
+          actions: [
+            isShowEdit
+                ? TextButton(
+                    onPressed: () {
+                      isShowEdit=false;
+                      setState(() {
 
-              return InkWell(
-                onTap: () {
-                  if (item.status == DownloadStatus.completed &&
-                      item.localPath != null) {
-                    Routes.goLocalVideoPage(File(item.localPath ?? ''));
-                  } else {
-                    Get.snackbar("提示", "视频未下载完成");
-                  }
-                },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.h),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 左侧封面图
-                      SizedBox(
-                        width: 150.r,
+                      });
+                    },
+                    child: Text(
+                      '取消',
+                      style: TextStyle(
+                        color: themeController.currentAppTheme.normalTextColor,
+                        fontSize: 16,
+                      ),
+                    ),
+                  )
+                : SizedBox.shrink(),
+          ],
+        ),
+        body: ListView.builder(
+          itemCount: episodes.length,
+          itemBuilder: (context, index) {
+            final item = episodes[index];
+
+            return InkWell(
+              onTap: () {
+                if (item.status.value == DownloadStatus.completed &&
+                    item.localPath != null) {
+                  Routes.goLocalVideoPage(item.vodId, item.playIndex);
+                } else {
+                  Routes.goDetailPage(item.vodId, item.site, item.playIndex);
+                }
+              },
+              onLongPress: () {
+                isShowEdit = true;
+                setState(() {});
+              },
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.h),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 8.0,
+                    ),
+                    isShowEdit
+                        ? SizedBox(
+                            height: 200.r,
+                            child: Center(
+                              child: MiniIconButton(
+                                icon: Icons.delete_outlined,
+                                color: Colors.red,
+                                onPressed: () {
+                                  downloadController.deleteDownload(item.url);
+                                },
+                              ),
+                            ),
+                          )
+                        : SizedBox.shrink(),
+                    SizedBox(
+                      width: 8.0,
+                    ),
+                    // 左侧封面图
+                    SizedBox(
+                      width: 150.r,
+                      height: 200.r,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10.r),
+                        child: LoadingImage(pic: item.vodPic),
+                      ),
+                    ),
+                    SizedBox(width: 20.w),
+                    // 中间文字信息
+                    Expanded(
+                      child: SizedBox(
                         height: 200.r,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10.r),
-                          child: LoadingImage(pic: item.vodPic),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              height: 16.h,
+                            ),
+                            Text(
+                              item.playTitle,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: themeController
+                                      .currentAppTheme.normalTextColor),
+                            ),
+                            Spacer(),
+                            item.status.value == DownloadStatus.completed
+                                ? Text(
+                                    getPlayPosition(item),
+                                    style: TextStyle(
+                                        color: themeController
+                                            .currentAppTheme.normalTextColor
+                                            .withAlpha(160)),
+                                  )
+                                : SizedBox.shrink(),
+                            SizedBox(
+                              height: 8.h,
+                            ),
+                            Text(
+                              getDownloadStatus(item),
+                              style: TextStyle(
+                                  color: themeController
+                                      .currentAppTheme.normalTextColor
+                                      .withAlpha(150)),
+                            ),
+                            SizedBox(
+                              height: 8.h,
+                            ),
+                          ],
                         ),
                       ),
-                      SizedBox(width: 20.w),
-                      // 中间文字信息
-                      Expanded(
-                        child: SizedBox(
-                          height: 200.r,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                height: 16.h,
-                              ),
-                              Text(
-                                item.playTitle,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: themeController
-                                        .currentAppTheme.normalTextColor),
-                              ),
-                              Spacer(),
-                              item.status == DownloadStatus.completed
-                                  ? Text(
-                                      getPlayPosition(item),
-                                      style: TextStyle(
-                                          color: themeController
-                                              .currentAppTheme.normalTextColor
-                                              .withAlpha(160)),
-                                    )
-                                  : SizedBox.shrink(),
-                              SizedBox(
-                                height: 8.h,
-                              ),
-                              Text(
-                                getDownloadStatus(item),
-                                style: TextStyle(
-                                    color: themeController
-                                        .currentAppTheme.normalTextColor
-                                        .withAlpha(150)),
-                              ),
-                              SizedBox(
-                                height: 8.h,
-                              ),
-                            ],
-                          ),
+                    ),
+                    // 右侧操作按钮
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        MiniIconButton(
+                          icon: Icons.more_vert,
+                          color: themeController.currentAppTheme.normalTextColor
+                              .withAlpha(210),
+                          onPressed: () {
+                            Routes.goDetailPage(
+                                item.vodId, item.site, item.playIndex);
+                          },
                         ),
-                      ),
-                      // 右侧操作按钮
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.delete, color: Colors.red),
+                        if (item.status.value == DownloadStatus.downloading)
+                          MiniIconButton(
+                            icon: Icons.pause,
+                            color: Colors.orange,
                             onPressed: () {
-                              downloadController.deleteDownload(item.url);
+                              downloadController.pauseDownload(item.url);
                             },
                           ),
-                          if (item.status.value == DownloadStatus.downloading)
-                            IconButton(
-                              icon: Icon(Icons.pause, color: Colors.orange),
-                              onPressed: () {
-                                downloadController.pauseDownload(item.url);
-                              },
-                            ),
-                          if (item.status.value == DownloadStatus.paused)
-                            IconButton(
-                              icon: Icon(Icons.play_arrow, color: Colors.green),
-                              onPressed: () {
-                                downloadController.resumeDownload(item.url);
-                              },
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        if (item.status.value == DownloadStatus.paused)
+                          MiniIconButton(
+                            icon: Icons.play_arrow,
+                            color: Colors.green,
+                            onPressed: () {
+                              downloadController.resumeDownload(item.url);
+                            },
+                          ),
+                      ],
+                    ),
+                    SizedBox(
+                      width: 8.0,
+                    )
+                  ],
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       );
     });

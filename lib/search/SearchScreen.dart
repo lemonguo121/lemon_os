@@ -428,6 +428,6 @@ class _SearchScreenState extends State<SearchScreen>
 
   void _clickVideoItem(RealVideo video) {
     _hideSuggestions();
-    Routes.goDetailPage('${video.vodId}', video.site);
+    Routes.goDetailPage('${video.vodId}', video.site,-1);
   }
 }

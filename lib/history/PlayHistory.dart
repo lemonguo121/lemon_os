@@ -105,7 +105,7 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
     // }
     return GestureDetector(
       onTap: () {
-        Routes.goDetailPage('${realVideo.vodId}', realVideo.site);
+        Routes.goDetailPage('${realVideo.vodId}', realVideo.site,-1);
       },
       onLongPress: () {
         historyController.removeHistoryItem(realVideo);

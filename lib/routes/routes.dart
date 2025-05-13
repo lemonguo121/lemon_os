@@ -24,6 +24,7 @@ abstract class Routes {
   /// 影视首页
   static const String movieHomePage = '/movieHome';
   static const String localVideoPage = '/localVideoPage';
+
   /// 详情页
   static const String detailPage = '/detail';
 
@@ -59,12 +60,13 @@ abstract class Routes {
 
   static const String episodeList = '/episodeList';
 
-
   static goMovieHomelPage() {
     Get.toNamed(movieHomePage);
   }
-  static goDetailPage(String vodId, StorehouseBeanSites site) {
-    Get.toNamed(detailPage, arguments: {'vodId': vodId, 'site': site});
+
+  static goDetailPage(String vodId, StorehouseBeanSites site, int playIndex) {
+    Get.toNamed(detailPage,
+        arguments: {'vodId': vodId, 'site': site, 'playIndex': playIndex});
   }
 
   static goSearchPage(String query) {
@@ -100,19 +102,20 @@ abstract class Routes {
   }
 
   static goPlayListPage(PlayRecordList record) {
-    Get.toNamed(musicPlayListPage,arguments: {'record':record});
+    Get.toNamed(musicPlayListPage, arguments: {'record': record});
   }
 
   static goDownloadPage() {
     Get.toNamed(downloadPage);
   }
 
-  static goLocalVideoPage(File file) {
-    Get.toNamed(localVideoPage,arguments: {'file':file});
+  static goLocalVideoPage(String vodId, int playIndex) {
+    Get.toNamed(localVideoPage,
+        arguments: {'vodId': vodId, 'playIndex': playIndex});
   }
 
   static goEpisodeListPage(String vodName) {
-    Get.toNamed(episodeList,arguments: {'vodName':vodName});
+    Get.toNamed(episodeList, arguments: {'vodName': vodName});
   }
 
   static final routePage = [

@@ -4,9 +4,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:lemon_tv/download/DownloadController.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
 
+import '../download/DownloadItem.dart';
 import '../util/CommonUtil.dart';
 import '../util/SPManager.dart';
 import 'MenuContainer.dart';
@@ -23,6 +25,7 @@ class LocalVideoPlayerPage extends StatefulWidget {
 
 class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
   late VideoPlayerController _controller;
+  DownloadController downloadController = Get.find();
   bool isLoading = true;
   bool isScreenLocked = false; //是否锁住屏幕
   bool _isControllerVisible = true;
@@ -41,34 +44,57 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
   bool _isLoadVideoPlayed = false; // 新增的标志，确保下一集只跳转一次
   String videoId = ""; // 新增的标志，确保下一集只跳转一次
   Timer? _timer;
-  File file = File('');
+  String? vodId;
+  int? currentPlayIndex = 0; //这是剧集中的索引
+  int currentIndex = 0; //这是转换播放列表里面的索引，上下集切换是根据这个索引
+  List<DownloadItem> playList = [];
+  DownloadItem? video;
+  bool isVertical = true;
 
   @override
   void initState() {
     super.initState();
     var arguments = Get.arguments;
-    file = arguments['file'];
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeRight,
-      DeviceOrientation.landscapeLeft
-    ]);
+    vodId = arguments['vodId'];
+    currentPlayIndex = arguments['playIndex'];
+    // 设置进入全屏前的方向
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 记录当前的屏幕方向
+      isVertical = CommonUtil.isVertical(context);
+    });
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.landscapeRight, DeviceOrientation.landscapeLeft]);
+    initPlayList();
     initializePlayer();
     autoCloseMenuTimer();
   }
 
-  Future<void> initializePlayer() async {
-    videoId = file.path;
+  void initPlayList() {
+    if (vodId?.isEmpty == true) {
+      CommonUtil.showToast('无效视频');
+      return;
+    }
+    playList = downloadController.getCurrentVodEpisodes(vodId!);
+    currentIndex = playList.indexWhere((e) => e.playIndex == currentPlayIndex);
+  }
 
-    if (file != null) {
-      _controller = VideoPlayerController.file(file)
+  Future<void> initializePlayer() async {
+    if (playList.isEmpty) {
+      CommonUtil.showToast('无效视频');
+      return;
+    }
+    video = playList[currentIndex];
+    setState(() {});
+
+    if (video != null) {
+      _controller = VideoPlayerController.file(File(video?.localPath ?? ''))
         ..initialize().then((_) async {
           setState(() => isLoading = false);
           _controller.play();
           _isPlaying = true;
           _isLoadVideoPlayed = false; // 确保每次初始化时复位
           var isSkipTail = false;
-          final savedPosition = await SPManager.getProgress(file.path);
-          videoId = file.path;
+          final savedPosition = SPManager.getProgress(video?.localPath ?? '');
           // 获取跳过时间
           headTime = SPManager.getSkipHeadTimes(videoId);
 
@@ -80,8 +106,8 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
             _controller.seekTo(headTime);
           }
 
-          tailTime = await SPManager.getSkipTailTimes(videoId);
-          var playSpeed = await SPManager.getPlaySpeed();
+          tailTime = SPManager.getSkipTailTimes(videoId);
+          var playSpeed = SPManager.getPlaySpeed();
           _controller.setPlaybackSpeed(playSpeed);
           _controller.addListener(() {
             if (_controller.value.hasError) {
@@ -144,36 +170,71 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
     _controller.dispose();
     _timer?.cancel();
     _saveProgressAndIndex();
-    SystemChrome.setPreferredOrientations([]);
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: SystemUiOverlay.values);
+
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+   if (isVertical){
+     SystemChrome.setPreferredOrientations([
+       DeviceOrientation.portraitUp,
+       DeviceOrientation.portraitDown
+     ]);
+   }else{
+     SystemChrome.setPreferredOrientations([
+       DeviceOrientation.landscapeRight,
+       DeviceOrientation.landscapeLeft
+     ]);
+   }
+    Future.delayed(const Duration(milliseconds: 300), () {
+      SystemChrome.setPreferredOrientations([]);
+    });
     super.dispose();
   }
 
   _saveProgressAndIndex() {
-    SPManager.saveProgress(file.path, _controller.value.position);
+    SPManager.saveProgress(video?.localPath ?? '', _controller.value.position);
   }
 
   void _playPreviousVideo() {
     autoCloseMenuTimer();
-    CommonUtil.showToast("已经是第一集");
+    if (currentIndex > 0) {
+      setState(() async {
+        _saveProgressAndIndex();
+        currentIndex--;
+        _isLoadVideoPlayed = true;
+        await _controller.pause();
+        await _controller.dispose();
+        initializePlayer();
+      });
+    } else {
+      CommonUtil.showToast('已经是第一集');
+    }
   }
 
   void _playNextVideo() {
     autoCloseMenuTimer();
-    CommonUtil.showToast("已经是最后一集");
+    if (currentIndex < playList.length - 1) {
+      setState(() async {
+        _saveProgressAndIndex();
+        currentIndex++;
+        _isLoadVideoPlayed = true;
+        await _controller.pause();
+        await _controller.dispose();
+        initializePlayer();
+      });
+    } else {
+      CommonUtil.showToast('已经是最后一集');
+    }
   }
 
   _setSkipHead() {
     autoCloseMenuTimer();
     headTime = _controller.value.position;
-    SPManager.saveSkipHeadTimes(file.path, headTime);
+    SPManager.saveSkipHeadTimes(video?.localPath ?? '', headTime);
     setState(() {});
   }
 
   _cleanSkipHead() {
     autoCloseMenuTimer();
-    SPManager.clearSkipHeadTimes(file.path);
+    SPManager.clearSkipHeadTimes(video?.localPath ?? '');
     setState(() {});
   }
 
@@ -181,7 +242,7 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
     autoCloseMenuTimer();
     tailTime = _controller.value.position;
     SPManager.saveSkipTailTimes(
-      file.path,
+      video?.localPath ?? '',
       tailTime,
     );
     setState(() {});
@@ -189,7 +250,7 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
 
   Future<void> _cleanSkipTail() async {
     autoCloseMenuTimer();
-    await SPManager.clearSkipTailTimes(file.path);
+    await SPManager.clearSkipTailTimes(video?.localPath ?? '');
     setState(() {});
   }
 
@@ -416,8 +477,9 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
                 ),
               if (_isControllerVisible)
                 MenuContainer(
-                  videoId: file.path,
-                  videoTitle: p.basename(file.path) ,
+                  videoId: video?.vodPic ?? '',
+                  videoTitle:
+                      '${video?.vodName ?? ''} ${video?.playTitle ?? ''}',
                   controller: _controller,
                   showSkipFeedback: showSkipFeedback,
                   playPositonTips: playPositonTips,

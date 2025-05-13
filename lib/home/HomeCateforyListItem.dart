@@ -37,7 +37,7 @@ class _HomecateforylistitemState extends State<Homecateforylistitem> {
         margin: EdgeInsets.only(right: itemMargin, bottom: 10.0),
         child: GestureDetector(
           onTap: () {
-            Routes.goDetailPage('${video.vodId}', video.site);
+            Routes.goDetailPage('${video.vodId}', video.site,-1);
           },
           onLongPress: () {
             Routes.goSearchPage(video.vodName);

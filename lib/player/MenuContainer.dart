@@ -159,7 +159,7 @@ class _MenuContainerState extends State<MenuContainer> {
               SizedBox(
                 height: 10.h,
               ),
-              _buildMenuText("${size.width.toInt()} x ${size.height.toInt()}"),
+              _buildMenuText("     ${size.width.toInt()} x ${size.height.toInt()}"),
               const Spacer(flex: 1),
               // 底部菜单
               Container(
