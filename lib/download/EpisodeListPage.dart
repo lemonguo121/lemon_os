@@ -20,7 +20,9 @@ class EpisodeListPage extends StatefulWidget {
   State<EpisodeListPage> createState() => _EpisodeListPageState();
 }
 
-class _EpisodeListPageState extends State<EpisodeListPage> {
+class _EpisodeListPageState extends State<EpisodeListPage> with WidgetsBindingObserver,AutomaticKeepAliveClientMixin{
+  @override
+  bool get wantKeepAlive => true;
   String vodName = '';
   var downloadController = Get.find<DownloadController>();
   var themeController = Get.find<ThemeController>();
@@ -32,7 +34,15 @@ class _EpisodeListPageState extends State<EpisodeListPage> {
     var arguments = Get.arguments;
     vodName = arguments['vodName'];
   }
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // 重新获取数据
+    setState(() {
 
+    });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Obx(() {
