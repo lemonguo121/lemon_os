@@ -14,6 +14,18 @@ import 'DownloadItem.dart';
 class DownloadController extends GetxController {
   var downloads = <DownloadItem>[].obs;
 
+  RxList<DownloadItem> getEpisodesByVodName(String vodName) {
+    return downloads.where((item) => item.vodName == vodName).toList().obs;
+  }
+
+  Map<String, List<DownloadItem>> get groupedByVodName {
+    final map = <String, List<DownloadItem>>{};
+    for (var item in downloads) {
+      map.putIfAbsent(item.vodName, () => []).add(item);
+    }
+    return map;
+  }
+
   final Dio dio = Dio();
 
   void startDownload(
@@ -113,7 +125,11 @@ class DownloadController extends GetxController {
 
     final dir = await _getDownloadDirectory();
     final filename = Uri.parse(url).pathSegments.last;
-    final savePath = p.join(dir, filename);
+
+    // 构造路径：影片/剧集/文件名
+    final folder = p.join(dir, item.vodName, item.playTitle);
+    await Directory(folder).create(recursive: true);
+    final savePath = p.join(folder, filename);
     final file = File(savePath);
 
     int downloadedLength = 0;
@@ -138,7 +154,7 @@ class DownloadController extends GetxController {
           if (total != -1) {
             int fullLength = downloadedLength + total;
             final progress =
-                (((downloadedLength + received) / fullLength) * 100).toInt();
+            (((downloadedLength + received) / fullLength) * 100).toInt();
 
             updateProgress(url, progress, fullLength.toDouble());
           }
@@ -176,7 +192,7 @@ class DownloadController extends GetxController {
           .toList();
 
       final dir = await _getDownloadDirectory();
-      final folder = p.join(dir, item.vodName);
+      final folder = p.join(dir, item.vodName,item.playTitle);
       await Directory(folder).create(recursive: true);
 
       for (int i = item.currentIndex; i < segmentUrls.length; i++) {
@@ -238,42 +254,47 @@ class DownloadController extends GetxController {
     }
   }
 
-  void deleteDownload(String url) {
+  Future<void> deleteDownload(String url) async {
     final index = downloads.indexWhere((d) => d.url == url);
-    if (index != -1) {
-      final item = downloads[index];
+    if (index == -1) return;
 
-      // 判断是否已完成下载并合成了 mp4 文件
-      final mp4FilePath = p.join(p.dirname(item.localSegments.first),
-          '${item.vodName}_${item.playTitle}.mp4');
-      final mp4File = File(mp4FilePath);
-      print('deleteDownload mp4File = ${mp4File.path}');
-      if (mp4File.existsSync()) {
-        // 如果合成的 mp4 文件存在，则删除它
-        mp4File.deleteSync();
-        print("删除合成的 MP4 文件: $mp4FilePath");
-      } else {
-        // 如果没有合成的 mp4 文件，删除切片文件
-        for (var segment in item.localSegments) {
-          final file = File(segment);
-          if (file.existsSync()) {
-            file.deleteSync(); // 删除切片文件
-            print("删除切片文件: $segment");
-          }
+    final item = downloads[index];
+    final baseDir = await _getDownloadDirectory();
+
+    // 剧集目录：如 Download/三体/第01集
+    final episodeDir = Directory(p.join(baseDir, item.vodName, item.playTitle));
+
+    if (await episodeDir.exists()) {
+      try {
+        await episodeDir.delete(recursive: true);
+        print("✅ 删除剧集文件夹: ${episodeDir.path}");
+      } catch (e) {
+        print("❌ 删除剧集文件夹失败: $e");
+      }
+
+      // 上层影片目录：如 Download/三体
+      final vodDir = Directory(p.join(baseDir, item.vodName));
+      bool isVodDirEmpty = true;
+
+      if (await vodDir.exists()) {
+        final items = await vodDir.list().toList();
+        isVodDirEmpty = items.isEmpty;
+      }
+
+      if (isVodDirEmpty) {
+        try {
+          await vodDir.delete();
+          print("✅ 删除空的影片文件夹: ${vodDir.path}");
+        } catch (e) {
+          print("❌ 删除影片文件夹失败: $e");
         }
       }
-
-      // 删除文件夹（如果文件夹为空）
-      final dir = Directory(p.dirname(item.localSegments.first)); // 获取文件夹路径
-      if (dir.existsSync() && dir.listSync().isEmpty) {
-        dir.deleteSync(); // 仅当文件夹为空时删除
-        print("删除空文件夹: ${dir.path}");
-      }
-
-      // 从下载列表中移除
-      downloads.removeAt(index);
-      downloads.refresh();
-      SPManager.saveDownloads(downloads); // 保存修改后的下载列表
     }
+
+    // 从下载列表中移除任务并保存
+    downloads.removeAt(index);
+    downloads.refresh();
+    SPManager.saveDownloads(downloads);
+    SPManager.removeProgress(item.localPath??'');
   }
 }

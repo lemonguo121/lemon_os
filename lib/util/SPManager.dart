@@ -55,7 +55,11 @@ class SPManager {
     SharedPreferences sp = Get.find<SharedPreferences>();
     sp.setInt("$_progressKey$videoUrl", position.inSeconds);
   }
-
+  // 清理播放进度
+  static removeProgress(String videoUrl) {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    sp.remove("$_progressKey$videoUrl");
+  }
   // 获取播放进度
   static Duration getProgress(String videoUrl) {
     SharedPreferences sp = Get.find<SharedPreferences>();

@@ -53,7 +53,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   int videoId = 0;
   bool _isControllerVisible = true; //是否显示控制器菜单
   bool _isPlaying = false;
-  bool _isFullScreen = false;
+  bool _isFullScreen = true;
   bool _isLoadVideoPlayed = false; // 新增的标志，确保下一集只跳转一次
   double _currentBrightness = 0.5; // 默认亮度
   double _currentVolume = 0.5; // 默认音量

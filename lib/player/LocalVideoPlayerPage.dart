@@ -4,15 +4,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:photo_manager/photo_manager.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
 
+import '../util/CommonUtil.dart';
+import '../util/SPManager.dart';
 import 'MenuContainer.dart';
 import 'SkipFeedbackPositoned.dart';
 import 'VoiceAndLightFeedbackPositoned.dart';
-import '../util/CommonUtil.dart';
-import '../util/SPManager.dart';
+import 'package:path/path.dart' as p;
 
 class LocalVideoPlayerPage extends StatefulWidget {
   LocalVideoPlayerPage();
@@ -48,7 +48,10 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
     super.initState();
     var arguments = Get.arguments;
     file = arguments['file'];
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft
+    ]);
     initializePlayer();
     autoCloseMenuTimer();
   }
@@ -141,15 +144,14 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
     _controller.dispose();
     _timer?.cancel();
     _saveProgressAndIndex();
-    SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    SystemChrome.setPreferredOrientations([]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: SystemUiOverlay.values);
     super.dispose();
   }
 
   _saveProgressAndIndex() {
-    SPManager.saveProgress(file.toString(), _controller.value.position);
+    SPManager.saveProgress(file.path, _controller.value.position);
   }
 
   void _playPreviousVideo() {
@@ -415,7 +417,7 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
               if (_isControllerVisible)
                 MenuContainer(
                   videoId: file.path,
-                  videoTitle: file.path ?? "",
+                  videoTitle: p.basename(file.path) ,
                   controller: _controller,
                   showSkipFeedback: showSkipFeedback,
                   playPositonTips: playPositonTips,

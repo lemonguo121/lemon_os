@@ -1,8 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../http/data/storehouse_bean_entity.dart';
 
-enum DownloadStatus { downloading, paused, conversioning,completed, failed }
+enum DownloadStatus { downloading, paused, conversioning, completed, failed }
 
 class DownloadItem {
   final String url;
@@ -40,24 +41,24 @@ class DownloadItem {
   /// 从 JSON 恢复 DownloadItem（cancelToken 始终新建）
   factory DownloadItem.fromJson(Map<String, dynamic> json) {
     return DownloadItem(
-      url: json['url'],
-      vodId: json['vodId'],
-      vodPic: json['vodPic'],
-      playTitle: json['playTitle'],
-      playIndex: json['playIndex'],
-      site: StorehouseBeanSites.fromJson(json['site']),
-      vodName: json['vodName'],
-      progress: json['progress'],
-      status: DownloadStatus.values[json['status']],
-      localPath: json['localPath'],
-      cancelToken: CancelToken(),
-      // 始终新建一个新的 cancelToken
-      currentIndex: json['currentIndex'] ?? 0,
-      downloadedBytes: json['downloadedBytes'],
-      localSegments: (json['localSegments'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          [],
+        url: json['url'],
+        vodId: json['vodId'],
+        vodPic: json['vodPic'],
+        playTitle: json['playTitle'],
+        playIndex: json['playIndex'],
+        site: StorehouseBeanSites.fromJson(json['site']),
+        vodName: json['vodName'],
+        progress: json['progress'],
+        status: DownloadStatus.values[json['status']],
+        localPath: json['localPath'],
+        cancelToken: CancelToken(),
+        // 始终新建一个新的 cancelToken
+        currentIndex: json['currentIndex'] ?? 0,
+        downloadedBytes: json['downloadedBytes'],
+        localSegments: (json['localSegments'] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toList() ??
+            [],
     );
   }
 
