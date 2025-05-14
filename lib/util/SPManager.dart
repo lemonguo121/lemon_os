@@ -29,6 +29,7 @@ class SPManager {
   static const String selectedTheme = "selectedTheme";
   static const String longPressSpeed = "longPressSpeed";
   static const String downloadkey = "downloadkey";
+  static const String no_more_sleep_tip = "no_more_sleep_tip";
 
   static bool isRealFun() {
     SharedPreferences sp = Get.find<SharedPreferences>();
@@ -55,11 +56,13 @@ class SPManager {
     SharedPreferences sp = Get.find<SharedPreferences>();
     sp.setInt("$_progressKey$videoUrl", position.inSeconds);
   }
+
   // 清理播放进度
   static removeProgress(String videoUrl) {
     SharedPreferences sp = Get.find<SharedPreferences>();
     sp.remove("$_progressKey$videoUrl");
   }
+
   // 获取播放进度
   static Duration getProgress(String videoUrl) {
     SharedPreferences sp = Get.find<SharedPreferences>();
@@ -350,11 +353,21 @@ class SPManager {
   }
 
   // 保存下载状态
-  static saveDownloads( List<DownloadItem> downloads) {
+  static saveDownloads(List<DownloadItem> downloads) {
     final List<Map<String, dynamic>> downloadDataList =
         downloads.map((item) => item.toJson()).toList();
     final String encodedData = json.encode(downloadDataList);
     SharedPreferences sp = Get.find<SharedPreferences>();
     sp.setString(downloadkey, encodedData);
+  }
+
+  static bool isNeedTips() {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    return sp.getBool(no_more_sleep_tip) ?? false;
+  }
+
+  static saveNeedTips() {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    sp.setBool(no_more_sleep_tip, true);
   }
 }

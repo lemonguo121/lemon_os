@@ -9,11 +9,6 @@ PODS:
   - connectivity_plus (0.0.1):
     - Flutter
     - ReachabilitySwift
-  - ffmpeg_kit_flutter_new (1.0.0):
-    - ffmpeg_kit_flutter_new/full-gpl-lts (= 1.0.0)
-    - Flutter
-  - ffmpeg_kit_flutter_new/full-gpl-lts (1.0.0):
-    - Flutter
   - Flutter (1.0.0)
   - fluttertoast (0.0.2):
     - Flutter
@@ -55,7 +50,6 @@ DEPENDENCIES:
   - audio_session (from `.symlinks/plugins/audio_session/ios`)
   - battery_plus (from `.symlinks/plugins/battery_plus/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
-  - ffmpeg_kit_flutter_new (from `.symlinks/plugins/ffmpeg_kit_flutter_new/ios`)
   - Flutter (from `Flutter`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - just_audio (from `.symlinks/plugins/just_audio/darwin`)
@@ -84,8 +78,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/battery_plus/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
-  ffmpeg_kit_flutter_new:
-    :path: ".symlinks/plugins/ffmpeg_kit_flutter_new/ios"
   Flutter:
     :path: Flutter
   fluttertoast:
@@ -118,7 +110,6 @@ SPEC CHECKSUMS:
   audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
   battery_plus: b42253f6d2dde71712f8c36fef456d99121c5977
   connectivity_plus: 481668c94744c30c53b8895afb39159d1e619bdf
-  ffmpeg_kit_flutter_new: 97b2c798a30c08fac1381ff76202fd67d325df2f
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   fluttertoast: 2c67e14dce98bbdb200df9e1acf610d7a6264ea1
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed

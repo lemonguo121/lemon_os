@@ -10,6 +10,7 @@ import 'package:xml/xml.dart';
 
 import '../download/DownloadController.dart';
 import '../download/DownloadItem.dart';
+import '../download/showSleepWarningIfNeeded.dart';
 import '../http/HttpService.dart';
 import '../http/data/RealVideo.dart';
 import '../http/data/storehouse_bean_entity.dart';
@@ -500,6 +501,7 @@ class _DetailScreenState extends State<DetailScreen>
         _changePlayPosition(index);
       },
       onLongPress: () {
+        showSleepWarningIfNeeded(context);
         if (downloadController.startDownload(url, title, index, video)) {
           CommonUtil.showToast('添加成功');
         } else {
