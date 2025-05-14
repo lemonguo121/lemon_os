@@ -20,7 +20,8 @@ class EpisodeListPage extends StatefulWidget {
   State<EpisodeListPage> createState() => _EpisodeListPageState();
 }
 
-class _EpisodeListPageState extends State<EpisodeListPage> with WidgetsBindingObserver,AutomaticKeepAliveClientMixin{
+class _EpisodeListPageState extends State<EpisodeListPage>
+    with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
   String vodName = '';
@@ -34,15 +35,15 @@ class _EpisodeListPageState extends State<EpisodeListPage> with WidgetsBindingOb
     var arguments = Get.arguments;
     vodName = arguments['vodName'];
   }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       // 重新获取数据
-    setState(() {
-
-    });
+      setState(() {});
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -64,10 +65,8 @@ class _EpisodeListPageState extends State<EpisodeListPage> with WidgetsBindingOb
             isShowEdit
                 ? TextButton(
                     onPressed: () {
-                      isShowEdit=false;
-                      setState(() {
-
-                      });
+                      isShowEdit = false;
+                      setState(() {});
                     },
                     child: Text(
                       '取消',
@@ -209,6 +208,14 @@ class _EpisodeListPageState extends State<EpisodeListPage> with WidgetsBindingOb
                               downloadController.resumeDownload(item.url);
                             },
                           ),
+                        if (item.status.value == DownloadStatus.failed||item.status.value == DownloadStatus.converfaild)
+                          MiniIconButton(
+                            icon: Icons.error,
+                            color: Colors.red,
+                            onPressed: () {
+                              downloadController.mergeSegments(item);
+                            },
+                          ),
                       ],
                     ),
                     SizedBox(
@@ -235,6 +242,8 @@ class _EpisodeListPageState extends State<EpisodeListPage> with WidgetsBindingOb
         return "格式转换中";
       case DownloadStatus.failed:
         return "下载失败";
+      case DownloadStatus.converfaild:
+        return "格式转换失败";
     }
   }
 

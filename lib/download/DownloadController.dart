@@ -1,13 +1,15 @@
-import 'dart:convert';
-import 'dart:ffi';
 import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:ffmpeg_kit_flutter_new/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter_new/return_code.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:lemon_tv/http/data/RealVideo.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
-import 'package:dio/dio.dart';
-import 'package:ffmpeg_kit_flutter_new/ffmpeg_kit.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
+
 import '../util/SPManager.dart';
 import 'DownloadItem.dart';
 
@@ -93,6 +95,8 @@ class DownloadController extends GetxController {
       downloads[index].status.value = status;
       downloads.refresh();
       SPManager.saveDownloads(downloads);
+
+      WakelockPlus.toggle(enable: !checkTaskAllDone());
     }
   }
 
@@ -110,6 +114,15 @@ class DownloadController extends GetxController {
     final index = downloads.indexWhere((d) => d.url == url);
     if (index != -1) {
       downloads[index].localPath = path;
+      downloads.refresh();
+      SPManager.saveDownloads(downloads);
+    }
+  }
+
+  void updatefolder(String url, String folder) {
+    final index = downloads.indexWhere((d) => d.url == url);
+    if (index != -1) {
+      downloads[index].folder = folder;
       downloads.refresh();
       SPManager.saveDownloads(downloads);
     }
@@ -155,7 +168,7 @@ class DownloadController extends GetxController {
           if (total != -1) {
             int fullLength = downloadedLength + total;
             final progress =
-            (((downloadedLength + received) / fullLength) * 100).toInt();
+                (((downloadedLength + received) / fullLength) * 100).toInt();
 
             updateProgress(url, progress, fullLength.toDouble());
           }
@@ -179,6 +192,7 @@ class DownloadController extends GetxController {
   Future<void> _downloadM3u8(String url) async {
     final item = downloads.firstWhereOrNull((d) => d.url == url);
     if (item == null) return;
+
     var downloadedBytes = item.downloadedBytes;
     try {
       final response = await http.get(Uri.parse(url));
@@ -193,9 +207,9 @@ class DownloadController extends GetxController {
           .toList();
 
       final dir = await _getDownloadDirectory();
-      final folder = p.join(dir, item.vodName,item.playTitle);
+      final folder = p.join(dir, item.vodName, item.playTitle);
       await Directory(folder).create(recursive: true);
-
+      updatefolder(url, folder);
       for (int i = item.currentIndex; i < segmentUrls.length; i++) {
         if (item.status == DownloadStatus.paused ||
             item.cancelToken.isCancelled) {
@@ -228,32 +242,135 @@ class DownloadController extends GetxController {
         }
       }
 
-      // 合并
       updateStatus(url, DownloadStatus.conversioning);
-      final concatList = File(p.join(folder, 'input.txt'));
-      await concatList.writeAsString(
-        item.localSegments.map((p) => "file '$p'").join('\n'),
-      );
+      await mergeSegments(item);
+    } catch (e) {
+      print("解析 m3u8 失败: $e");
+      updateStatus(url, DownloadStatus.paused);
+    }
+  }
 
-      final outputPath =
-          p.join(folder, '${item.vodName}_${item.playTitle}.mp4');
-      await FFmpegKit.execute(
-          "-f concat -safe 0 -i '${concatList.path}' -c copy '$outputPath'");
-      updateLocalPath(url, outputPath);
-      updateStatus(url, DownloadStatus.completed);
+  Future<void> mergeSegments(DownloadItem item) async {
+    String folder = item.folder ?? '';
+    final concatList = File(p.join(folder, 'input.txt'));
+    await concatList.writeAsString(
+      item.localSegments.map((p) => "file '$p'").join('\n'),
+    );
 
-      // 删除 TS 切片
+    final outputPath = p.join(folder, '${item.vodName}_${item.playTitle}.mp4');
+
+    final session = await FFmpegKit.execute(
+        "-f concat -safe 0 -i '${concatList.path}' -fflags +genpts -movflags +faststart -avoid_negative_ts make_zero -c copy '$outputPath'");
+
+    final returnCode = await session.getReturnCode();
+    final logs = await session.getAllLogs();
+    for (final log in logs) {
+      print("FFmpeg Log: ${log.getMessage()}");
+    }
+
+    if (ReturnCode.isSuccess(returnCode)) {
+      updateLocalPath(item.url, outputPath);
+      updateStatus(item.url, DownloadStatus.completed);
+
       for (final f in item.localSegments) {
         try {
           await File(f).delete();
         } catch (_) {}
       }
       await concatList.delete();
-    } catch (e) {
-      print("解析 m3u8 失败: $e");
-      updateStatus(url, DownloadStatus.paused);
+    } else {
+      final failTrace = await session.getFailStackTrace();
+      print("合并失败: code=$returnCode\nTrace: $failTrace");
+      updateStatus(item.url, DownloadStatus.converfaild);
     }
   }
+
+  // GTP 说flutter_download不适合下载ts很多的情况，代码先保存，后面再结合实际使用看到底要不要继续开发flutter_download的使用，目前还是使用dio算了
+  // Future<void> _downloadM3u8(String url) async {
+  //   final item = downloads.firstWhereOrNull((d) => d.url == url);
+  //   if (item == null) return;
+  //
+  //   try {
+  //     final response = await http.get(Uri.parse(url));
+  //     if (response.statusCode != 200) {
+  //       updateStatus(url, DownloadStatus.paused);
+  //       return;
+  //     }
+  //
+  //     final lines = response.body.split('\n');
+  //     final segmentUrls = lines
+  //         .where((line) => !line.startsWith("#") && line.trim().isNotEmpty)
+  //         .toList();
+  //
+  //     final dir = await _getDownloadDirectory();
+  //     final folder = p.join(dir, item.vodName, item.playTitle);
+  //     await Directory(folder).create(recursive: true);
+  //     updatefolder(url, folder);
+  //
+  //     // 存储 taskId 和路径的映射
+  //     final taskIdToPath = <String, String>{};
+  //     final taskIdToIndex = <String, int>{};
+  //
+  //     item.localSegments.clear();
+  //     item.currentIndex = 0;
+  //     item.segmentCount = segmentUrls.length;
+  //
+  //     for (int i = 0; i < segmentUrls.length; i++) {
+  //       final segmentUrl = Uri.parse(segmentUrls[i]).isAbsolute
+  //           ? segmentUrls[i]
+  //           : Uri.parse(url).resolve(segmentUrls[i]).toString();
+  //
+  //       final fileName = 'segment_$i.ts';
+  //       final taskId = await FlutterDownloader.enqueue(
+  //         url: segmentUrl,
+  //         savedDir: folder,
+  //         fileName: fileName,
+  //         showNotification: false,
+  //         openFileFromNotification: false,
+  //       );
+  //
+  //       if (taskId != null) {
+  //         taskIdToPath[taskId] = p.join(folder, fileName);
+  //         taskIdToIndex[taskId] = i;
+  //         item.pendingTaskIds.add(taskId);
+  //       }
+  //     }
+  //
+  //     item.taskIdToPath = taskIdToPath;
+  //     item.taskIdToIndex = taskIdToIndex;
+  //     updateStatus(url, DownloadStatus.downloading);
+  //   } catch (e) {
+  //     print("解析 m3u8 失败: $e");
+  //     updateStatus(url, DownloadStatus.paused);
+  //   }
+  // }
+  //
+  //  void downloadCallback(String id, DownloadTaskStatus status, int progress) async {
+  //   final item = downloads.firstWhereOrNull((d) => d.pendingTaskIds.contains(id));
+  //   if (item == null) return;
+  //
+  //   if (status == DownloadTaskStatus.complete) {
+  //     final savePath = item.taskIdToPath[id];
+  //     final index = item.taskIdToIndex[id];
+  //     if (savePath != null && index != null) {
+  //       // 保证顺序
+  //       item.localSegments.add(savePath);
+  //       item.currentIndex++;
+  //
+  //       // 计算进度
+  //       final percent = ((item.currentIndex) / item.segmentCount * 100).toInt();
+  //       updateProgress(item.url, percent, null);
+  //     }
+  //
+  //     // 判断是否全部完成
+  //     if (item.currentIndex >= item.segmentCount) {
+  //       updateStatus(item.url, DownloadStatus.conversioning);
+  //       await mergeSegments(item);
+  //     }
+  //   } else if (status == DownloadTaskStatus.failed) {
+  //     updateStatus(item.url, DownloadStatus.paused);
+  //   }
+  // }
 
   Future<void> deleteDownload(String url) async {
     final index = downloads.indexWhere((d) => d.url == url);
@@ -261,19 +378,15 @@ class DownloadController extends GetxController {
 
     final item = downloads[index];
     final baseDir = await _getDownloadDirectory();
-
-    // 剧集目录：如 Download/三体/第01集
     final episodeDir = Directory(p.join(baseDir, item.vodName, item.playTitle));
 
     if (await episodeDir.exists()) {
       try {
         await episodeDir.delete(recursive: true);
-        print("✅ 删除剧集文件夹: ${episodeDir.path}");
+        print("删除文件夹: ${episodeDir.path}");
       } catch (e) {
-        print("❌ 删除剧集文件夹失败: $e");
+        print("删除文件夹失败: $e");
       }
-
-      // 上层影片目录：如 Download/三体
       final vodDir = Directory(p.join(baseDir, item.vodName));
       bool isVodDirEmpty = true;
 
@@ -285,25 +398,26 @@ class DownloadController extends GetxController {
       if (isVodDirEmpty) {
         try {
           await vodDir.delete();
-          print("✅ 删除空的影片文件夹: ${vodDir.path}");
+          print("删除空的文件夹: ${vodDir.path}");
         } catch (e) {
-          print("❌ 删除影片文件夹失败: $e");
+          print("删除文件夹失败: $e");
         }
       }
     }
-
     // 从下载列表中移除任务并保存
     downloads.removeAt(index);
     downloads.refresh();
     SPManager.saveDownloads(downloads);
-    SPManager.removeProgress(item.localPath??'');
+    SPManager.removeProgress(item.localPath ?? '');
   }
 
   List<DownloadItem> getCurrentVodEpisodes(String vodId) {
-    final list = downloads
-        .where((e) => e.vodId == vodId)
-        .toList()
+    final list = downloads.where((e) => e.vodId == vodId).toList()
       ..sort((a, b) => a.playIndex.compareTo(b.playIndex)); // 保证按剧集顺序
     return list;
+  }
+
+  bool checkTaskAllDone() {
+    return downloads.every((d) => d.status.value == DownloadStatus.completed);
   }
 }

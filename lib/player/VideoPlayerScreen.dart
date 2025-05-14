@@ -8,7 +8,9 @@ import 'package:lemon_tv/history/HistoryController.dart';
 import 'package:lemon_tv/player/LongPressOnlyWidget.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '../download/DownloadController.dart';
 import '../http/data/RealVideo.dart';
 import '../player/MenuContainer.dart';
 import '../util/CommonUtil.dart';
@@ -49,11 +51,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   late int _currentIndex;
   late List<Map<String, String>> videoList; // 确保类型为 List<Map<String, String>>
   final HistoryController historyController = Get.put(HistoryController());
+  DownloadController downloadController = Get.find();
   String playUrl = ""; // 确保类型为 List<Map<String, String>>
   int videoId = 0;
   bool _isControllerVisible = true; //是否显示控制器菜单
   bool _isPlaying = false;
-  bool _isFullScreen = true;
+  bool _isFullScreen = false;
   bool _isLoadVideoPlayed = false; // 新增的标志，确保下一集只跳转一次
   double _currentBrightness = 0.5; // 默认亮度
   double _currentVolume = 0.5; // 默认音量
@@ -76,6 +79,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WakelockPlus.toggle(enable: true);
     _currentIndex = widget.initialIndex;
     _initializeSystemSettings();
     _initializePlayer();
@@ -209,6 +213,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
     // 调用异步方法，不阻塞 dispose
     _saveProgressAndIndex();
     SystemChrome.setPreferredOrientations([]);
+    if (downloadController.checkTaskAllDone()) {
+      WakelockPlus.toggle(enable: false);
+    }
     super.dispose();
   }
 
@@ -687,10 +694,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
 
   void _fastSpeedPlay(bool isStart) {
     if (isStart) {
-      print('longpress 开始长按');
       _controller.setPlaybackSpeed(SPManager.getLongPressSpeed());
     } else {
-      print('longpress 结束长按');
       _controller.setPlaybackSpeed(SPManager.getPlaySpeed());
     }
     setState(() {

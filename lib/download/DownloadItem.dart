@@ -9,6 +9,7 @@ enum DownloadStatus {
   conversioning,
   completed,
   failed,
+  converfaild
 }
 
 class DownloadItem {
@@ -22,6 +23,7 @@ class DownloadItem {
   final RxInt progress;
   final Rx<DownloadStatus> status;
   String? localPath;
+  String? folder;
   CancelToken cancelToken;
   int currentIndex;//这是下载的m3u8中的ts切片索引
   double downloadedBytes;
@@ -38,6 +40,7 @@ class DownloadItem {
     required int progress,
     required DownloadStatus status,
     this.localPath,
+    this.folder,
     CancelToken? cancelToken,
     this.currentIndex = 0,
     this.downloadedBytes = 0.0,
@@ -60,6 +63,7 @@ class DownloadItem {
       progress: json['progress'] ?? 0,
       status: DownloadStatus.values[json['status'] ?? 0],
       localPath: json['localPath'],
+      folder: json['folder'],
       currentIndex: json['currentIndex'] ?? 0,
       downloadedBytes: (json['downloadedBytes'] ?? 0).toDouble(),
       localSegments: (json['localSegments'] as List<dynamic>?)
@@ -82,6 +86,7 @@ class DownloadItem {
       'progress': progress.value,
       'status': status.value.index,
       'localPath': localPath,
+      'folder': folder,
       'currentIndex': currentIndex,
       'downloadedBytes': downloadedBytes,
       'localSegments': localSegments,
@@ -100,6 +105,7 @@ class DownloadItem {
     int? progress,
     DownloadStatus? status,
     String? localPath,
+    String? folder,
     CancelToken? cancelToken,
     int? currentIndex,
     double? downloadedBytes,
@@ -116,6 +122,7 @@ class DownloadItem {
       progress: progress ?? this.progress.value,
       status: status ?? this.status.value,
       localPath: localPath ?? this.localPath,
+      folder: folder ?? this.folder,
       cancelToken: cancelToken ?? this.cancelToken,
       currentIndex: currentIndex ?? this.currentIndex,
       downloadedBytes: downloadedBytes ?? this.downloadedBytes,

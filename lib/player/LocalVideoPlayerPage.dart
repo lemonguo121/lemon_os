@@ -3,14 +3,17 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/download/DownloadController.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../download/DownloadItem.dart';
 import '../util/CommonUtil.dart';
 import '../util/SPManager.dart';
+import 'LongPressOnlyWidget.dart';
 import 'MenuContainer.dart';
 import 'SkipFeedbackPositoned.dart';
 import 'VoiceAndLightFeedbackPositoned.dart';
@@ -30,7 +33,7 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
   bool isScreenLocked = false; //是否锁住屏幕
   bool _isControllerVisible = true;
   bool _isPlaying = false;
-  bool _isFullScreen = false;
+  bool _isFullScreen = true;
   bool _showFeedback = false; //音量、亮度调节反馈开关
   bool _showSkipFeedback = false; //跳过、回退调节反馈开关
   String _playPositonTips = ""; //调节进度时候的文案
@@ -57,13 +60,14 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
     var arguments = Get.arguments;
     vodId = arguments['vodId'];
     currentPlayIndex = arguments['playIndex'];
-    // 设置进入全屏前的方向
+    WakelockPlus.toggle(enable: true);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 记录当前的屏幕方向
       isVertical = CommonUtil.isVertical(context);
     });
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeRight, DeviceOrientation.landscapeLeft]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
     initPlayList();
     initializePlayer();
     autoCloseMenuTimer();
@@ -166,12 +170,12 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
 
   @override
   void dispose() {
+
     _controller.removeListener(() {});
     _controller.dispose();
     _timer?.cancel();
     _saveProgressAndIndex();
 
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
    if (isVertical){
      SystemChrome.setPreferredOrientations([
        DeviceOrientation.portraitUp,
@@ -183,9 +187,13 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
        DeviceOrientation.landscapeLeft
      ]);
    }
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     Future.delayed(const Duration(milliseconds: 300), () {
       SystemChrome.setPreferredOrientations([]);
     });
+    if (downloadController.checkTaskAllDone()) {
+      WakelockPlus.toggle(enable: false);
+    }
     super.dispose();
   }
 
@@ -448,19 +456,20 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
           backgroundColor: Colors.black,
           body: Stack(
             children: [
-              GestureDetector(
+              LongPressOnlyWidget(
                 onTap: () {
                   setState(() {
                     _isControllerVisible = !_isControllerVisible;
+                    autoCloseMenuTimer();
                   });
                 },
-                // 监听双击事件
                 onDoubleTap: _togglePlayPause,
-                // 双击屏幕切换播放/暂停
                 onVerticalDragUpdate: _handleVerticalDrag,
                 onVerticalDragEnd: _cancelDrag,
                 onHorizontalDragUpdate: _handleHorizontalDrag,
                 onHorizontalDragEnd: _cancelDrag,
+                onLongPressStart: () => _fastSpeedPlay(true),
+                onLongPressEnd: () => _fastSpeedPlay(false),
                 child: _buildVideoPlayer(),
               ),
               if (_showFeedback)
@@ -499,6 +508,23 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
                   isFullScreen: _isFullScreen,
                   isScreenLocked: isScreenLocked,
                   isAlsoShowTime: true,
+                ),
+              if (_isLongPressing)
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                      padding: EdgeInsets.only(top: 95.h),
+                      child: Text(
+                        '${SPManager.getLongPressSpeed()}x 加速中',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          shadows: [
+                            Shadow(color: Colors.black87, blurRadius: 4),
+                          ],
+                        ),
+                      )
+                  ),
                 ),
               if (!_isPlaying && _controller.value.isInitialized)
                 Center(
@@ -582,5 +608,17 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
         child: VideoPlayer(_controller),
       ),
     );
+  }
+  bool _isLongPressing = false;
+
+  void _fastSpeedPlay(bool isStart) {
+    if (isStart) {
+      _controller.setPlaybackSpeed(SPManager.getLongPressSpeed());
+    } else {
+      _controller.setPlaybackSpeed(SPManager.getPlaySpeed());
+    }
+    setState(() {
+      _isLongPressing = isStart;
+    });
   }
 }
