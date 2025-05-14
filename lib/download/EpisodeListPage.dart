@@ -208,14 +208,14 @@ class _EpisodeListPageState extends State<EpisodeListPage>
                               downloadController.resumeDownload(item.url);
                             },
                           ),
-                        if (item.status.value == DownloadStatus.failed||item.status.value == DownloadStatus.converfaild)
-                          MiniIconButton(
-                            icon: Icons.error,
-                            color: Colors.red,
-                            onPressed: () {
-                              downloadController.mergeSegments(item);
-                            },
-                          ),
+                        // if (item.status.value == DownloadStatus.failed||item.status.value == DownloadStatus.converfaild)
+                        //   MiniIconButton(
+                        //     icon: Icons.error,
+                        //     color: Colors.red,
+                        //     onPressed: () {
+                        //       downloadController.mergeSegments(item);
+                        //     },
+                        //   ),
                       ],
                     ),
                     SizedBox(
@@ -234,7 +234,7 @@ class _EpisodeListPageState extends State<EpisodeListPage>
   String getDownloadStatus(DownloadItem item) {
     switch (item.status.value) {
       case DownloadStatus.completed:
-        return CommonUtil.formatSize(getFileSize(item.localPath ?? ''));
+        return CommonUtil.formatSize(item.downloadedBytes);
       case DownloadStatus.downloading:
       case DownloadStatus.paused:
         return "进度: ${item.progress}%  ${CommonUtil.formatSize(item.downloadedBytes)}";

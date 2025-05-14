@@ -6,11 +6,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/download/DownloadController.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../download/DownloadItem.dart';
+import '../http/LocalHttpServer.dart';
 import '../util/CommonUtil.dart';
 import '../util/SPManager.dart';
 import 'LongPressOnlyWidget.dart';
@@ -18,6 +20,7 @@ import 'MenuContainer.dart';
 import 'SkipFeedbackPositoned.dart';
 import 'VoiceAndLightFeedbackPositoned.dart';
 import 'package:path/path.dart' as p;
+import 'package:http/http.dart' as http;
 
 class LocalVideoPlayerPage extends StatefulWidget {
   LocalVideoPlayerPage();
@@ -91,7 +94,22 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
     setState(() {});
 
     if (video != null) {
-      _controller = VideoPlayerController.file(File(video?.localPath ?? ''))
+      // _controller = VideoPlayerController.file(File(video?.localPath ?? ''))
+
+      final localPath = video?.localPath;
+      if (localPath == null) return;
+      var localUrl = '';
+      if (Platform.isAndroid) {
+        localUrl = localPath;
+      }else{
+        LocalHttpServer.stop();
+        final dir = await getApplicationDocumentsDirectory();
+        final folder = p.join(dir.path, video?.vodName, video?.playTitle);
+        await LocalHttpServer.start(folder);
+        final m3u8FileName = p.basename(localPath); // 获取文件名，例如 video.m3u8
+        localUrl = 'http://127.0.0.1:12345/$m3u8FileName';
+      }
+      _controller = VideoPlayerController.network(localUrl)
         ..initialize().then((_) async {
           setState(() => isLoading = false);
           _controller.play();
@@ -170,23 +188,19 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
 
   @override
   void dispose() {
-
     _controller.removeListener(() {});
     _controller.dispose();
+    LocalHttpServer.stop();
     _timer?.cancel();
     _saveProgressAndIndex();
 
-   if (isVertical){
-     SystemChrome.setPreferredOrientations([
-       DeviceOrientation.portraitUp,
-       DeviceOrientation.portraitDown
-     ]);
-   }else{
-     SystemChrome.setPreferredOrientations([
-       DeviceOrientation.landscapeRight,
-       DeviceOrientation.landscapeLeft
-     ]);
-   }
+    if (isVertical) {
+      SystemChrome.setPreferredOrientations(
+          [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    } else {
+      SystemChrome.setPreferredOrientations(
+          [DeviceOrientation.landscapeRight, DeviceOrientation.landscapeLeft]);
+    }
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     Future.delayed(const Duration(milliseconds: 300), () {
       SystemChrome.setPreferredOrientations([]);
@@ -523,8 +537,7 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
                             Shadow(color: Colors.black87, blurRadius: 4),
                           ],
                         ),
-                      )
-                  ),
+                      )),
                 ),
               if (!_isPlaying && _controller.value.isInitialized)
                 Center(
@@ -609,6 +622,7 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
       ),
     );
   }
+
   bool _isLongPressing = false;
 
   void _fastSpeedPlay(bool isStart) {
