@@ -8,7 +8,7 @@ import '../music/player/music_controller.dart';
 import '../music/playlist/PlayListController.dart';
 import '../splash_page/splash_controller.dart';
 import 'ThemeController.dart';
-
+import 'package:video_player_media_kit/video_player_media_kit.dart';
 class Injection {
   static Future<void> init() async {
     // 注入 SharedPreferences
@@ -29,5 +29,12 @@ class Injection {
     Get.lazyPut(() => musicPlayerController, fenix: true);
     // 等待 musicPlayerController 的初始化完成
     await musicPlayerController.init();
+
+    VideoPlayerMediaKit.ensureInitialized(
+      android: true,          // default: false    -    dependency: media_kit_libs_android_video
+      iOS: true,              // default: false    -    dependency: media_kit_libs_ios_video
+      macOS: true,            // default: false    -    dependency: media_kit_libs_macos_video
+      windows: true,          // default: false    -    dependency: media_kit_libs_windows_video
+    );
   }
 }

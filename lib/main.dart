@@ -19,6 +19,7 @@ import 'music/music_home/MusicHomePage.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
+
   await Injection.init();
   var isRealFun = SPManager.isRealFun();
 
