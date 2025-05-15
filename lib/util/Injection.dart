@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:lemon_tv/download/DownloadController.dart';
+import 'package:lemon_tv/util/SPManager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../history/HistoryController.dart';
@@ -30,11 +31,12 @@ class Injection {
     // 等待 musicPlayerController 的初始化完成
     await musicPlayerController.init();
 
+    SPManager.getEnableKit();
     VideoPlayerMediaKit.ensureInitialized(
-      android: true,          // default: false    -    dependency: media_kit_libs_android_video
-      iOS: true,              // default: false    -    dependency: media_kit_libs_ios_video
-      macOS: true,            // default: false    -    dependency: media_kit_libs_macos_video
-      windows: true,          // default: false    -    dependency: media_kit_libs_windows_video
+      android:  SPManager.getEnableKit(),          // default: false    -    dependency: media_kit_libs_android_video
+      iOS:  SPManager.getEnableKit(),              // default: false    -    dependency: media_kit_libs_ios_video
+      macOS:  SPManager.getEnableKit(),            // default: false    -    dependency: media_kit_libs_macos_video
+      windows:  SPManager.getEnableKit(),          // default: false    -    dependency: media_kit_libs_windows_video
     );
   }
 }

@@ -245,7 +245,9 @@ class DownloadController extends GetxController {
 
       // 生成 .m3u8 文件并保存
       final m3u8FilePath = p.join(folder, 'local.m3u8');
-      await generateLocalM3u8(localSegmentPaths, m3u8FilePath);
+      final originalM3u8Path = p.join(folder, 'original.m3u8');
+      await File(originalM3u8Path).writeAsString(response.body);
+      await convertM3U8(originalM3u8Path, localSegmentPaths, m3u8FilePath);
 
       // 保存 m3u8 文件路径以便播放器使用
       final m3u8Uri = 'file://$m3u8FilePath';
@@ -258,24 +260,37 @@ class DownloadController extends GetxController {
     }
   }
 
-  Future<void> generateLocalM3u8(List<String> tsPaths, String savePath) async {
+  Future<void> convertM3U8(
+      String originalM3U8Path,
+      List<String> localTsFiles,
+      String outputM3U8Path,
+      ) async {
+    final originalLines = await File(originalM3U8Path).readAsLines();
     final buffer = StringBuffer();
-    buffer.writeln('#EXTM3U');
-    buffer.writeln('#EXT-X-VERSION:3');
-    buffer.writeln('#EXT-X-TARGETDURATION:10');  // 每个切片的时长，可以根据实际情况修改
-    buffer.writeln('#EXT-X-MEDIA-SEQUENCE:0');
 
-    // 遍历每个 ts 文件，生成对应的 .m3u8 内容
-    for (final ts in tsPaths) {
-      buffer.writeln('#EXTINF:10.0,');  // 假设每个切片为 10 秒，实际可以根据需求调整
-      buffer.writeln(p.basename(ts)); // 只写相对路径
+    int tsIndex = 0;
+
+    for (final line in originalLines) {
+      final trimmed = line.trim();
+
+      if (trimmed.isEmpty) {
+        buffer.writeln(); // 保留空行
+      } else if (trimmed.startsWith('#')) {
+        buffer.writeln(trimmed); // 标签原样保留
+      } else {
+        // 非标签行认为是 ts URL，替换成本地 ts 文件名
+        if (tsIndex < localTsFiles.length) {
+          final localFileName = p.basename(localTsFiles[tsIndex]);
+          buffer.writeln(localFileName);
+          tsIndex++;
+        } else {
+          // 万一 localTsFiles 不够，也写一个注释避免出错
+          buffer.writeln('# Missing segment for: $trimmed');
+        }
+      }
     }
 
-    buffer.writeln('#EXT-X-ENDLIST');
-
-    // 将生成的内容写入 .m3u8 文件
-    final file = File(savePath);
-    await file.writeAsString(buffer.toString());
+    await File(outputM3U8Path).writeAsString(buffer.toString());
   }
 
   // Future<void> mergeSegments(DownloadItem item) async {

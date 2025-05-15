@@ -30,6 +30,7 @@ class SPManager {
   static const String longPressSpeed = "longPressSpeed";
   static const String downloadkey = "downloadkey";
   static const String no_more_sleep_tip = "no_more_sleep_tip";
+  static const String isEnableKit = "isEnableKit";
 
   static bool isRealFun() {
     SharedPreferences sp = Get.find<SharedPreferences>();
@@ -369,5 +370,15 @@ class SPManager {
   static saveNeedTips() {
     SharedPreferences sp = Get.find<SharedPreferences>();
     sp.setBool(no_more_sleep_tip, true);
+  }
+
+  static setEnableKit(bool value) {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    sp.setBool(isEnableKit, value);
+  }
+
+  static bool getEnableKit() {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    return sp.getBool(isEnableKit) ?? false;
   }
 }

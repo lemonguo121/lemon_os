@@ -8,6 +8,8 @@ import 'package:lemon_tv/util/CommonUtil.dart';
 import 'package:lemon_tv/util/SPManager.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
 
+import 'SettingController.dart';
+
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
 
@@ -17,11 +19,11 @@ class SettingPage extends StatefulWidget {
 
 class _SettingPageState extends State<SettingPage> {
   final ScrollController _scrollController = ScrollController();
+  final settingController = Get.put(SettingController());
   MusicPlayerController playerController = Get.find();
   List<double> speedList = [2.0, 3.0, 4.0, 5.0];
   var _selecteIndex = 1;
   double longPressSpeed = 2.0;
-
   @override
   void initState() {
     super.initState();
@@ -69,13 +71,23 @@ class _SettingPageState extends State<SettingPage> {
                 onTap: (() => showSelectDialog()),
               ),
               ListTile(
+                title: Text('是否开启media_kit',
+                    style: TextStyle(
+                        color: themeController.currentAppTheme.titleColr)),
+                trailing: Switch(
+                  value: settingController.enableKit.value,
+                  onChanged: settingController.toggle,
+                ),
+              ),
+              ListTile(
                 title: Text('音乐音量',
                     style: TextStyle(
                         color: themeController.currentAppTheme.titleColr)),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('${(playerController.currentVolume.value * 100).toStringAsFixed(2)}%',
+                    Text(
+                        '${(playerController.currentVolume.value * 100).toStringAsFixed(2)}%',
                         style: TextStyle(
                             color: themeController.currentAppTheme.titleColr)),
                     SizedBox(
