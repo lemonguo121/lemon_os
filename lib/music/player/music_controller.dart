@@ -227,30 +227,30 @@ class MusicPlayerController extends GetxController {
     final platform = song.platform ?? '';
     try {
       String playUrl;
-      final hasAudioCache = await MusicCacheUtil.hasAudioCache(song.id, platform);
+      final hasAudioCache = await MusicCacheUtil.hasAudioCache(song.artist,song.id, platform);
       if (hasAudioCache) {
-        final file = await MusicCacheUtil.getCachedFile(song.id, platform);
+        final file = await MusicCacheUtil.getCachedFile(song.artist,song.id, platform);
         playUrl = file.path;
       } else {
         final audioResp = await NetworkManager().get('/getMediaSource',
             queryParameters: {'id': song.id, 'plugin': platform});
         playUrl = audioResp.data['url'];
-        MusicCacheUtil.downloadAndCache(playUrl, song.id, platform)
+        MusicCacheUtil.downloadAndCache(playUrl,song.artist, song.id, platform)
             .catchError((e) => print('音频缓存失败：$e'));
       }
       // ===== 歌词缓存处理 =====
       String rawLrc;
       final hasLyricCache =
-      await MusicCacheUtil.hasLyricCache(song.id, platform);
+      await MusicCacheUtil.hasLyricCache(song.artist,song.id, platform);
 
       if (hasLyricCache) {
-        rawLrc = await MusicCacheUtil.getCachedLyric(song.id, platform);
+        rawLrc = await MusicCacheUtil.getCachedLyric(song.artist,song.id, platform);
       } else {
         final rawLrcResp = await NetworkManager().get('/lyric',
             queryParameters: {'id': song.id, 'plugin': platform});
         rawLrc = rawLrcResp.data['rawLrc'] ?? '';
         // 异步缓存歌词
-        MusicCacheUtil.saveLyric(rawLrc, song.id, platform)
+        MusicCacheUtil.saveLyric(rawLrc, song.artist,song.id, platform)
             .catchError((e) => print('歌词缓存失败：$e'));
       }
       lyrics.value = _parseLrc(rawLrc);
@@ -352,7 +352,8 @@ class MusicPlayerController extends GetxController {
     MusicSPManage.savePlayList(playListNow, listName.key);
     var id = musicBean.songBean.id;
     var platform = musicBean.songBean.platform;
-    MusicCacheUtil.deleteAllCacheForSong(id, platform);
+    var name = musicBean.songBean.artist;
+    MusicCacheUtil.deleteAllCacheForSong(name,id, platform);
     playList.value = playListNow;
     playList.refresh();
   }

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:lemon_tv/music/music_home/music_home_controller.dart';
 import 'package:lemon_tv/music/music_utils/MusicSPManage.dart';
 import 'package:lemon_tv/music/player/music_controller.dart';
+import 'package:lemon_tv/util/MusicCacheUtil.dart';
 import 'package:lemon_tv/util/ThemeController.dart';
 import 'package:lemon_tv/util/widget/NoDataView.dart';
 
@@ -40,6 +41,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       loadData();
       controller.getRordList();
+      MusicCacheUtil.ensureStoragePermission();
     });
   }
 
