@@ -44,10 +44,12 @@ class _DownloadPageState extends State<DownloadPage> {
               final items = grouped[vodName]!;
               final firstItem = items.first;
               return Card(
+                color: themeController.currentAppTheme.backgroundColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 elevation: 4,
+
                 margin: EdgeInsets.symmetric(vertical: 18.h,horizontal: 22.w),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(12.r),
