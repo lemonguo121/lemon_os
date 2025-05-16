@@ -81,6 +81,9 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
   void _onPositionChanged() {
     if (!mounted || !_scrollController.hasClients) return;
     final lyrics = playerController.lyrics.value;
+    if (lyrics.isEmpty) {
+      return;
+    }
     final position = playerController.currentPosition.value;
 
     for (int i = 0; i < lyrics.length - 1; i++) {
@@ -238,7 +241,14 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
 
   Widget _buildLyricList() {
     var _lyrics = playerController.lyrics.value;
-
+    if (_lyrics.isEmpty) {
+      return Center(
+        child: Text(
+          '暂无歌词',
+          style: TextStyle(color: Colors.white70,fontSize: 20),
+        ),
+      );
+    }
     return ListView.builder(
       controller: _scrollController,
       itemCount: _lyrics.length,
@@ -271,8 +281,9 @@ class _MusicPlayerPageState extends State<MusicPlayerPage>
                     style: TextStyle(
                       fontSize: 16,
                       color: i == _currentIndex ? Colors.blue : Colors.white70,
-                      fontWeight:
-                      i == _currentIndex ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: i == _currentIndex
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                   ),
                 ),

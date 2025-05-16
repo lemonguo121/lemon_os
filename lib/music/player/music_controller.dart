@@ -227,34 +227,23 @@ class MusicPlayerController extends GetxController {
     final platform = song.platform ?? '';
     try {
       String playUrl;
-      final hasAudioCache = await MusicCacheUtil.hasAudioCache(song.artist,song.id, platform);
+      final hasAudioCache = await MusicCacheUtil.hasAudioCache(song.artist, song.id, platform);
+      print('********** hasAudioCache = $hasAudioCache');
       if (hasAudioCache) {
-        final file = await MusicCacheUtil.getCachedFile(song.artist,song.id, platform);
+        final file = await MusicCacheUtil.getCachedFile(song.artist, song.id, platform);
         playUrl = file.path;
       } else {
         final audioResp = await NetworkManager().get('/getMediaSource',
             queryParameters: {'id': song.id, 'plugin': platform});
         playUrl = audioResp.data['url'];
-        MusicCacheUtil.downloadAndCache(playUrl,song.artist, song.id, platform)
+        MusicCacheUtil.downloadAndCache(playUrl, song.artist, song.id, platform)
             .catchError((e) => print('音频缓存失败：$e'));
       }
-      // ===== 歌词缓存处理 =====
-      String rawLrc;
-      final hasLyricCache =
-      await MusicCacheUtil.hasLyricCache(song.artist,song.id, platform);
 
-      if (hasLyricCache) {
-        rawLrc = await MusicCacheUtil.getCachedLyric(song.artist,song.id, platform);
-      } else {
-        final rawLrcResp = await NetworkManager().get('/lyric',
-            queryParameters: {'id': song.id, 'plugin': platform});
-        rawLrc = rawLrcResp.data['rawLrc'] ?? '';
-        // 异步缓存歌词
-        MusicCacheUtil.saveLyric(rawLrc, song.artist,song.id, platform)
-            .catchError((e) => print('歌词缓存失败：$e'));
-      }
-      lyrics.value = _parseLrc(rawLrc);
-      print('********* hasAudioCache = $hasAudioCache  playUrl = $playUrl rawLrc = $rawLrc');
+      // 异步请求歌词，不阻塞流程
+      _fetchLyrics(song.artist, song.id, platform);
+
+      print('********** hasAudioCache = $hasAudioCache  playUrl = $playUrl');
       await initPlayer(playUrl, hasAudioCache);
     } on DioException catch (e) {
       print('请求失败：$e');
@@ -262,6 +251,27 @@ class MusicPlayerController extends GetxController {
     } catch (e) {
       print(e);
       onNext();
+    }
+  }
+
+  /// 异步歌词获取逻辑，不影响主流程
+  void _fetchLyrics(String artist, String id, String platform) async {
+    try {
+      String rawLrc;
+      final hasLyricCache = await MusicCacheUtil.hasLyricCache(artist, id, platform);
+      print('********** hasLyricCache = $hasLyricCache');
+      if (hasLyricCache) {
+        rawLrc = await MusicCacheUtil.getCachedLyric(artist, id, platform);
+      } else {
+        final rawLrcResp = await NetworkManager().get('/lyric',
+            queryParameters: {'id': id, 'plugin': platform});
+        rawLrc = rawLrcResp.data['rawLrc'] ?? '';
+        MusicCacheUtil.saveLyric(rawLrc, artist, id, platform)
+            .catchError((e) => print('歌词缓存失败：$e'));
+      }
+      lyrics.value = _parseLrc(rawLrc);
+    } catch (e) {
+      print('歌词获取失败：$e');
     }
   }
 
