@@ -64,18 +64,18 @@ class _EpisodeListPageState extends State<EpisodeListPage>
           actions: [
             isShowEdit
                 ? TextButton(
-                    onPressed: () {
-                      isShowEdit = false;
-                      setState(() {});
-                    },
-                    child: Text(
-                      '取消',
-                      style: TextStyle(
-                        color: themeController.currentAppTheme.normalTextColor,
-                        fontSize: 16,
-                      ),
-                    ),
-                  )
+              onPressed: () {
+                isShowEdit = false;
+                setState(() {});
+              },
+              child: Text(
+                '取消',
+                style: TextStyle(
+                  color: themeController.currentAppTheme.normalTextColor,
+                  fontSize: 16,
+                ),
+              ),
+            )
                 : SizedBox.shrink(),
           ],
         ),
@@ -86,11 +86,17 @@ class _EpisodeListPageState extends State<EpisodeListPage>
 
             return InkWell(
               onTap: () {
-                if (item.status.value == DownloadStatus.completed &&
-                    item.localPath != null) {
-                  Routes.goLocalVideoPage(item.vodId, item.playIndex);
+                if (isShowEdit) {
+                  downloadController.deleteDownload(item.url);
                 } else {
-                  Routes.goDetailPage(item.vodId, item.site, item.playIndex);
+                  if (item.status.value == DownloadStatus.completed &&
+                      item.localPath != null) {
+                    Routes.goLocalVideoPage(item.vodId, item.playIndex);
+                  } else if (item.status.value == DownloadStatus.downloading) {
+                    downloadController.pauseDownload(item.url);
+                  } else if (item.status.value == DownloadStatus.paused) {
+                    downloadController.resumeDownload(item.url);
+                  }
                 }
               },
               onLongPress: () {
@@ -107,17 +113,17 @@ class _EpisodeListPageState extends State<EpisodeListPage>
                     ),
                     isShowEdit
                         ? SizedBox(
-                            height: 200.r,
-                            child: Center(
-                              child: MiniIconButton(
-                                icon: Icons.delete_outlined,
-                                color: Colors.red,
-                                onPressed: () {
-                                  downloadController.deleteDownload(item.url);
-                                },
-                              ),
-                            ),
-                          )
+                      height: 200.r,
+                      child: Center(
+                        child: MiniIconButton(
+                          icon: Icons.delete_outlined,
+                          color: Colors.red,
+                          onPressed: () {
+                            downloadController.deleteDownload(item.url);
+                          },
+                        ),
+                      ),
+                    )
                         : SizedBox.shrink(),
                     SizedBox(
                       width: 8.0,
@@ -155,12 +161,12 @@ class _EpisodeListPageState extends State<EpisodeListPage>
                             Spacer(),
                             item.status.value == DownloadStatus.completed
                                 ? Text(
-                                    getPlayPosition(item),
-                                    style: TextStyle(
-                                        color: themeController
-                                            .currentAppTheme.normalTextColor
-                                            .withAlpha(160)),
-                                  )
+                              getPlayPosition(item),
+                              style: TextStyle(
+                                  color: themeController
+                                      .currentAppTheme.normalTextColor
+                                      .withAlpha(160)),
+                            )
                                 : SizedBox.shrink(),
                             SizedBox(
                               height: 8.h,
@@ -192,6 +198,7 @@ class _EpisodeListPageState extends State<EpisodeListPage>
                                 item.vodId, item.site, item.playIndex);
                           },
                         ),
+                        SizedBox(height: 24.h,),
                         if (item.status.value == DownloadStatus.downloading)
                           MiniIconButton(
                             icon: Icons.pause,
@@ -237,7 +244,8 @@ class _EpisodeListPageState extends State<EpisodeListPage>
         return CommonUtil.formatSize(item.downloadedBytes);
       case DownloadStatus.downloading:
       case DownloadStatus.paused:
-        return "进度: ${item.progress}%  ${CommonUtil.formatSize(item.downloadedBytes)}";
+        return "进度: ${item.progress}%  ${CommonUtil.formatSize(
+            item.downloadedBytes)}";
       case DownloadStatus.conversioning:
         return "格式转换中";
       case DownloadStatus.failed:

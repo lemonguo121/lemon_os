@@ -57,7 +57,7 @@ class DownloadController extends GetxController {
     SPManager.saveDownloads(downloads);
 
     if (url.endsWith('.m3u8')) {
-      _downloadM3u8(url);
+      _downloadM3u8(url,false);
     } else {
       _downloadVideo(url);
     }
@@ -80,7 +80,7 @@ class DownloadController extends GetxController {
       updateStatus(url, DownloadStatus.downloading);
 
       if (url.endsWith('.m3u8')) {
-        _downloadM3u8(url);
+        _downloadM3u8(url,true);
       } else {
         _downloadVideo(url);
       }
@@ -186,9 +186,15 @@ class DownloadController extends GetxController {
     }
   }
 
-  Future<void> _downloadM3u8(String url) async {
+  Future<void> _downloadM3u8(String url, bool isResume) async {
     final item = downloads.firstWhereOrNull((d) => d.url == url);
     if (item == null) return;
+
+    // 断点续传时，回退一个切片索引，保证最后一个切片重新下载
+    if (isResume && item.currentIndex > 0) {
+      item.currentIndex = item.currentIndex - 1;
+      print('断点续传，回退一个切片重新下载，currentIndex=${item.currentIndex}');
+    }
 
     var downloadedBytes = item.downloadedBytes;
     try {
@@ -209,7 +215,7 @@ class DownloadController extends GetxController {
       await Directory(folder).create(recursive: true);
       updatefolder(url, folder);
 
-      List<String> localSegmentPaths = []; // 用来记录每个切片的本地路径
+      List<String> localSegmentPaths = List<String>.from(item.localSegments);
 
       for (int i = item.currentIndex; i < segmentUrls.length; i++) {
         if (item.status.value == DownloadStatus.paused ||
@@ -229,10 +235,17 @@ class DownloadController extends GetxController {
             options: Options(responseType: ResponseType.bytes),
           );
           await File(savePath).writeAsBytes(res.data!);
-          item.localSegments.add(savePath);
-          localSegmentPaths.add(savePath); // 添加到本地路径列表
-          item.currentIndex = i + 1;
 
+          // 记录本地路径
+          if (item.localSegments.length <= i) {
+            item.localSegments.add(savePath);
+          } else {
+            // 恢复下载时覆盖旧文件路径
+            item.localSegments[i] = savePath;
+          }
+          localSegmentPaths.add(savePath);
+
+          item.currentIndex = i + 1;
           downloadedBytes += res.data!.length;
           final percent = ((i + 1) / segmentUrls.length * 100).toInt();
           updateProgress(url, percent, downloadedBytes);
