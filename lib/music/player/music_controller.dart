@@ -227,21 +227,21 @@ class MusicPlayerController extends GetxController {
     final platform = song.platform ?? '';
     try {
       String playUrl;
-      final hasAudioCache = await MusicCacheUtil.hasAudioCache(song.artist, song.id, platform);
+      final hasAudioCache = await MusicCacheUtil.hasAudioCache('${song.artist}_${song.title}', song.id, platform);
       print('********** hasAudioCache = $hasAudioCache');
       if (hasAudioCache) {
-        final file = await MusicCacheUtil.getCachedFile(song.artist, song.id, platform);
+        final file = await MusicCacheUtil.getCachedFile('${song.artist}_${song.title}', song.id, platform);
         playUrl = file.path;
       } else {
         final audioResp = await NetworkManager().get('/getMediaSource',
             queryParameters: {'id': song.id, 'plugin': platform});
         playUrl = audioResp.data['url'];
-        MusicCacheUtil.downloadAndCache(playUrl, song.artist, song.id, platform)
+        MusicCacheUtil.downloadAndCache(playUrl, '${song.artist}_${song.title}', song.id, platform)
             .catchError((e) => print('音频缓存失败：$e'));
       }
 
       // 异步请求歌词，不阻塞流程
-      _fetchLyrics(song.artist, song.id, platform);
+      _fetchLyrics('${song.artist}_${song.title}', song.id, platform);
 
       print('********** hasAudioCache = $hasAudioCache  playUrl = $playUrl');
       await initPlayer(playUrl, hasAudioCache);
@@ -362,7 +362,7 @@ class MusicPlayerController extends GetxController {
     MusicSPManage.savePlayList(playListNow, listName.key);
     var id = musicBean.songBean.id;
     var platform = musicBean.songBean.platform;
-    var name = musicBean.songBean.artist;
+    var name = '${musicBean.songBean.artist}_${musicBean.songBean.title}';
     MusicCacheUtil.deleteAllCacheForSong(name,id, platform);
     playList.value = playListNow;
     playList.refresh();

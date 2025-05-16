@@ -20,7 +20,7 @@ class PlayListController extends GetxController {
     MusicSPManage.savePlayList(playList, recordBean?.key??'');
     var id = musicBean.songBean.id;
     var platform = musicBean.songBean.platform;
-    var name = musicBean.songBean.artist;
+    var name = '${musicBean.songBean.artist}_${musicBean.songBean.title}';
     MusicCacheUtil.deleteAllCacheForSong(name,id, platform);
   }
 }
