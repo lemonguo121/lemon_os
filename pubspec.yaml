@@ -76,7 +76,6 @@ flutter:
     - assets/music/
     - assets/sounds/begin_record.mp3
     - assets/app_icon.png
-    - assets/ssl/
 launcher_name:
   default: "LM_SQPlayer"
 #  dart run launcher_name:main

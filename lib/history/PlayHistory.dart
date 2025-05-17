@@ -37,7 +37,7 @@ class _PlayHistoryState extends State<PlayHistory> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    var isVertical = CommonUtil.isVertical(context);
+    var isVertical = CommonUtil.isVertical();
     return Obx(() => Scaffold(
           appBar: AppBar(
             title: Text(

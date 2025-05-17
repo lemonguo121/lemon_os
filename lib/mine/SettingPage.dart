@@ -131,7 +131,7 @@ class _SettingPageState extends State<SettingPage> {
       ),
       builder: (context) {
         var dialogSize;
-        if (CommonUtil.isVertical(context)) {
+        if (CommonUtil.isVertical()) {
           dialogSize = CommonUtil.getScreenWidth(context) * 9 / 10;
         } else {
           dialogSize = CommonUtil.getScreenHeight(context) * 9 / 10;

@@ -183,7 +183,7 @@ class _MovieHomeScreenState extends State<MovieHomeScreen>
     if (isLoading) {
       return Column(children: [MyLoadingIndicator(isLoading: isLoading)]);
     }
-    var isVertical = CommonUtil.isVertical(context);
+    var isVertical = CommonUtil.isVertical();
     return Obx(() {
       return Scaffold(
         body: Column(
@@ -240,7 +240,7 @@ class _MovieHomeScreenState extends State<MovieHomeScreen>
                   }
                 });
                 var dialogSize;
-                if (CommonUtil.isVertical(context)) {
+                if (CommonUtil.isVertical()) {
                   dialogSize = CommonUtil.getScreenWidth(context) * 9 / 10;
                 } else {
                   dialogSize = CommonUtil.getScreenHeight(context) * 9 / 10;

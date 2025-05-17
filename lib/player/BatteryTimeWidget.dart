@@ -74,7 +74,7 @@ class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
     if (!widget.isFullScreen || !(Platform.isAndroid || Platform.isIOS)) {
       return const SizedBox.shrink(); // 桌面端隐藏
     }
-    var isVertical = CommonUtil.isVertical(context);
+    var isVertical = CommonUtil.isVertical();
     return Obx(() => Row(
           mainAxisSize: MainAxisSize.min,
           children: [

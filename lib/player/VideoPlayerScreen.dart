@@ -253,7 +253,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
       _isFullScreen = !_isFullScreen;
       if (!isVerticalVideo()) {
         if (_isFullScreen) {
-          lastIsVer = CommonUtil.isVertical(context);
+          lastIsVer = CommonUtil.isVertical();
           SystemChrome.setPreferredOrientations([
             DeviceOrientation.landscapeRight,
             DeviceOrientation.landscapeLeft

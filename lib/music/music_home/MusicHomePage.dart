@@ -70,7 +70,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
       autofocus: true,
       onKey: _handleKeyEvent,
       child: Obx(() {
-        var isVertical = CommonUtil.isVertical(context);
+        var isVertical = CommonUtil.isVertical();
         return Scaffold(
           body: Column(
             children: [
@@ -103,7 +103,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
                   if (controller.currentSite.value != null) {}
                 });
                 var dialogSize;
-                if (CommonUtil.isVertical(context)) {
+                if (CommonUtil.isVertical()) {
                   dialogSize = CommonUtil.getScreenWidth(context) * 9 / 10;
                 } else {
                   dialogSize = CommonUtil.getScreenHeight(context) * 9 / 10;
@@ -400,7 +400,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
 
   Widget _buildHotWidget() {
     var hotViewHeight = 290.h;
-    var isVertical = CommonUtil.isVertical(context);
+    var isVertical = CommonUtil.isVertical();
     if (controller.isLoading.value) {
       return SizedBox(
         height: hotViewHeight,
@@ -493,7 +493,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
   }
 
   Widget _buildweidget() {
-    var isVertical = CommonUtil.isVertical(context);
+    var isVertical = CommonUtil.isVertical();
     return isVertical
         ? Column(
             crossAxisAlignment: CrossAxisAlignment.start,

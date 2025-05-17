@@ -25,7 +25,7 @@ class _HomecateforylistitemState extends State<Homecateforylistitem> {
   }
 
   Widget _buildItem(RealVideo video) {
-    var isVertical = CommonUtil.isVertical(context);
+    var isVertical = CommonUtil.isVertical();
     var itemCount = isVertical ? 3.2 : 6.5;
     var screenWidth = CommonUtil.getScreenWidth(context);
     var itemMargin = 8.0;

@@ -65,7 +65,7 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
     currentPlayIndex = arguments['playIndex'];
     WakelockPlus.toggle(enable: true);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      isVertical = CommonUtil.isVertical(context);
+      isVertical = CommonUtil.isVertical();
     });
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeRight, DeviceOrientation.landscapeLeft]);

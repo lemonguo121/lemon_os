@@ -157,7 +157,7 @@ class _CategoryState extends State<CategoryFragment>
 
   @override
   Widget build(BuildContext context) {
-    var isVertical = CommonUtil.isVertical(context);
+    var isVertical = CommonUtil.isVertical();
     return Center(
       child: Obx(() => Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,7 +221,7 @@ class _CategoryState extends State<CategoryFragment>
   Widget _buildSecendCategory() {
     // 获取二级分类列表
     List<CategoryChildBean> subCategories = widget.alClass.categoryChildList;
-    var isVertical = CommonUtil.isVertical(context);
+    var isVertical = CommonUtil.isVertical();
     if (subCategories.isEmpty) {
       return SizedBox.shrink(); // 如果没有二级分类，返回空视图
     }

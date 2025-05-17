@@ -7,6 +7,7 @@ import '../history/HistoryController.dart';
 import '../music/music_home/music_home_controller.dart';
 import '../music/player/music_controller.dart';
 import '../music/playlist/PlayListController.dart';
+import '../player/controller/VideoPlayerGetController.dart';
 import '../splash_page/splash_controller.dart';
 import 'ThemeController.dart';
 import 'package:video_player_media_kit/video_player_media_kit.dart';
@@ -22,6 +23,7 @@ class Injection {
     Get.lazyPut(() => MusicHomeController(), fenix: true);
     Get.lazyPut(() => PlayListController(), fenix: true);
     Get.lazyPut(() => SplashController(), fenix: true);
+    Get.lazyPut(() => VideoPlayerGetController(), fenix: true);
 
     var downloadController = DownloadController();
     Get.lazyPut(() => downloadController, fenix: true);

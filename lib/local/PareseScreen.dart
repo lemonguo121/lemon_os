@@ -287,7 +287,7 @@ class _PareseScreenState extends State<PareseScreen> {
           child: GridView.builder(
         padding: const EdgeInsets.all(12.0),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: CommonUtil.isVertical(context) ? 3 : 6, // 一行三个
+          crossAxisCount: CommonUtil.isVertical() ? 3 : 6, // 一行三个
           crossAxisSpacing: 8.0, // 水平方向间距
           mainAxisSpacing: 8.0, // 垂直方向间距
           childAspectRatio: 0.75, // 调整宽高比

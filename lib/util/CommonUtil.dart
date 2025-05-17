@@ -72,11 +72,19 @@ class CommonUtil {
     );
   }
 
-  static bool isVertical(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
-    var screenHeight = screenSize.height;
-    var screenWidth = screenSize.width;
-    return screenHeight > screenWidth ? true : false;
+  // static bool isVertical(BuildContext context) {
+  //   Size screenSize = MediaQuery.of(context).size;
+  //   var screenHeight = screenSize.height;
+  //   var screenWidth = screenSize.width;
+  //   return screenHeight > screenWidth ? true : false;
+  // }
+
+  static bool isVertical() {
+    final window = WidgetsBinding.instance.window;
+    final physicalSize = window.physicalSize;
+    final screenWidth = physicalSize.width;
+    final screenHeight = physicalSize.height;
+    return screenHeight > screenWidth;
   }
 
   static double getScreenWidth(BuildContext context) {
