@@ -59,7 +59,9 @@ class _DetailScreenState extends State<DetailScreen>
   late Animation<double> _fadeAnimation;
 
   // var videoPlayer = VideoPlayerPage();
-  late final Widget videoPlayer;
+  late final Widget videoPlayer = VideoPlayerPage(
+    key: ValueKey('video_player'),
+  );
 
   @override
   void initState() {
@@ -70,9 +72,9 @@ class _DetailScreenState extends State<DetailScreen>
     site = args['site'];
     playIndex = args['playIndex'];
     _fetchDetail(); // 请求详情数据
-    videoPlayer = const VideoPlayerPage(
-      key:  ValueKey('video_player'),
-    );
+    // videoPlayer = const VideoPlayerPage(
+    //   key: ValueKey('video_player'),
+    // );
     if (musicPlayController.player.playing) {
       musicPlayController.player.pause();
     }
@@ -145,16 +147,17 @@ class _DetailScreenState extends State<DetailScreen>
   }
 
   @override
-  void dispose() {
+  void dispose() async {
     // 在离开页面时恢复状态栏和导航栏
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     _scrollController.dispose();
     _iconController.dispose();
+    print('****** det  dispose');
     super.dispose();
   }
 
   // 处理全屏状态回调
-  void _onFullScreenChanged() {
+  void onFullScreenChanged() {
     if (controller.isFullScreen.value) {
       // 全屏时隐藏状态栏和禁用滚动
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
@@ -216,13 +219,15 @@ class _DetailScreenState extends State<DetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: isLoading
-          ? Column(
-              children: [MyLoadingIndicator(isLoading: isLoading)]) // 加载中显示
-          : (responseData.videos.isEmpty)
-              ? const Center(child: Text("无法加载详情")) // 数据加载失败显示
-              : Obx(() => Stack(
+    return Obx(() {
+      onFullScreenChanged();
+      return Scaffold(
+        body: isLoading
+            ? Column(
+                children: [MyLoadingIndicator(isLoading: isLoading)]) // 加载中显示
+            : (responseData.videos.isEmpty)
+                ? const Center(child: Text("无法加载详情")) // 数据加载失败显示
+                : Stack(
                     children: [
                       Positioned.fill(
                         child: CachedNetworkImage(
@@ -243,8 +248,9 @@ class _DetailScreenState extends State<DetailScreen>
                       ),
                       _buildCustomScrollView(), // 将页面内容放置在背景之上
                     ],
-                  )),
-    );
+                  ),
+      );
+    });
   }
 
   Widget _buildCustomScrollView() {

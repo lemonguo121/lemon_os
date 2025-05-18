@@ -37,17 +37,16 @@ class _VideoPlayerPageState extends State<VideoPlayerPage>
   }
 
   @override
-  void dispose() {
-    controller.controller?.removeListener(() {});
-    controller.controller?.dispose();
-    controller.timer?.cancel();
+  void dispose() async{
     WidgetsBinding.instance.removeObserver(this);
-    // 调用异步方法，不阻塞 dispose
-    controller.saveProgressAndIndex();
     SystemChrome.setPreferredOrientations([]);
     if (controller.downloadController.checkTaskAllDone()) {
       WakelockPlus.toggle(enable: false);
     }
+    controller.saveProgressAndIndex();
+    controller.timer?.cancel();
+     controller.controller.dispose();
+    controller.controller.removeListener(() {});
     print('******   dispose');
     super.dispose();
   }

@@ -27,7 +27,7 @@ class VideoPlayerGetController extends GetxController {
   var videoId = ''.obs; //视频ID
   var videoList =
       <Map<String, String>>[].obs; // 确保类型为 List<Map<String, String>>
-  VideoPlayerController? controller;
+  late VideoPlayerController controller;
   var isLoadVideoPlayed = false.obs; // 新增的标志，确保下一集只跳转一次
   var headTime = Duration(milliseconds: 0).obs;
   var tailTime = Duration(milliseconds: 0).obs;
@@ -46,6 +46,7 @@ class VideoPlayerGetController extends GetxController {
   var initialize = false.obs;
   var currentDuration = Duration(milliseconds: 0).obs;
   var currentPosition = Duration(milliseconds: 0).obs;
+  var batteryLevel = 100.obs; // 默认100%
 
   Timer? timer;
   var video = RealVideo(
@@ -75,7 +76,8 @@ class VideoPlayerGetController extends GetxController {
     initialize.value = false;
     currentBrightness.value = await ScreenBrightness().current; // 获取系统亮度
     currentVolume.value = SPManager.getCurrentVolume(); // 获取保存的音量
-    print("******      video.value.vodPlayUrl.isEmpty = ${video.value.vodPlayUrl.isEmpty}");
+    print(
+        "******      video.value.vodPlayUrl.isEmpty = ${video.value.vodPlayUrl.isEmpty}");
     if (video.value.vodPlayUrl.isEmpty) {
       return;
     }
@@ -111,8 +113,8 @@ class VideoPlayerGetController extends GetxController {
 
     tailTime.value = SPManager.getSkipTailTimes(videoId.value);
     var playSpeed = SPManager.getPlaySpeed();
-    controller?.setPlaybackSpeed(playSpeed);
-    controller?.addListener(() {
+    controller.setPlaybackSpeed(playSpeed);
+    controller.addListener(() {
       if (controller?.value.hasError == true) {
         isLoading.value = false;
         isParesFail.value = true;

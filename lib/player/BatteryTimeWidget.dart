@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:lemon_tv/player/controller/VideoPlayerGetController.dart';
 import 'package:lemon_tv/util/CommonUtil.dart';
 
 import '../util/NetworkController.dart';
@@ -20,8 +21,9 @@ class BatteryTimeWidget extends StatefulWidget {
 }
 
 class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
+  VideoPlayerGetController controller = Get.find();
   final Battery _battery = Battery();
-  int _batteryLevel = 100; // 默认100%
+
   String _timeString = "";
   late Timer _timer;
 
@@ -56,16 +58,14 @@ class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
   Future<void> _getBatteryStatus() async {
     if (Platform.isAndroid || Platform.isIOS) {
       final batteryLevel = await _battery.batteryLevel;
-      setState(() {
-        _batteryLevel = batteryLevel;
-      });
+      controller.batteryLevel.value = batteryLevel;
     }
   }
 
   /// 获取电池颜色
   Color _getBatteryColor() {
-    if (_batteryLevel > 20) return Colors.green;
-    if (_batteryLevel > 10) return Colors.orange;
+    if (controller.batteryLevel.value > 20) return Colors.green;
+    if (controller.batteryLevel.value > 10) return Colors.orange;
     return Colors.red; // 低电量警告
   }
 
@@ -83,14 +83,17 @@ class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
             // 当前时间
             Text(
               _timeString,
-              style: TextStyle(color: Colors.white, fontSize:isVertical?18.sp: 14.sp,),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: isVertical ? 18.sp : 14.sp,
+              ),
             ),
             SizedBox(width: 16.w),
 
             // 水平电池样式
             Container(
-              width: isVertical? 39.w:24.w, // 电池整体宽度
-              height: isVertical? 20.h:28.h, // 电池整体高度
+              width: isVertical ? 39.w : 24.w, // 电池整体宽度
+              height: isVertical ? 20.h : 28.h, // 电池整体高度
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.white, width: 1.5.w), // 边框
                 borderRadius: BorderRadius.circular(3.r), // 圆角
@@ -106,7 +109,7 @@ class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
                     bottom: 1.0.h,
                     child: FractionallySizedBox(
                       alignment: Alignment.centerLeft,
-                      widthFactor: _batteryLevel / 100, // 计算电池电量
+                      widthFactor:   controller.batteryLevel.value / 100, // 计算电池电量
                       child: Container(
                         decoration: BoxDecoration(
                           color: _getBatteryColor(),
@@ -117,10 +120,10 @@ class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
                   ),
                   // 显示电量数值
                   Text(
-                    '$_batteryLevel', // 显示电池百分比
+                    '${controller.batteryLevel.value}', // 显示电池百分比
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize:isVertical?13.sp: 7.sp,
+                      fontSize: isVertical ? 13.sp : 7.sp,
                       fontWeight: FontWeight.normal,
                     ),
                   ),
