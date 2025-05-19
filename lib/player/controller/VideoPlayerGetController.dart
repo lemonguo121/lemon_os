@@ -24,8 +24,6 @@ class VideoPlayerGetController extends GetxController {
   var isLoading = true.obs; //是否加载
   var fromIndex = 0.obs; // 用于跟踪当前选中播放的播放源(来源)
   var currentIndex = 0.obs; //用于跟踪当前选中的播放项(剧集)
-  // var playUrl = ''.obs; //播放地址
-  // var videoId = ''.obs; //视频ID
   var videoPlayerList = <VideoPlayerBean>[].obs; //播放列表
   late VideoPlayerController controller;
   var isLoadVideoPlayed = false.obs; // 新增的标志，确保下一集只跳转一次
@@ -73,7 +71,7 @@ class VideoPlayerGetController extends GetxController {
       CommonUtil.showToast('播放地址为空');
       return;
     }
-    print('******  vodPlayUrl = $vodPlayUrl');
+    print('******  vodPlayUrl = $vodPlayUrl   currentIndex.value = ${currentIndex.value}');
     var vodId = videoPlayer.value.vodId;
     var vodName = videoPlayer.value.vodName;
 
@@ -129,22 +127,15 @@ class VideoPlayerGetController extends GetxController {
           playNextVideo();
         }
       }
-      // if (mounted) {
-      //   setState(() {
-
       final value = controller.value;
       final buffered = value.buffered;
       final bufferedProgress = buffered.isNotEmpty
           ? buffered.last.end.inMilliseconds.toDouble()
           : 0.0;
       final currentPositionr = value.position.inMilliseconds.toDouble();
-
       isBuffering.value =
-          value.isBuffering && (currentPositionr >= bufferedProgress);
+          value.isBuffering && (currentPositionr >= bufferedProgress)&&(currentPosition.value< currentDuration.value);
 
-      // });
-      // _checkBuffering();
-      // }
     });
     toggleFullScreen;
 
@@ -175,6 +166,8 @@ class VideoPlayerGetController extends GetxController {
       await controller.pause();
       await controller.dispose();
       initializePlayer();
+    }else{
+      CommonUtil.showToast('已经是第一集');
     }
   }
 
@@ -188,6 +181,13 @@ class VideoPlayerGetController extends GetxController {
       await controller.pause();
       await controller.dispose();
       initializePlayer();
+    }else{
+      CommonUtil.showToast('已经是最后一集');
+      controller.removeListener(() {});
+      isBuffering.value = false;
+      isLoading.value = false;
+      isPlaying.value=false;
+      await controller.pause();
     }
   }
 
