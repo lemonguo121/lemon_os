@@ -373,6 +373,7 @@ class VideoPlayerGetController extends GetxController {
 
   void dispose() async {
     initialize.value = false;
+    isFullScreen.value=false;
     timer?.cancel();
     await controller.dispose();
     controller.removeListener(() {});
