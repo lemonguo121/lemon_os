@@ -83,9 +83,9 @@ class SPManager {
   }
 
   // 保存播放到多少集
-  static saveIndex(RealVideo video, int position) {
+  static saveIndex(String vodId, int position) {
     SharedPreferences sp = Get.find<SharedPreferences>();
-    sp.setInt("$_progressKey${video.vodId}", position);
+    sp.setInt("$_progressKey$vodId", position);
   }
 
   // 获取播放到多少集
@@ -95,9 +95,9 @@ class SPManager {
   }
 
   // 保存播放的来源索引
-  static saveFromIndex(RealVideo video, int position) {
+  static saveFromIndex(String vodId, int position) {
     SharedPreferences sp = Get.find<SharedPreferences>();
-    sp.setInt("$_videoFromProgress${video.vodId}", position);
+    sp.setInt("$_videoFromProgress$vodId", position);
   }
 
   // 获取播放的来源索引

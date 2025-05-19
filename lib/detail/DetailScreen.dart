@@ -41,16 +41,13 @@ class _DetailScreenState extends State<DetailScreen>
       Get.put(HistoryController()); // 依赖注入
   final HttpService _httpService = HttpService();
 
-  // late RealVideo video; // 存储详情数据
+  late RealVideo video; // 存储详情数据
   RealResponseData responseData = RealResponseData(
     code: 0,
     msg: '',
     videos: [],
   );
   bool isLoading = true; // 用于显示加载状态
-  // int currentIndex = 0; // 用于跟踪当前选中的播放项
-  // int _selectedPlayFromIndex = 0; // 用于跟踪当前选中播放的播放源
-  // bool _isFullScreen = false; // 存储全屏状态
   final ScrollController _scrollController = ScrollController();
   final downloadController = Get.find<DownloadController>();
   int _selectFromIndex = 0; // 用于跟踪当前选中查看的播放源
@@ -58,7 +55,6 @@ class _DetailScreenState extends State<DetailScreen>
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
 
-  // var videoPlayer = VideoPlayerPage();
   late final Widget videoPlayer = VideoPlayerPage(
     key: ValueKey('video_player'),
   );
@@ -66,15 +62,11 @@ class _DetailScreenState extends State<DetailScreen>
   @override
   void initState() {
     super.initState();
-    print('******  initState2222');
     final args = Get.arguments;
     vodId = args['vodId'];
     site = args['site'];
     playIndex = args['playIndex'];
     _fetchDetail(); // 请求详情数据
-    // videoPlayer = const VideoPlayerPage(
-    //   key: ValueKey('video_player'),
-    // );
     if (musicPlayController.player.playing) {
       musicPlayController.player.pause();
     }
@@ -129,14 +121,18 @@ class _DetailScreenState extends State<DetailScreen>
       }
       setState(() {
         var videos = responseData.videos;
-        controller.video.value = videos[0];
+        video = videos[0];
+        var playList = CommonUtil.getPlayListAndForm(video)
+            .playList[controller.fromIndex.value];
+
+        controller.videoPlayerList.value = CommonUtil.getPlayerList(playList,video);
         isLoading = false; // 数据加载完成
         _scrollToSelectedItem(controller.currentIndex.value);
         WidgetsBinding.instance.addPostFrameCallback((_) {
           // 此时 scrollController 已经绑定可用了
           _scrollToSelectedItem(controller.currentIndex.value);
         });
-        historyController.saveHistory(controller.video.value);
+        historyController.saveHistory(video);
       });
     } catch (e) {
       setState(() {
@@ -152,11 +148,18 @@ class _DetailScreenState extends State<DetailScreen>
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     _scrollController.dispose();
     _iconController.dispose();
-    controller.saveProgressAndIndex();
+    saveProgressAndIndex();
     controller.timer?.cancel();
     controller.controller.dispose();
     controller.controller.removeListener(() {});
     super.dispose();
+  }
+
+  saveProgressAndIndex() {
+    SPManager.saveProgress(controller.videoPlayer.value.vodPlayUrl,
+        controller.controller.value.position);
+    historyController.saveIndex(
+        video, controller.currentIndex.value, controller.fromIndex.value);
   }
 
   // 处理全屏状态回调
@@ -172,7 +175,7 @@ class _DetailScreenState extends State<DetailScreen>
   }
 
   void _onChangePlayPositon(int currentPosition) {
-    historyController.saveHistory(controller.video.value);
+    historyController.saveHistory(video);
     setState(() {
       controller.currentIndex.value = currentPosition;
       controller.fromIndex.value = _selectFromIndex;
@@ -186,10 +189,9 @@ class _DetailScreenState extends State<DetailScreen>
       return;
     }
     _onChangePlayPositon(index);
-    final playItem = CommonUtil.getPlayListAndForm(controller.video.value)
+    final playItem = CommonUtil.getPlayListAndForm(video)
         .playList[controller.fromIndex.value][index];
-    historyController.saveIndex(
-        controller.video.value, index, controller.fromIndex.value);
+    historyController.saveIndex(video, index, controller.fromIndex.value);
     controller.playVideo(playItem["url"] ?? "", controller.currentIndex.value);
   }
 
@@ -234,7 +236,7 @@ class _DetailScreenState extends State<DetailScreen>
                     children: [
                       Positioned.fill(
                         child: CachedNetworkImage(
-                          imageUrl: controller.video.value.vodPic,
+                          imageUrl: video.vodPic,
                           width: double.infinity,
                           height: double.infinity,
                           fit: BoxFit.cover,
@@ -331,7 +333,7 @@ class _DetailScreenState extends State<DetailScreen>
   }
 
   Widget _buildVideoDetial() {
-    var videoPlayData = CommonUtil.getPlayListAndForm(controller.video.value);
+    var videoPlayData = CommonUtil.getPlayListAndForm(video);
     var fromList = videoPlayData.fromList;
     var playList = videoPlayData.playList;
     return Padding(
@@ -351,7 +353,7 @@ class _DetailScreenState extends State<DetailScreen>
                       fontWeight: FontWeight.bold,
                       color: Colors.white)),
               collapsed: Text(
-                controller.video.value.vodBlurb,
+                video.vodBlurb,
                 softWrap: true,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -361,30 +363,30 @@ class _DetailScreenState extends State<DetailScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    controller.video.value.vodBlurb,
+                    video.vodBlurb,
                     style: TextStyle(color: Colors.white, fontSize: 12),
                   ),
                   const SizedBox(height: 6.0),
                   Videoinfowidget(
-                      title: "导演", content: controller.video.value.vodDirector),
+                      title: "导演", content: video.vodDirector),
                   const SizedBox(
                     height: 6.0,
                   ),
                   Videoinfowidget(
-                      title: "主演", content: controller.video.value.vodActor),
+                      title: "主演", content: video.vodActor),
                   const SizedBox(height: 6.0),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Videoinfowidget(
-                          title: "年份", content: controller.video.value.vodYear),
+                          title: "年份", content: video.vodYear),
                       const SizedBox(width: 6.0),
                       Videoinfowidget(
-                          title: "地区", content: controller.video.value.vodArea),
+                          title: "地区", content: video.vodArea),
                       const SizedBox(width: 6.0),
                       Videoinfowidget(
                           title: "类型",
-                          content: controller.video.value.typeName),
+                          content: video.typeName),
                     ],
                   ),
                   const SizedBox(height: 6.0),
@@ -429,8 +431,8 @@ class _DetailScreenState extends State<DetailScreen>
                 color: Colors.white),
           ),
           Text(
-            controller.video.value.vodRemarks.isNotEmpty
-                ? controller.video.value.vodRemarks
+            video.vodRemarks.isNotEmpty
+                ? video.vodRemarks
                 : "暂无更新",
             style: const TextStyle(fontSize: 12.0, color: Colors.white),
           ),
@@ -471,7 +473,7 @@ class _DetailScreenState extends State<DetailScreen>
 
   Widget _buildGrid() {
     var playList =
-        CommonUtil.getPlayListAndForm(controller.video.value).playList;
+        CommonUtil.getPlayListAndForm(video).playList;
     return GridView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -482,11 +484,13 @@ class _DetailScreenState extends State<DetailScreen>
         crossAxisSpacing: 8.0,
         mainAxisExtent: 30,
       ),
-      itemCount: CommonUtil.getPlayListAndForm(controller.video.value)
+      itemCount: CommonUtil.getPlayListAndForm(video)
           .playList[controller.fromIndex.value]
           .length,
       itemBuilder: (context, index) {
-        return _buildGridItem(index, playList);
+        return Obx(() {
+          return _buildGridItem(index, playList);
+        });
       },
     );
   }
@@ -524,7 +528,7 @@ class _DetailScreenState extends State<DetailScreen>
       onLongPress: () {
         showSleepWarningIfNeeded(context);
         if (downloadController.startDownload(
-            url, title, index, controller.video.value)) {
+            url, title, index, video)) {
           CommonUtil.showToast('添加成功');
         } else {
           CommonUtil.showToast('任务已存在');

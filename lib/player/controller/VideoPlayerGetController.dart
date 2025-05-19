@@ -9,6 +9,7 @@ import 'package:video_player/video_player.dart';
 
 import '../../history/HistoryController.dart';
 import '../../http/data/RealVideo.dart';
+import '../../http/data/VideoPlayerBean.dart';
 import '../../http/data/storehouse_bean_entity.dart';
 import '../../util/CommonUtil.dart';
 import '../../util/SPManager.dart';
@@ -23,10 +24,9 @@ class VideoPlayerGetController extends GetxController {
   var isLoading = true.obs; //是否加载
   var fromIndex = 0.obs; // 用于跟踪当前选中播放的播放源(来源)
   var currentIndex = 0.obs; //用于跟踪当前选中的播放项(剧集)
-  var playUrl = ''.obs; //播放地址
-  var videoId = ''.obs; //视频ID
-  var videoList =
-      <Map<String, String>>[].obs; // 确保类型为 List<Map<String, String>>
+  // var playUrl = ''.obs; //播放地址
+  // var videoId = ''.obs; //视频ID
+  var videoPlayerList = <VideoPlayerBean>[].obs; //播放列表
   late VideoPlayerController controller;
   var isLoadVideoPlayed = false.obs; // 新增的标志，确保下一集只跳转一次
   var headTime = Duration(milliseconds: 0).obs;
@@ -49,46 +49,37 @@ class VideoPlayerGetController extends GetxController {
   var batteryLevel = 100.obs; // 默认100%
 
   Timer? timer;
-  var video = RealVideo(
-          vodId: 0,
-          vodName: '',
-          vodSub: '',
-          vodPic: '',
-          vodActor: '',
-          vodDirector: '',
-          vodBlurb: '',
-          vodRemarks: '',
-          vodPubdate: '',
-          vodArea: '',
-          typeName: '',
-          vodYear: '',
-          vodPlayUrl: '',
-          vodFrom: '',
-          site: StorehouseBeanSites(),
-          typePid: 0)
-      .obs;
+  var videoPlayer = VideoPlayerBean(
+    vodId: '',
+    vodName: '',
+    vodPlayUrl: '',
+    playTitle: '',
+  ).obs;
 
   initializePlayer() async {
-    print('******    initializePlayer');
     isParesFail.value = false;
     isBuffering.value = true;
     isLoading.value = true;
     initialize.value = false;
     currentBrightness.value = await ScreenBrightness().current; // 获取系统亮度
     currentVolume.value = SPManager.getCurrentVolume(); // 获取保存的音量
-    print(
-        "******      video.value.vodPlayUrl.isEmpty = ${video.value.vodPlayUrl.isEmpty}");
-    if (video.value.vodPlayUrl.isEmpty) {
+    videoPlayer.value = videoPlayerList[currentIndex.value];
+
+
+    var vodPlayUrl = videoPlayer.value.vodPlayUrl;
+    if (vodPlayUrl.isEmpty) {
+      isLoading.value = false;
+      isParesFail.value = true;
+      CommonUtil.showToast('播放地址为空');
       return;
     }
-    videoList.value =
-        CommonUtil.getPlayListAndForm(video.value).playList[fromIndex.value];
+    print('******  vodPlayUrl = $vodPlayUrl');
+    var vodId = videoPlayer.value.vodId;
+    var vodName = videoPlayer.value.vodName;
 
-    playUrl.value = videoList[currentIndex.value]['url'] ?? "";
-    print("sourse play url = ${playUrl.value}");
-    controller = VideoPlayerController.networkUrl(Uri.parse(playUrl.value));
+    controller = VideoPlayerController.networkUrl(Uri.parse(vodPlayUrl));
     try {
-      await controller?.initialize();
+      await controller.initialize();
       isLoading.value = false;
       initialize.value = true;
     } catch (e) {
@@ -96,32 +87,29 @@ class VideoPlayerGetController extends GetxController {
     }
     isLoadVideoPlayed.value = false; // 确保每次初始化时复位
     var isSkipTail = false;
-    final savedPosition = SPManager.getProgress(playUrl.value);
-    videoId.value = '${video.value.vodId}';
-    historyController.saveIndex(
-        video.value, currentIndex.value, fromIndex.value);
+    final savedPosition = SPManager.getProgress(vodPlayUrl);
+
     // 获取跳过时间
-    headTime.value = SPManager.getSkipHeadTimes(videoId.value);
+    headTime.value = SPManager.getSkipHeadTimes(vodId);
 
     if (savedPosition > Duration.zero && savedPosition > headTime.value) {
-      controller?.seekTo(savedPosition);
+      controller.seekTo(savedPosition);
     }
     if (headTime.value > Duration.zero && headTime.value > savedPosition) {
       CommonUtil.showToast("自动跳过片头");
-      controller?.seekTo(headTime.value);
+      controller.seekTo(headTime.value);
     }
 
-    tailTime.value = SPManager.getSkipTailTimes(videoId.value);
+    tailTime.value = SPManager.getSkipTailTimes(vodId);
     var playSpeed = SPManager.getPlaySpeed();
     controller.setPlaybackSpeed(playSpeed);
     controller.addListener(() {
-      if (controller?.value.hasError == true) {
+      if (controller.value.hasError == true) {
         isLoading.value = false;
         isParesFail.value = true;
-        print("play error = ${controller?.value.errorDescription}");
+        print("play error = ${controller.value.errorDescription}");
       }
-      currentDuration.value =
-          controller?.value.duration ?? Duration(milliseconds: 0);
+      currentDuration.value = controller.value.duration;
       if (currentDuration.value > Duration.zero && !isLoadVideoPlayed.value) {
         var skipTime = const Duration(milliseconds: 0);
         if (tailTime.value >= const Duration(milliseconds: 1000)) {
@@ -129,10 +117,9 @@ class VideoPlayerGetController extends GetxController {
           skipTime = tailTime.value;
         } else {
           isSkipTail = false;
-          skipTime = controller?.value.duration ?? Duration(milliseconds: 0);
+          skipTime = controller.value.duration;
         }
-        currentPosition.value =
-            controller?.value.position ?? Duration(milliseconds: 0);
+        currentPosition.value = controller.value.position;
         if (currentPosition.value >= skipTime) {
           if (isSkipTail) {
             CommonUtil.showToast("自动跳过片尾");
@@ -145,26 +132,23 @@ class VideoPlayerGetController extends GetxController {
       // if (mounted) {
       //   setState(() {
 
-      final value = controller?.value;
-      if (value != null) {
-        final buffered = value.buffered;
-        final bufferedProgress = buffered.isNotEmpty
-            ? buffered.last.end.inMilliseconds.toDouble()
-            : 0.0;
-        final currentPosition = value.position.inMilliseconds.toDouble();
+      final value = controller.value;
+      final buffered = value.buffered;
+      final bufferedProgress = buffered.isNotEmpty
+          ? buffered.last.end.inMilliseconds.toDouble()
+          : 0.0;
+      final currentPositionr = value.position.inMilliseconds.toDouble();
 
-        isBuffering.value =
-            value.isBuffering && (currentPosition >= bufferedProgress);
-      } else {
-        isBuffering.value = false;
-      }
+      isBuffering.value =
+          value.isBuffering && (currentPositionr >= bufferedProgress);
+
       // });
       // _checkBuffering();
       // }
     });
     toggleFullScreen;
 
-    controller?.play();
+    controller.play();
     isPlaying.value = true;
   }
 
@@ -174,9 +158,9 @@ class VideoPlayerGetController extends GetxController {
       return;
     }
     if (isPlaying.value) {
-      await controller?.pause();
+      await controller.pause();
     } else {
-      await controller?.play();
+      await controller.play();
     }
     isPlaying.value = !isPlaying.value;
   }
@@ -184,62 +168,52 @@ class VideoPlayerGetController extends GetxController {
   void playPreviousVideo() async {
     autoCloseMenuTimer();
     if (currentIndex.value > 0) {
-      // setState(() async {
-      await SPManager.saveProgress(playUrl.value,
-          controller?.value.position ?? Duration(milliseconds: 0));
+      await SPManager.saveProgress(
+          videoPlayer.value.vodPlayUrl, controller.value.position);
       currentIndex.value--;
       isLoadVideoPlayed.value = true;
-      await controller?.pause();
-      await controller?.dispose();
+      await controller.pause();
+      await controller.dispose();
       initializePlayer();
-      print('*********  playPreviousVideo');
-      // TODO 外层直接用get接受，无需回调
-      // widget.onChangePlayPositon(_currentIndex);
-      // });
     }
   }
 
   void playNextVideo() async {
     autoCloseMenuTimer();
-    if (currentIndex.value < videoList.length - 1) {
-      // setState(() async {
-      await SPManager.saveProgress(playUrl.value,
-          controller?.value.position ?? Duration(milliseconds: 0));
+    if (currentIndex.value < videoPlayerList.length - 1) {
+      await SPManager.saveProgress(
+          videoPlayer.value.vodPlayUrl, controller.value.position);
       currentIndex.value++;
       isLoadVideoPlayed.value = true;
-      await controller?.pause();
-      await controller?.dispose();
+      await controller.pause();
+      await controller.dispose();
       initializePlayer();
-      print('*********  playNextVideo');
-      // TODO 外层直接用get接受，无需回调
-      // widget.onChangePlayPositon(_currentIndex);
-      // });
     }
   }
 
   void setSkipHead() {
     autoCloseMenuTimer();
-    headTime.value = controller?.value.position ?? Duration(milliseconds: 0);
-    SPManager.saveSkipHeadTimes(videoId.value, headTime.value);
+    headTime.value = controller.value.position;
+    SPManager.saveSkipHeadTimes(videoPlayer.value.vodId, headTime.value);
   }
 
   void cleanSkipHead() {
     autoCloseMenuTimer();
-    SPManager.clearSkipHeadTimes(videoId.value);
+    SPManager.clearSkipHeadTimes(videoPlayer.value.vodId);
   }
 
   void setSkipTail() {
     autoCloseMenuTimer();
-    tailTime.value = controller?.value.position ?? Duration(milliseconds: 0);
+    tailTime.value = controller.value.position;
     SPManager.saveSkipTailTimes(
-      videoId.value,
+      videoPlayer.value.vodId,
       tailTime.value,
     );
   }
 
   void cleanSkipTail() {
     autoCloseMenuTimer();
-    SPManager.clearSkipTailTimes(videoId.value);
+    SPManager.clearSkipTailTimes(videoPlayer.value.vodId);
   }
 
   void toggleFullScreen() {
@@ -266,16 +240,6 @@ class VideoPlayerGetController extends GetxController {
         SystemChrome.setPreferredOrientations([]);
       }
     }
-    // });
-    // TODO 外层直接用get接受，无需回调
-    // widget.onFullScreenChanged(_isFullScreen);
-  }
-
-  saveProgressAndIndex() {
-    SPManager.saveProgress(
-        playUrl.value, controller?.value.position ?? Duration(milliseconds: 0));
-    historyController.saveIndex(
-        video.value, currentIndex.value, fromIndex.value);
   }
 
   void autoCloseMenuTimer() {
@@ -289,8 +253,8 @@ class VideoPlayerGetController extends GetxController {
   }
 
   void seekPlayProgress(int delta) {
-    var position = controller?.value.position ?? Duration(milliseconds: 0);
-    var duration = controller?.value.duration ?? Duration(milliseconds: 0);
+    var position = controller.value.position;
+    var duration = controller.value.duration;
     Duration newPosition = position + Duration(seconds: delta);
     playPositonTips.value =
         "${CommonUtil.formatDuration(newPosition)}/${CommonUtil.formatDuration(duration)}";
@@ -299,13 +263,13 @@ class VideoPlayerGetController extends GetxController {
   }
 
   void seekToPosition(Duration position) {
-    controller?.seekTo(position);
+    controller.seekTo(position);
     autoCloseMenuTimer();
   }
 
   void adjustVolume(double dy) async {
     currentVolume.value = (currentVolume.value - dy * 0.01).clamp(0.0, 1.0);
-    await controller?.setVolume(currentVolume.value);
+    await controller.setVolume(currentVolume.value);
     SPManager.saveVolume(currentVolume.value);
     showTemporaryFeedback(false);
   }
@@ -355,9 +319,9 @@ class VideoPlayerGetController extends GetxController {
 
   void fastSpeedPlay(bool isStart) {
     if (isStart) {
-      controller?.setPlaybackSpeed(SPManager.getLongPressSpeed());
+      controller.setPlaybackSpeed(SPManager.getLongPressSpeed());
     } else {
-      controller?.setPlaybackSpeed(SPManager.getPlaySpeed());
+      controller.setPlaybackSpeed(SPManager.getPlaySpeed());
     }
     isLongPressing.value = isStart;
   }
@@ -371,7 +335,7 @@ class VideoPlayerGetController extends GetxController {
   }
 
   void changePlaySpeed(double speed) {
-    controller?.setPlaybackSpeed(speed);
+    controller.setPlaybackSpeed(speed);
     SPManager.savePlaySpeed(speed);
     autoCloseMenuTimer();
   }
@@ -394,22 +358,17 @@ class VideoPlayerGetController extends GetxController {
     // 找到要播放的视频索引
     if (index != -1) {
       SPManager.saveProgress(
-          playUrl.value, controller?.value.position ?? Duration());
+          videoPlayer.value.vodId, controller.value.position);
       currentIndex.value = index;
       isLoadVideoPlayed.value = true;
-      await controller?.pause();
-      await controller?.dispose();
+      await controller.pause();
+      await controller.dispose();
       initializePlayer();
-      print('*********  playVideo');
     }
   }
 
-  // bool isInitialized() {
-  //   return controller?.value.isInitialized ?? false;
-  // }
-
   bool isVerticalVideo() {
-    final aspectRatio = controller?.value.aspectRatio;
-    return aspectRatio != null && aspectRatio < 1.0;
+    final aspectRatio = controller.value.aspectRatio;
+    return aspectRatio < 1.0;
   }
 }

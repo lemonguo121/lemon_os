@@ -4,13 +4,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/player/controller/VideoPlayerGetController.dart';
 import 'package:lemon_tv/player/widget/MenuContainerPage.dart';
-import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../util/SPManager.dart';
 import '../LongPressOnlyWidget.dart';
-import '../MenuContainer.dart';
 import '../SkipFeedbackPositoned.dart';
 import '../VoiceAndLightFeedbackPositoned.dart';
 
@@ -31,11 +29,9 @@ class _VideoPlayerPageState extends State<VideoPlayerPage>
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       WakelockPlus.toggle(enable: true);
-      print('******   initState');
       if(!controller.initialize.value){
         controller.initializePlayer();
       }
-
     });
   }
 
@@ -47,7 +43,6 @@ class _VideoPlayerPageState extends State<VideoPlayerPage>
       WakelockPlus.toggle(enable: false);
     }
 
-    print('******   dispose');
     super.dispose();
   }
 
@@ -72,18 +67,17 @@ class _VideoPlayerPageState extends State<VideoPlayerPage>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    print('******    didChangeAppLifecycleState ');
     if (state == AppLifecycleState.paused) {
       // 应用退到后台，暂停播放
       if (controller.isPlaying.value) {
-        controller.controller?.pause();
+        controller.controller.pause();
         controller.isPlaying.value = false;
       }
     } else if (state == AppLifecycleState.resumed) {
       // 应用回到前台，继续播放
-      var isPlaying = controller.controller?.value.isPlaying ?? false;
+      var isPlaying = controller.controller.value.isPlaying ?? false;
       if (!isPlaying && !controller.isPlaying.value) {
-        controller.controller?.play();
+        controller.controller.play();
         controller.isPlaying.value = true;
       }
     }
@@ -213,7 +207,6 @@ class _VideoPlayerPageState extends State<VideoPlayerPage>
               GestureDetector(
                 onTap: () {
                   controller.initializePlayer();
-                  print('******   initState');
                 },
                 child: Column(
                   children: [
@@ -238,7 +231,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage>
         ),
       );
     }
-    var aspectRatio = controller.controller?.value.aspectRatio ?? 0;
+    var aspectRatio = controller.controller.value.aspectRatio;
     var playerController = controller.controller;
     if (!controller.initialize.value || controller.isBuffering.value) {
       return Stack(
@@ -247,7 +240,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage>
           Center(
             child: AspectRatio(
               aspectRatio: aspectRatio,
-              child: VideoPlayer(playerController!),
+              child: VideoPlayer(playerController),
             ),
           ),
           // 悬浮在播放器上层的加载指示器
@@ -261,7 +254,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage>
     return Center(
       child: AspectRatio(
         aspectRatio: aspectRatio,
-        child: VideoPlayer(playerController!),
+        child: VideoPlayer(playerController),
       ),
     );
   }

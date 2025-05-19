@@ -57,8 +57,8 @@ class HistoryController extends GetxController {
   }
 
   void saveIndex(RealVideo video, int position, int selectedPlayFromIndex) {
-    SPManager.saveFromIndex(video, selectedPlayFromIndex);
-    SPManager.saveIndex(video, position);
+    SPManager.saveFromIndex('${video.vodId}', selectedPlayFromIndex);
+    SPManager.saveIndex('${video.vodId}', position);
     freshVideoIndex(video);
   }
 }

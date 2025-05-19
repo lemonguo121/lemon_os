@@ -228,7 +228,6 @@ class MusicPlayerController extends GetxController {
     try {
       String playUrl;
       final hasAudioCache = await MusicCacheUtil.hasAudioCache('${song.artist}_${song.title}', song.id, platform);
-      print('********** hasAudioCache = $hasAudioCache');
       if (hasAudioCache) {
         final file = await MusicCacheUtil.getCachedFile('${song.artist}_${song.title}', song.id, platform);
         playUrl = file.path;

@@ -5,6 +5,7 @@ import '../http/data/RealVideo.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../http/data/VideoPlayData.dart';
+import '../http/data/VideoPlayerBean.dart';
 
 class CommonUtil {
   static Future showToast(String content) async {
@@ -70,6 +71,20 @@ class CommonUtil {
       fromList: fromList,
       currentPlayGroup: currentPlayGroup,
     );
+  }
+
+  static List<VideoPlayerBean> getPlayerList(
+      List<Map<String, String>>? playList, RealVideo video) {
+    if (playList == null || playList.isEmpty) return [];
+
+    return playList.map((play) {
+      return VideoPlayerBean(
+        vodId: '${video.vodId}',
+        vodName: video.vodName,
+        vodPlayUrl: play['url'] ?? '',
+        playTitle: play['title'] ?? '',
+      );
+    }).toList();
   }
 
   // static bool isVertical(BuildContext context) {

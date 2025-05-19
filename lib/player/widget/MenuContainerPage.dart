@@ -109,7 +109,7 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
                                 child: Padding(
                                   padding: EdgeInsets.only(top: 35.0.h),
                                   child: Text(
-                                    "${controller.video.value.vodName} ${controller.videoList[controller.currentIndex.value]['title']!}",
+                                    "${controller.videoPlayer.value.vodName} ${controller.videoPlayerList[controller.currentIndex.value].playTitle}",
                                     style: TextStyle(
                                         color: Colors.white, fontSize: 14),
                                     maxLines: 1,
@@ -333,7 +333,7 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
                                       child: _buildMenuText(
                                           CommonUtil.formatDuration(
                                               SPManager.getSkipHeadTimes(
-                                                  controller.videoId.value)))),
+                                                  controller.videoPlayer.value.vodId)))),
                                   const SizedBox(
                                     width: 8,
                                   ),
@@ -348,7 +348,7 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
                                     child: _buildMenuText(
                                         CommonUtil.formatDuration(
                                             SPManager.getSkipTailTimes(
-                                                controller.videoId.value))),
+                                                controller.videoPlayer.value.vodId))),
                                   ),
                                 ],
                               ))),
