@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:lemon_tv/http/data/RealVideo.dart';
+import 'package:lemon_tv/player/controller/VideoPlayerGetController.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -13,9 +14,13 @@ import 'DownloadItem.dart';
 
 class DownloadController extends GetxController {
   var downloads = <DownloadItem>[].obs;
+  VideoPlayerGetController playerGetController = Get.find();
 
   RxList<DownloadItem> getEpisodesByVodName(String vodName) {
-    return downloads.where((item) => item.vodName == vodName).toList().obs;
+    return downloads
+        .where((item) => item.vodName == vodName)
+        .toList()
+        .obs;
   }
 
   Map<String, List<DownloadItem>> get groupedByVodName {
@@ -28,8 +33,8 @@ class DownloadController extends GetxController {
 
   final Dio dio = Dio();
 
-  bool startDownload(
-      String url, String playTitle, int playIndex, RealVideo video) {
+  bool startDownload(String url, String playTitle, int playIndex,
+      RealVideo video) {
     if (downloads.any((d) => d.url == url)) {
       print("任务已存在: $url");
       return false;
@@ -57,7 +62,7 @@ class DownloadController extends GetxController {
     SPManager.saveDownloads(downloads);
 
     if (url.endsWith('.m3u8')) {
-      _downloadM3u8(url,false);
+      _downloadM3u8(url, false);
     } else {
       _downloadVideo(url);
     }
@@ -80,7 +85,7 @@ class DownloadController extends GetxController {
       updateStatus(url, DownloadStatus.downloading);
 
       if (url.endsWith('.m3u8')) {
-        _downloadM3u8(url,true);
+        _downloadM3u8(url, true);
       } else {
         _downloadVideo(url);
       }
@@ -93,8 +98,7 @@ class DownloadController extends GetxController {
       downloads[index].status.value = status;
       downloads.refresh();
       SPManager.saveDownloads(downloads);
-
-      WakelockPlus.toggle(enable: !checkTaskAllDone());
+      WakelockPlus.toggle(enable: !checkTaskAllDone()&&!playerGetController.isPlaying.value);
     }
   }
 
@@ -136,7 +140,10 @@ class DownloadController extends GetxController {
     if (item == null) return;
 
     final dir = await getDownloadDirectory();
-    final filename = Uri.parse(url).pathSegments.last;
+    final filename = Uri
+        .parse(url)
+        .pathSegments
+        .last;
 
     final folder = p.join(dir, item.vodName, item.playTitle);
     await Directory(folder).create(recursive: true);
@@ -165,7 +172,7 @@ class DownloadController extends GetxController {
           if (total != -1) {
             int fullLength = downloadedLength + total;
             final progress =
-                (((downloadedLength + received) / fullLength) * 100).toInt();
+            (((downloadedLength + received) / fullLength) * 100).toInt();
 
             updateProgress(url, progress, fullLength.toDouble());
           }
@@ -224,7 +231,9 @@ class DownloadController extends GetxController {
           return;
         }
 
-        final segmentUrl = Uri.parse(segmentUrls[i]).isAbsolute
+        final segmentUrl = Uri
+            .parse(segmentUrls[i])
+            .isAbsolute
             ? segmentUrls[i]
             : Uri.parse(url).resolve(segmentUrls[i]).toString();
         final savePath = p.join(folder, 'segment_$i.ts');
@@ -273,11 +282,9 @@ class DownloadController extends GetxController {
     }
   }
 
-  Future<void> convertM3U8(
-      String originalM3U8Path,
+  Future<void> convertM3U8(String originalM3U8Path,
       List<String> localTsFiles,
-      String outputM3U8Path,
-      ) async {
+      String outputM3U8Path,) async {
     final originalLines = await File(originalM3U8Path).readAsLines();
     final buffer = StringBuffer();
 
