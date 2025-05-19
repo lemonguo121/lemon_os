@@ -152,7 +152,10 @@ class _DetailScreenState extends State<DetailScreen>
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     _scrollController.dispose();
     _iconController.dispose();
-    print('****** det  dispose');
+    controller.saveProgressAndIndex();
+    controller.timer?.cancel();
+    controller.controller.dispose();
+    controller.controller.removeListener(() {});
     super.dispose();
   }
 

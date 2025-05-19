@@ -32,7 +32,10 @@ class _VideoPlayerPageState extends State<VideoPlayerPage>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       WakelockPlus.toggle(enable: true);
       print('******   initState');
-      controller.initializePlayer();
+      if(!controller.initialize.value){
+        controller.initializePlayer();
+      }
+
     });
   }
 
@@ -43,10 +46,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage>
     if (controller.downloadController.checkTaskAllDone()) {
       WakelockPlus.toggle(enable: false);
     }
-    controller.saveProgressAndIndex();
-    controller.timer?.cancel();
-     controller.controller.dispose();
-    controller.controller.removeListener(() {});
+
     print('******   dispose');
     super.dispose();
   }
