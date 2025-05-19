@@ -90,18 +90,16 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
             playTitle: play.playTitle);
       }).toList();
       controller.videoPlayerList.value = videoPlayerList;
-      controller.initializePlayer();
+      // controller.initializePlayer();
     }
   }
 
   @override
-  void dispose() {
+  void dispose() async {
     controller.controller.removeListener(() {});
     LocalHttpServer.stop();
     _saveProgressAndIndex();
-    controller.timer?.cancel();
-    controller.controller.dispose();
-    controller.controller.removeListener(() {});
+    controller.dispose();
     if (isVertical) {
       SystemChrome.setPreferredOrientations(
           [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);

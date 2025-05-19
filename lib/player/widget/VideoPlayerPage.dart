@@ -7,6 +7,7 @@ import 'package:lemon_tv/player/widget/MenuContainerPage.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '../../download/DownloadController.dart';
 import '../../util/SPManager.dart';
 import '../LongPressOnlyWidget.dart';
 import '../SkipFeedbackPositoned.dart';
@@ -22,6 +23,7 @@ class VideoPlayerPage extends StatefulWidget {
 class _VideoPlayerPageState extends State<VideoPlayerPage>
     with TickerProviderStateMixin, WidgetsBindingObserver {
   VideoPlayerGetController controller = Get.find();
+  final DownloadController downloadController = Get.find();
 
   @override
   void initState() {
@@ -39,10 +41,9 @@ class _VideoPlayerPageState extends State<VideoPlayerPage>
   void dispose() async{
     WidgetsBinding.instance.removeObserver(this);
     SystemChrome.setPreferredOrientations([]);
-    if (controller.downloadController.checkTaskAllDone()) {
+    if (downloadController.checkTaskAllDone()) {
       WakelockPlus.toggle(enable: false);
     }
-
     super.dispose();
   }
 
@@ -86,7 +87,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage>
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (controller.isLoading.value) {
+      if (controller.isLoading.value||!controller.initialize.value) {
         return Stack(
           children: [
             Container(

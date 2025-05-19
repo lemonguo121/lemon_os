@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:lemon_tv/download/DownloadController.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../history/HistoryController.dart';
 import '../../http/data/RealVideo.dart';
@@ -16,7 +17,7 @@ import '../../util/SPManager.dart';
 
 class VideoPlayerGetController extends GetxController {
   final HistoryController historyController = Get.find();
-  final DownloadController downloadController = Get.find();
+
   var isBuffering = false.obs; //是否在缓冲
   var lastIsVer = true.obs; //进入全屏前记录手机是否是竖直的
   var isScreenLocked = false.obs; //是否锁住屏幕
@@ -45,6 +46,7 @@ class VideoPlayerGetController extends GetxController {
   var currentDuration = Duration(milliseconds: 0).obs;
   var currentPosition = Duration(milliseconds: 0).obs;
   var batteryLevel = 100.obs; // 默认100%
+  var playSpeed = 1.0.obs; // 倍速
 
   Timer? timer;
   var videoPlayer = VideoPlayerBean(
@@ -62,8 +64,6 @@ class VideoPlayerGetController extends GetxController {
     currentBrightness.value = await ScreenBrightness().current; // 获取系统亮度
     currentVolume.value = SPManager.getCurrentVolume(); // 获取保存的音量
     videoPlayer.value = videoPlayerList[currentIndex.value];
-
-
     var vodPlayUrl = videoPlayer.value.vodPlayUrl;
     if (vodPlayUrl.isEmpty) {
       isLoading.value = false;
@@ -71,10 +71,8 @@ class VideoPlayerGetController extends GetxController {
       CommonUtil.showToast('播放地址为空');
       return;
     }
-    print('******  vodPlayUrl = $vodPlayUrl   currentIndex.value = ${currentIndex.value}');
     var vodId = videoPlayer.value.vodId;
     var vodName = videoPlayer.value.vodName;
-
     controller = VideoPlayerController.networkUrl(Uri.parse(vodPlayUrl));
     try {
       await controller.initialize();
@@ -99,8 +97,8 @@ class VideoPlayerGetController extends GetxController {
     }
 
     tailTime.value = SPManager.getSkipTailTimes(vodId);
-    var playSpeed = SPManager.getPlaySpeed();
-    controller.setPlaybackSpeed(playSpeed);
+    playSpeed.value = SPManager.getPlaySpeed();
+    controller.setPlaybackSpeed(playSpeed.value);
     controller.addListener(() {
       if (controller.value.hasError == true) {
         isLoading.value = false;
@@ -133,9 +131,9 @@ class VideoPlayerGetController extends GetxController {
           ? buffered.last.end.inMilliseconds.toDouble()
           : 0.0;
       final currentPositionr = value.position.inMilliseconds.toDouble();
-      isBuffering.value =
-          value.isBuffering && (currentPositionr >= bufferedProgress)&&(currentPosition.value< currentDuration.value);
-
+      isBuffering.value = value.isBuffering &&
+          (currentPositionr >= bufferedProgress) &&
+          (currentPosition.value < currentDuration.value);
     });
     toggleFullScreen;
 
@@ -166,7 +164,7 @@ class VideoPlayerGetController extends GetxController {
       await controller.pause();
       await controller.dispose();
       initializePlayer();
-    }else{
+    } else {
       CommonUtil.showToast('已经是第一集');
     }
   }
@@ -181,12 +179,12 @@ class VideoPlayerGetController extends GetxController {
       await controller.pause();
       await controller.dispose();
       initializePlayer();
-    }else{
+    } else {
       CommonUtil.showToast('已经是最后一集');
       controller.removeListener(() {});
       isBuffering.value = false;
       isLoading.value = false;
-      isPlaying.value=false;
+      isPlaying.value = false;
       await controller.pause();
     }
   }
@@ -335,6 +333,7 @@ class VideoPlayerGetController extends GetxController {
   }
 
   void changePlaySpeed(double speed) {
+    playSpeed.value = speed;
     controller.setPlaybackSpeed(speed);
     SPManager.savePlaySpeed(speed);
     autoCloseMenuTimer();
@@ -370,5 +369,12 @@ class VideoPlayerGetController extends GetxController {
   bool isVerticalVideo() {
     final aspectRatio = controller.value.aspectRatio;
     return aspectRatio < 1.0;
+  }
+
+  void dispose() async {
+    initialize.value = false;
+    timer?.cancel();
+    await controller.dispose();
+    controller.removeListener(() {});
   }
 }

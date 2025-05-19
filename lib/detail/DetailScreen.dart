@@ -125,7 +125,8 @@ class _DetailScreenState extends State<DetailScreen>
         var playList = CommonUtil.getPlayListAndForm(video)
             .playList[controller.fromIndex.value];
 
-        controller.videoPlayerList.value = CommonUtil.getPlayerList(playList,video);
+        controller.videoPlayerList.value =
+            CommonUtil.getPlayerList(playList, video);
         isLoading = false; // 数据加载完成
         _scrollToSelectedItem(controller.currentIndex.value);
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -149,9 +150,7 @@ class _DetailScreenState extends State<DetailScreen>
     _scrollController.dispose();
     _iconController.dispose();
     saveProgressAndIndex();
-    controller.timer?.cancel();
-    controller.controller.dispose();
-    controller.controller.removeListener(() {});
+    controller.dispose();
     super.dispose();
   }
 
@@ -367,26 +366,20 @@ class _DetailScreenState extends State<DetailScreen>
                     style: TextStyle(color: Colors.white, fontSize: 12),
                   ),
                   const SizedBox(height: 6.0),
-                  Videoinfowidget(
-                      title: "导演", content: video.vodDirector),
+                  Videoinfowidget(title: "导演", content: video.vodDirector),
                   const SizedBox(
                     height: 6.0,
                   ),
-                  Videoinfowidget(
-                      title: "主演", content: video.vodActor),
+                  Videoinfowidget(title: "主演", content: video.vodActor),
                   const SizedBox(height: 6.0),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Videoinfowidget(
-                          title: "年份", content: video.vodYear),
+                      Videoinfowidget(title: "年份", content: video.vodYear),
                       const SizedBox(width: 6.0),
-                      Videoinfowidget(
-                          title: "地区", content: video.vodArea),
+                      Videoinfowidget(title: "地区", content: video.vodArea),
                       const SizedBox(width: 6.0),
-                      Videoinfowidget(
-                          title: "类型",
-                          content: video.typeName),
+                      Videoinfowidget(title: "类型", content: video.typeName),
                     ],
                   ),
                   const SizedBox(height: 6.0),
@@ -431,9 +424,7 @@ class _DetailScreenState extends State<DetailScreen>
                 color: Colors.white),
           ),
           Text(
-            video.vodRemarks.isNotEmpty
-                ? video.vodRemarks
-                : "暂无更新",
+            video.vodRemarks.isNotEmpty ? video.vodRemarks : "暂无更新",
             style: const TextStyle(fontSize: 12.0, color: Colors.white),
           ),
           const SizedBox(
@@ -472,8 +463,7 @@ class _DetailScreenState extends State<DetailScreen>
   }
 
   Widget _buildGrid() {
-    var playList =
-        CommonUtil.getPlayListAndForm(video).playList;
+    var playList = CommonUtil.getPlayListAndForm(video).playList;
     return GridView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -527,8 +517,7 @@ class _DetailScreenState extends State<DetailScreen>
       },
       onLongPress: () {
         showSleepWarningIfNeeded(context);
-        if (downloadController.startDownload(
-            url, title, index, video)) {
+        if (downloadController.startDownload(url, title, index, video)) {
           CommonUtil.showToast('添加成功');
         } else {
           CommonUtil.showToast('任务已存在');

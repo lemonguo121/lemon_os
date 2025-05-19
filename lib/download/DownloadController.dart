@@ -98,7 +98,7 @@ class DownloadController extends GetxController {
       downloads[index].status.value = status;
       downloads.refresh();
       SPManager.saveDownloads(downloads);
-      WakelockPlus.toggle(enable: !checkTaskAllDone()&&!playerGetController.isPlaying.value);
+      WakelockPlus.toggle(enable: !checkTaskAllDone()&&!playerGetController.initialize.value);
     }
   }
 

@@ -39,7 +39,7 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      var value = controller.controller?.value;
+      var value = controller.controller.value;
 
       var bufferedRanges = value?.buffered;
       var isNotEmpty = bufferedRanges?.isNotEmpty ?? false;
@@ -51,15 +51,14 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
 
       final max = controller.currentDuration.value.inMilliseconds.toDouble();
       final positon = (!isAdjustProgress
-          ? controller.currentPosition.value.inMilliseconds.toDouble()
-          : changeProgress.inMilliseconds.toDouble())
+              ? controller.currentPosition.value.inMilliseconds.toDouble()
+              : changeProgress.inMilliseconds.toDouble())
           .clamp(0.0, max); // 限制值范围
 
       if (max <= 0) {
         // 初始化或出错时不显示 Slider
         return const SizedBox.shrink();
       }
-
 
       return Stack(
         children: [
@@ -78,15 +77,15 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
                       children: [
                         // 返回按钮 + 标题
                         Expanded(
-                          child:
-                          Row(
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             // 保证返回按钮和标题垂直对齐
                             children: [
-                              Padding(
-                                padding: EdgeInsets.only(top: 35.h),
-                                child: GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
+                              Container(
+                                margin: EdgeInsets.only(top: 30.r),
+                                width: 120.r, // 扩大点击区域
+                                height: 120.r,
+                                child: InkWell(
                                   // 保证整个区域可点击
                                   onTap: () {
                                     if (controller.isFullScreen.value) {
@@ -95,15 +94,11 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
                                       Navigator.pop(context);
                                     }
                                   },
-                                  child: Container(
-                                    width: 48, // 扩大点击区域
-                                    height: 48,
-                                    alignment: Alignment.center,
-                                    child: const Icon(Icons.arrow_back,
-                                        color: Colors.white),
-                                  ),
+                                  child: const Icon(Icons.arrow_back,
+                                      color: Colors.white),
                                 ),
                               ),
+
                               SizedBox(width: 4.w), // 按钮和标题之间的间距
                               Expanded(
                                 child: Padding(
@@ -251,23 +246,22 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   SizedBox(
-                                    width: 10.0,
+                                    width: 20.0.w,
                                   ),
                                   GestureDetector(
                                       onLongPress: () {
                                         controller.changePlaySpeed(1.0);
                                       },
                                       onTap: () {
-                                        var speed = controller.controller?.value
-                                                .playbackSpeed ??
-                                            1 + 0.25;
+                                        var speed =
+                                            controller.playSpeed.value + 0.25;
                                         if (speed > 3.0) {
                                           speed = 0.25;
                                         }
                                         controller.changePlaySpeed(speed);
                                       },
-                                      child: _buildMenuText(
-                                          "    x${controller.controller?.value.playbackSpeed ?? 1}    ")),
+                                      child: Obx(() => _buildMenuText(
+                                          "    x${controller.playSpeed.value}    "))),
                                   SizedBox(
                                     height: 20.0,
                                     child: IconButton(
@@ -333,7 +327,8 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
                                       child: _buildMenuText(
                                           CommonUtil.formatDuration(
                                               SPManager.getSkipHeadTimes(
-                                                  controller.videoPlayer.value.vodId)))),
+                                                  controller.videoPlayer.value
+                                                      .vodId)))),
                                   const SizedBox(
                                     width: 8,
                                   ),
@@ -348,7 +343,8 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
                                     child: _buildMenuText(
                                         CommonUtil.formatDuration(
                                             SPManager.getSkipTailTimes(
-                                                controller.videoPlayer.value.vodId))),
+                                                controller
+                                                    .videoPlayer.value.vodId))),
                                   ),
                                 ],
                               ))),
