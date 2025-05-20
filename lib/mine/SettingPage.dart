@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:lemon_tv/download/DownloadController.dart';
 import 'package:lemon_tv/music/player/music_controller.dart';
 import 'package:lemon_tv/util/CommonUtil.dart';
 import 'package:lemon_tv/util/SPManager.dart';
@@ -20,15 +21,14 @@ class SettingPage extends StatefulWidget {
 class _SettingPageState extends State<SettingPage> {
   final ScrollController _scrollController = ScrollController();
   final settingController = Get.put(SettingController());
+  final DownloadController downloadController = Get.find();
   MusicPlayerController playerController = Get.find();
   List<double> speedList = [2.0, 3.0, 4.0, 5.0];
-  var _selecteIndex = 1;
-  double longPressSpeed = 2.0;
+  List<double> maxTaskCount = [1, 2, 3, 4, 5];
+
   @override
   void initState() {
     super.initState();
-    longPressSpeed = SPManager.getLongPressSpeed();
-    _selecteIndex = speedList.indexOf(longPressSpeed);
   }
 
   @override
@@ -59,7 +59,7 @@ class _SettingPageState extends State<SettingPage> {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('$longPressSpeed',
+                    Text('${SPManager.getLongPressSpeed()}',
                         style: TextStyle(
                             color: themeController.currentAppTheme.titleColr)),
                     Icon(
@@ -68,7 +68,43 @@ class _SettingPageState extends State<SettingPage> {
                     )
                   ],
                 ),
-                onTap: (() => showSelectDialog()),
+                onTap: (() {
+                  var longPressSpeed = SPManager.getLongPressSpeed();
+                  var selecteIndex = speedList.indexOf(longPressSpeed);
+                  showSelectDialog('请选择长按时视频播放速度', speedList, selecteIndex,
+                      (int selectItem) {
+                    longPressSpeed = speedList[selectItem];
+                    SPManager.setLongPressSpeed(longPressSpeed);
+                  });
+                }),
+              ),
+              ListTile(
+                title: Text('最大下载任务数量',
+                    style: TextStyle(
+                        color: themeController.currentAppTheme.titleColr)),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('${SPManager.getMaxConcurrentDownloads()}',
+                        style: TextStyle(
+                            color: themeController.currentAppTheme.titleColr)),
+                    Icon(
+                      Icons.keyboard_arrow_right,
+                      color: themeController.currentAppTheme.titleColr,
+                    )
+                  ],
+                ),
+                onTap: (() {
+                  var maxTaskCunt = SPManager.getMaxConcurrentDownloads();
+                  var selecteIndex =
+                      maxTaskCount.indexOf(maxTaskCunt.toDouble());
+                  showSelectDialog('请选择同时下载最大数量', maxTaskCount, selecteIndex,
+                      (int selectItem) {
+                    maxTaskCunt = maxTaskCount[selectItem].toInt();
+                    downloadController.maxConcurrentDownloads.value=maxTaskCunt;
+                    SPManager.saveMaxConcurrentDownloads(maxTaskCunt);
+                  });
+                }),
               ),
               ListTile(
                 title: Text('是否开启media_kit',
@@ -122,7 +158,8 @@ class _SettingPageState extends State<SettingPage> {
         ));
   }
 
-  showSelectDialog() {
+  showSelectDialog(String title, List<double> list, int selectIndex,
+      ValueChanged<int> selectItem) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -146,7 +183,7 @@ class _SettingPageState extends State<SettingPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "请选择长按时视频播放速度",
+                  title,
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -163,15 +200,14 @@ class _SettingPageState extends State<SettingPage> {
                       crossAxisSpacing: 8.0,
                       mainAxisExtent: 30,
                     ),
-                    itemCount: speedList.length,
+                    itemCount: list.length,
                     itemBuilder: (context, index) {
-                      var speed = speedList[index];
+                      var item = list[index];
                       return GestureDetector(
                         onTap: () {
                           setState(() {
-                            _selecteIndex = index;
-                            longPressSpeed = speedList[_selecteIndex];
-                            SPManager.setLongPressSpeed(longPressSpeed);
+                            selectIndex = index;
+                            selectItem(index);
                           });
                           setModalState(() {});
                         },
@@ -179,15 +215,15 @@ class _SettingPageState extends State<SettingPage> {
                           padding: EdgeInsets.symmetric(vertical: 4.0),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                              color: _selecteIndex == index
+                              color: selectIndex == index
                                   ? Colors.blueAccent
                                   : Colors.transparent,
                               border: Border.all(color: Colors.black45),
                               borderRadius: BorderRadius.circular(30.0)),
                           child: Text(
-                            '$speed',
+                            '$item',
                             style: TextStyle(
-                                color: _selecteIndex == index
+                                color: selectIndex == index
                                     ? Colors.white
                                     : Colors.black,
                                 fontSize: 14.0,

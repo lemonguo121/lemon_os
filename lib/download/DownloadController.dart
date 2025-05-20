@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -14,13 +15,29 @@ import 'DownloadItem.dart';
 
 class DownloadController extends GetxController {
   var downloads = <DownloadItem>[].obs;
+  var maxConcurrentDownloads = SPManager.getMaxConcurrentDownloads().obs;
+  final RxList<DownloadItem> activeDownloads = <DownloadItem>[].obs;
+  final Queue<DownloadItem> pendingQueue = Queue<DownloadItem>();
   VideoPlayerGetController playerGetController = Get.find();
 
+  void pauseAllTask() {
+    for (var value in downloads) {
+      if (DownloadStatus.downloading == value.status.value) {
+        pauseDownload(value.url, false);
+      }
+    }
+  }
+
+  void resumeAllTask() {
+    for (var value in downloads) {
+      if (DownloadStatus.completed != value.status.value) {
+        resumeDownload(value.url);
+      }
+    }
+  }
+
   RxList<DownloadItem> getEpisodesByVodName(String vodName) {
-    return downloads
-        .where((item) => item.vodName == vodName)
-        .toList()
-        .obs;
+    return downloads.where((item) => item.vodName == vodName).toList().obs;
   }
 
   Map<String, List<DownloadItem>> get groupedByVodName {
@@ -33,8 +50,8 @@ class DownloadController extends GetxController {
 
   final Dio dio = Dio();
 
-  bool startDownload(String url, String playTitle, int playIndex,
-      RealVideo video) {
+  bool startDownload(
+      String url, String playTitle, int playIndex, RealVideo video) {
     if (downloads.any((d) => d.url == url)) {
       print("任务已存在: $url");
       return false;
@@ -61,34 +78,66 @@ class DownloadController extends GetxController {
     downloads.refresh();
     SPManager.saveDownloads(downloads);
 
-    if (url.endsWith('.m3u8')) {
-      _downloadM3u8(url, false);
-    } else {
-      _downloadVideo(url);
-    }
+    _tryStartDownload(newItem);
     return true;
   }
 
-  void pauseDownload(String url) {
+  void _tryStartDownload(DownloadItem item) {
+    if (activeDownloads.length < maxConcurrentDownloads.value) {
+      item.status.value = DownloadStatus.downloading;
+      activeDownloads.add(item);
+      downloads.refresh();
+
+      if (item.url.endsWith('.m3u8')) {
+        _downloadM3u8(item.url, false).then((_) => _onDownloadComplete(item));
+      } else {
+        _downloadVideo(item.url).then((_) => _onDownloadComplete(item));
+      }
+    } else {
+      print("任务已加入等待队列: ${item.url}");
+      item.status.value = DownloadStatus.pending;
+      pendingQueue.add(item);
+    }
+  }
+
+  void _onDownloadComplete(DownloadItem item) {
+    activeDownloads.removeWhere((d) => d.url == item.url);
+
+    // 检查是否有排队任务
+    if (pendingQueue.isNotEmpty) {
+      final nextItem = pendingQueue.removeFirst();
+      _tryStartDownload(nextItem);
+    }
+  }
+
+  void pauseDownload(String url, bool isNeednext) {
+    //isNeednext  是否需要跳到下一个任务，手动暂停单个时，我们跳下一个，暂停所有就不跳了不然控制不了
     final item = downloads.firstWhereOrNull((d) => d.url == url);
     if (item != null && item.status.value == DownloadStatus.downloading) {
       item.cancelToken.cancel("手动暂停");
       updateStatus(url, DownloadStatus.paused);
+      activeDownloads.removeWhere((d) => d.url == url);
+      if (isNeednext) {
+        _startNextIfPossible();
+      }
+    }
+  }
+
+  void _startNextIfPossible() {
+    if (pendingQueue.isNotEmpty &&
+        activeDownloads.length < maxConcurrentDownloads.value) {
+      final nextItem = pendingQueue.removeFirst();
+      _tryStartDownload(nextItem);
     }
   }
 
   void resumeDownload(String url) {
     final item = downloads.firstWhereOrNull((d) => d.url == url);
-    if (item != null && item.status.value == DownloadStatus.paused) {
+    if (item != null && (item.status.value == DownloadStatus.paused||item.status.value == DownloadStatus.failed)) {
       final newCancelToken = CancelToken();
       item.cancelToken = newCancelToken;
-      updateStatus(url, DownloadStatus.downloading);
+      _tryStartDownload(item);
 
-      if (url.endsWith('.m3u8')) {
-        _downloadM3u8(url, true);
-      } else {
-        _downloadVideo(url);
-      }
     }
   }
 
@@ -98,7 +147,8 @@ class DownloadController extends GetxController {
       downloads[index].status.value = status;
       downloads.refresh();
       SPManager.saveDownloads(downloads);
-      WakelockPlus.toggle(enable: !checkTaskAllDone()&&!playerGetController.initialize.value);
+      WakelockPlus.toggle(
+          enable: !checkTaskAllDone() && !playerGetController.initialize.value);
     }
   }
 
@@ -140,10 +190,7 @@ class DownloadController extends GetxController {
     if (item == null) return;
 
     final dir = await getDownloadDirectory();
-    final filename = Uri
-        .parse(url)
-        .pathSegments
-        .last;
+    final filename = Uri.parse(url).pathSegments.last;
 
     final folder = p.join(dir, item.vodName, item.playTitle);
     await Directory(folder).create(recursive: true);
@@ -172,7 +219,7 @@ class DownloadController extends GetxController {
           if (total != -1) {
             int fullLength = downloadedLength + total;
             final progress =
-            (((downloadedLength + received) / fullLength) * 100).toInt();
+                (((downloadedLength + received) / fullLength) * 100).toInt();
 
             updateProgress(url, progress, fullLength.toDouble());
           }
@@ -231,9 +278,7 @@ class DownloadController extends GetxController {
           return;
         }
 
-        final segmentUrl = Uri
-            .parse(segmentUrls[i])
-            .isAbsolute
+        final segmentUrl = Uri.parse(segmentUrls[i]).isAbsolute
             ? segmentUrls[i]
             : Uri.parse(url).resolve(segmentUrls[i]).toString();
         final savePath = p.join(folder, 'segment_$i.ts');
@@ -260,7 +305,8 @@ class DownloadController extends GetxController {
           updateProgress(url, percent, downloadedBytes);
         } catch (e) {
           print("下载切片失败: $segmentUrl - $e");
-          updateStatus(url, DownloadStatus.paused);
+          updateStatus(url, DownloadStatus.failed);
+          _startNextIfPossible();
           return;
         }
       }
@@ -278,13 +324,15 @@ class DownloadController extends GetxController {
       updateStatus(url, DownloadStatus.completed);
     } catch (e) {
       print("解析 m3u8 失败: $e");
-      updateStatus(url, DownloadStatus.paused);
+      updateStatus(url, DownloadStatus.failed);
     }
   }
 
-  Future<void> convertM3U8(String originalM3U8Path,
-      List<String> localTsFiles,
-      String outputM3U8Path,) async {
+  Future<void> convertM3U8(
+    String originalM3U8Path,
+    List<String> localTsFiles,
+    String outputM3U8Path,
+  ) async {
     final originalLines = await File(originalM3U8Path).readAsLines();
     final buffer = StringBuffer();
 
@@ -350,7 +398,6 @@ class DownloadController extends GetxController {
   //   }
   // }
 
-
   Future<void> deleteDownload(String url) async {
     final index = downloads.indexWhere((d) => d.url == url);
     if (index == -1) return;
@@ -386,6 +433,7 @@ class DownloadController extends GetxController {
     downloads.refresh();
     SPManager.saveDownloads(downloads);
     SPManager.removeProgress(item.localPath ?? '');
+    _startNextIfPossible();
   }
 
   List<DownloadItem> getCurrentVodEpisodes(String vodId) {

@@ -493,6 +493,7 @@ class _DetailScreenState extends State<DetailScreen>
     if (item != null) {
       if (item.status.value == DownloadStatus.downloading ||
           item.status.value == DownloadStatus.paused ||
+          item.status.value == DownloadStatus.pending ||
           item.status.value == DownloadStatus.conversioning) {
         prefixIcon = SlideTransition(
           position: _slideAnimation,

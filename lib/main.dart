@@ -22,7 +22,7 @@ void main() async {
 
   await Injection.init();
   var isRealFun = SPManager.isRealFun();
-
+  initDownLoad();
   runApp(
     ScreenUtilInit(
       designSize: const Size(750, 1334),
@@ -33,12 +33,12 @@ void main() async {
       },
     ),
   );
-  initDownLoad();
 }
 
 void initDownLoad() {
   DownloadController downloadController = Get.find();
   downloadController.downloads.value = SPManager.getDownloads();
+  downloadController.pauseAllTask();
 }
 
 class ElectronicsStoreApp extends StatelessWidget {

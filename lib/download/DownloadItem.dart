@@ -9,7 +9,8 @@ enum DownloadStatus {
   conversioning,
   completed,
   failed,
-  converfaild
+  converfaild,
+  pending
 }
 
 class DownloadItem {

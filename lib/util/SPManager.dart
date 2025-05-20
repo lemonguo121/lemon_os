@@ -31,6 +31,7 @@ class SPManager {
   static const String downloadkey = "downloadkey";
   static const String no_more_sleep_tip = "no_more_sleep_tip";
   static const String isEnableKit = "isEnableKit";
+  static const String maxConcurrentDownloads = "maxConcurrentDownloads";
 
   static bool isRealFun() {
     SharedPreferences sp = Get.find<SharedPreferences>();
@@ -380,5 +381,15 @@ class SPManager {
   static bool getEnableKit() {
     SharedPreferences sp = Get.find<SharedPreferences>();
     return sp.getBool(isEnableKit) ?? false;
+  }
+
+  static int getMaxConcurrentDownloads() {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    return sp.getInt(maxConcurrentDownloads) ?? 2;
+  }
+
+  static saveMaxConcurrentDownloads(int count) {
+    SharedPreferences sp = Get.find<SharedPreferences>();
+    return sp.setInt(maxConcurrentDownloads, count);
   }
 }
