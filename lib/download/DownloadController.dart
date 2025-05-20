@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -82,13 +83,15 @@ class DownloadController extends GetxController {
     return true;
   }
 
-  void _tryStartDownload(DownloadItem item) {
+  Future<void> _tryStartDownload(DownloadItem item) async {
     if (activeDownloads.length < maxConcurrentDownloads.value) {
       item.status.value = DownloadStatus.downloading;
       activeDownloads.add(item);
       downloads.refresh();
 
       if (item.url.endsWith('.m3u8')) {
+        final resolvedUrl = await resolveFinalM3U8Url(item.url);
+        item.url=resolvedUrl;
         _downloadM3u8(item.url, false).then((_) => _onDownloadComplete(item));
       } else {
         _downloadVideo(item.url).then((_) => _onDownloadComplete(item));
@@ -148,7 +151,7 @@ class DownloadController extends GetxController {
       downloads.refresh();
       SPManager.saveDownloads(downloads);
       WakelockPlus.toggle(
-          enable: !checkTaskAllDone() && !playerGetController.initialize.value);
+          enable: !checkTaskAllDone() || playerGetController.initialize.value);
     }
   }
 
@@ -241,6 +244,7 @@ class DownloadController extends GetxController {
   }
 
   Future<void> _downloadM3u8(String url, bool isResume) async {
+
     final item = downloads.firstWhereOrNull((d) => d.url == url);
     if (item == null) return;
 
@@ -326,6 +330,36 @@ class DownloadController extends GetxController {
       print("解析 m3u8 失败: $e");
       updateStatus(url, DownloadStatus.failed);
     }
+  }
+  /// 解析并返回真正包含 ts 视频片段的 m3u8 下载地址
+  Future<String> resolveFinalM3U8Url(String originUrl) async {
+    final uri = Uri.parse(originUrl);
+    final baseUri = uri.resolve('.'); // 获取基础目录
+
+    final res = await http.get(uri);
+    if (res.statusCode != 200) {
+      throw Exception('无法访问 M3U8 文件: ${res.statusCode}');
+    }
+
+    final content = utf8.decode(res.bodyBytes);
+
+    // 如果是主索引（多清晰度）
+    if (content.contains('#EXT-X-STREAM-INF')) {
+      final lines = content.split('\n');
+      for (int i = 0; i < lines.length - 1; i++) {
+        if (lines[i].startsWith('#EXT-X-STREAM-INF')) {
+          final nextLine = lines[i + 1].trim();
+          final nextUrl = baseUri.resolve(nextLine).toString();
+          print('检测到主索引，使用第一个子 m3u8: $nextUrl');
+          return await resolveFinalM3U8Url(nextUrl); // 递归解析
+        }
+      }
+      throw Exception('主索引中未找到有效的子清晰度地址');
+    }
+
+    // 否则，当前已是真实的 ts 列表 m3u8，返回当前地址
+    print('已解析为最终下载地址: $originUrl');
+    return originUrl;
   }
 
   Future<void> convertM3U8(

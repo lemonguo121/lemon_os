@@ -71,6 +71,7 @@ class VideoPlayerGetController extends GetxController {
       CommonUtil.showToast('播放地址为空');
       return;
     }
+    print('******   vodPlayUrl = $vodPlayUrl');
     var vodId = videoPlayer.value.vodId;
     var vodName = videoPlayer.value.vodName;
     controller = VideoPlayerController.networkUrl(Uri.parse(vodPlayUrl));

@@ -14,11 +14,11 @@ enum DownloadStatus {
 }
 
 class DownloadItem {
-  final String url;
+  String url;
   final String vodId;
   final String vodPic;
   final String playTitle;
-  final int playIndex;//这是剧集中的索引
+  final int playIndex; //这是剧集中的索引
   final String vodName;
   final StorehouseBeanSites site;
   final RxInt progress;
@@ -26,7 +26,7 @@ class DownloadItem {
   String? localPath;
   String? folder;
   CancelToken cancelToken;
-  int currentIndex;//这是下载的m3u8中的ts切片索引
+  int currentIndex; //这是下载的m3u8中的ts切片索引
   double downloadedBytes;
   List<String> localSegments;
 
@@ -68,8 +68,8 @@ class DownloadItem {
       currentIndex: json['currentIndex'] ?? 0,
       downloadedBytes: (json['downloadedBytes'] ?? 0).toDouble(),
       localSegments: (json['localSegments'] as List<dynamic>?)
-          ?.map((e) => e.toString())
-          .toList() ??
+              ?.map((e) => e.toString())
+              .toList() ??
           [],
     );
   }
