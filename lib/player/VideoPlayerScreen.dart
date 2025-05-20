@@ -584,12 +584,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen>
                   isAdjustingBrightness: _isAdjustingBrightness,
                   text:
                       "${((_isAdjustingBrightness ? _currentBrightness : _currentVolume) * 100).toInt()}%",
-                  videoPlayerHeight: widget.videoPlayerHeight,
                 ),
               if (_showSkipFeedback)
                 SkipFeedbackPositoned(
                   text: _playPositonTips,
-                  videoPlayerHeight: widget.videoPlayerHeight,
                 ),
               if (_isControllerVisible)
                 MenuContainer(

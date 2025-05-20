@@ -3,12 +3,10 @@ import 'package:auto_size_text/auto_size_text.dart';
 
 class SkipFeedbackPositoned extends StatelessWidget {
   final String text; // 用于显示的文本
-  final double videoPlayerHeight; // 用于显示的文本
 
   const SkipFeedbackPositoned({
     super.key,
     required this.text,
-    required this.videoPlayerHeight,
   });
 
   @override

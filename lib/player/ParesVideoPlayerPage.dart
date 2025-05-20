@@ -407,12 +407,10 @@ class _LocalVideoPlayerPagesState extends State<ParesVideoPlayerPage> {
                   isAdjustingBrightness: _isAdjustingBrightness,
                   text:
                       "${((_isAdjustingBrightness ? _currentBrightness : _currentVolume) * 100).toInt()}%",
-                  videoPlayerHeight: MediaQuery.of(context).size.height,
                 ),
               if (_showSkipFeedback)
                 SkipFeedbackPositoned(
                   text: _playPositonTips,
-                  videoPlayerHeight: MediaQuery.of(context).size.height,
                 ),
               if (_isControllerVisible)
                 MenuContainer(

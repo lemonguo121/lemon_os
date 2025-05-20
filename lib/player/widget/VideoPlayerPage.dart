@@ -148,12 +148,11 @@ class _VideoPlayerPageState extends State<VideoPlayerPage>
                         controller.isAdjustingBrightness.value,
                     text:
                         "${((controller.isAdjustingBrightness.value ? controller.currentBrightness.value : controller.currentVolume.value) * 100).toInt()}%",
-                    videoPlayerHeight: controller.videoPlayerHeight.value,
+
                   ),
                 if (controller.showSkipFeedback.value)
                   SkipFeedbackPositoned(
                     text: controller.playPositonTips.value,
-                    videoPlayerHeight: controller.videoPlayerHeight.value,
                   ),
                 if (controller.isControllerVisible.value) MenuContainerPage(),
                 if (controller.isLongPressing.value)

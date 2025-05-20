@@ -2,23 +2,17 @@ import 'package:flutter/material.dart';
 
 class VoiceAndLightFeedbackPositoned extends StatelessWidget {
   final bool isAdjustingBrightness;
-
   final String text;
-
-  final double videoPlayerHeight;
 
   const VoiceAndLightFeedbackPositoned({
     super.key,
     required this.isAdjustingBrightness,
     required this.text,
-    required this.videoPlayerHeight,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      top: videoPlayerHeight / 2 - 50,
-      left: MediaQuery.of(context).size.width / 2 - 50,
+    return Center(
       child: Container(
         width: 100,
         height: 100,
