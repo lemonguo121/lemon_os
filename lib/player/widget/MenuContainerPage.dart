@@ -41,13 +41,13 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
     return Obx(() {
       var value = controller.controller.value;
 
-      var bufferedRanges = value?.buffered;
-      var isNotEmpty = bufferedRanges?.isNotEmpty ?? false;
+      var bufferedRanges = value.buffered;
+      var isNotEmpty = bufferedRanges.isNotEmpty;
 
       var bufferedProgress =
-          isNotEmpty ? bufferedRanges!.last.end.inMilliseconds.toDouble() : 0.0;
+          isNotEmpty ? bufferedRanges.last.end.inMilliseconds.toDouble() : 0.0;
 
-      Size size = value?.size ?? const Size(0, 0);
+      Size size = value.size ;
 
       final max = controller.currentDuration.value.inMilliseconds.toDouble();
       final positon = (!isAdjustProgress
@@ -158,8 +158,7 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
                           Padding(
                             padding: EdgeInsets.only(top: 2.h),
                             child: _buildMenuText(CommonUtil.formatDuration(
-                                controller.controller?.value.position ??
-                                    Duration(milliseconds: 0))),
+                                controller.controller.value.position )),
                           ),
                           Expanded(
                             child: SizedBox(
@@ -176,7 +175,7 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
                                           Duration(milliseconds: value.toInt());
 
                                       controller.playPositonTips(
-                                          "${CommonUtil.formatDuration(changeProgress)}/${CommonUtil.formatDuration(controller.controller?.value.duration ?? Duration(milliseconds: 0))}");
+                                          "${CommonUtil.formatDuration(changeProgress)}/${CommonUtil.formatDuration(controller.controller.value.duration)}");
                                     });
                                   },
                                   onChangeStart: (double value) {
@@ -186,7 +185,7 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
                                           .changingProgress(isAdjustProgress);
                                       controller.showSkipFeedback(true);
                                       controller.playPositonTips(
-                                          "${CommonUtil.formatDuration(changeProgress)}/${CommonUtil.formatDuration(controller.controller?.value.duration ?? Duration(milliseconds: 0))}");
+                                          "${CommonUtil.formatDuration(changeProgress)}/${CommonUtil.formatDuration(controller.controller.value.duration )}");
                                     });
                                   },
                                   onChangeEnd: (double value) {
@@ -212,8 +211,7 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
                           Padding(
                               padding: EdgeInsets.only(top: 2.h),
                               child: _buildMenuText(CommonUtil.formatDuration(
-                                  controller.controller?.value.duration ??
-                                      Duration(milliseconds: 0)))),
+                                  controller.controller.value.duration ))),
                           SizedBox(
                             child: IconButton(
                               padding: EdgeInsets.zero,
@@ -273,8 +271,7 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
                                             "-15s";
                                         showPlayPositionfeedback();
                                         final currentPosition = controller
-                                                .controller?.value.position ??
-                                            Duration();
+                                                .controller.value.position;
                                         controller.seekToPosition(
                                             currentPosition -
                                                 const Duration(seconds: 15));
@@ -325,12 +322,12 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
                                         controller.cleanSkipHead();
                                       },
                                       child: _buildMenuText(
-                                          CommonUtil.formatDuration(
-                                              SPManager.getSkipHeadTimes(
-                                                  controller.videoPlayer.value
-                                                      .vodId)))),
-                                  const SizedBox(
-                                    width: 8,
+                                     '   ${CommonUtil.formatDuration(
+                                         SPManager.getSkipHeadTimes(
+                                             controller.videoPlayer.value
+                                                 .vodId))}  ')),
+                                   SizedBox(
+                                    width: 8.w,
                                   ),
                                   // 显示跳过片尾时间
                                   GestureDetector(
@@ -340,11 +337,11 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
                                     onLongPress: () async {
                                       controller.cleanSkipTail();
                                     },
-                                    child: _buildMenuText(
-                                        CommonUtil.formatDuration(
-                                            SPManager.getSkipTailTimes(
-                                                controller
-                                                    .videoPlayer.value.vodId))),
+                                    child: _buildMenuText('  ${CommonUtil.formatDuration(
+                                        SPManager.getSkipTailTimes(
+                                            controller
+                                                .videoPlayer.value.vodId))}   '
+                                   ),
                                   ),
                                 ],
                               ))),
