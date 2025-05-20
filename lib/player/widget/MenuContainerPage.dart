@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:lemon_tv/download/DownloadController.dart';
 import 'package:lemon_tv/player/controller/VideoPlayerGetController.dart';
 
 import '../../util/CommonUtil.dart';
@@ -16,6 +17,7 @@ class MenuContainerPage extends StatefulWidget {
 
 class _MenuContainerPageState extends State<MenuContainerPage> {
   VideoPlayerGetController controller = Get.find();
+  DownloadController downloadController = Get.find();
   bool isAdjustProgress = false;
   Duration changeProgress = Duration(milliseconds: 0);
 
@@ -91,6 +93,7 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
                                     if (controller.isFullScreen.value) {
                                       controller.toggleFullScreen();
                                     } else {
+                                      downloadController.refreshTrigger.value = true;
                                       Navigator.pop(context);
                                     }
                                   },

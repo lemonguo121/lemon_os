@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:path/path.dart' as p;
 
 import '../mywidget/MiniIconButton.dart';
 import '../routes/routes.dart';
@@ -43,16 +44,24 @@ class _EpisodeListPageState extends State<EpisodeListPage>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     var arguments = Get.arguments;
     vodName = arguments['vodName'];
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    print('*****   didChangeAppLifecycleState state = $state');
     if (state == AppLifecycleState.resumed) {
       // 重新获取数据
       setState(() {});
     }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override
@@ -119,6 +128,7 @@ class _EpisodeListPageState extends State<EpisodeListPage>
                   } else {
                     if (item.status.value == DownloadStatus.completed &&
                         item.localPath != null) {
+                      downloadController.refreshTrigger.value = false;
                       Routes.goLocalVideoPage(item.vodId, item.playIndex);
                     } else if (item.status.value ==
                         DownloadStatus.downloading) {
@@ -302,7 +312,13 @@ class _EpisodeListPageState extends State<EpisodeListPage>
   }
 
   String getPlayPosition(DownloadItem item) {
-    final savedPosition = SPManager.getProgress(item.localPath ?? '');
+    var localPath = item.localPath ?? '';
+    final m3u8FileName = p.basename(localPath); // 获取文件名，例如 video.m3u8
+    var localUrl = Platform.isAndroid
+        ? localPath
+        : 'http://127.0.0.1:12345/${item.vodName}/${item.playTitle}/$m3u8FileName';
+
+    final savedPosition = SPManager.getProgress(localUrl);
     if (savedPosition == Duration.zero) {
       return '暂未观看';
     }

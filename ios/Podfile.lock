@@ -8,7 +8,6 @@ PODS:
     - Flutter
   - connectivity_plus (0.0.1):
     - Flutter
-    - ReachabilitySwift
   - Flutter (1.0.0)
   - fluttertoast (0.0.2):
     - Flutter
@@ -29,7 +28,6 @@ PODS:
   - photo_manager (2.0.0):
     - Flutter
     - FlutterMacOS
-  - ReachabilitySwift (5.2.4)
   - screen_brightness_ios (0.1.0):
     - Flutter
   - shared_preferences_foundation (0.0.1):
@@ -75,7 +73,6 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - ReachabilitySwift
     - Try
 
 EXTERNAL SOURCES:
@@ -124,7 +121,7 @@ SPEC CHECKSUMS:
   audio_service: aa99a6ba2ae7565996015322b0bb024e1d25c6fd
   audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
   battery_plus: b42253f6d2dde71712f8c36fef456d99121c5977
-  connectivity_plus: 481668c94744c30c53b8895afb39159d1e619bdf
+  connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   fluttertoast: 2c67e14dce98bbdb200df9e1acf610d7a6264ea1
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
@@ -134,7 +131,6 @@ SPEC CHECKSUMS:
   path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
   photo_manager: d2fbcc0f2d82458700ee6256a15018210a81d413
-  ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
   screen_brightness_ios: 28c5fbdb40634de44f86025d84470158ad4df48c
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
   speech_to_text: 9dc43a5df3cbc2813f8c7cc9bd0fbf94268ed7ac

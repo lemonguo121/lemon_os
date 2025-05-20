@@ -64,7 +64,10 @@ class _VideoPlayerPageState extends State<VideoPlayerPage>
       }
     }
   }
-
+  Future<bool> _onWillPop() async {
+    downloadController.refreshTrigger.value = true;
+    return true;
+  }
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
@@ -121,77 +124,80 @@ class _VideoPlayerPageState extends State<VideoPlayerPage>
               controller.cancelControll();
             }
           },
-          child: Scaffold(
-            backgroundColor: Colors.black,
-            body: Stack(
-              children: [
-                LongPressOnlyWidget(
-                  onTap: () {
-                    setState(() {
-                      controller.isControllerVisible.value =
-                          !controller.isControllerVisible.value;
-                      controller.autoCloseMenuTimer();
-                    });
-                  },
-                  onDoubleTap: controller.togglePlayPause,
-                  onVerticalDragUpdate: _handleVerticalDrag,
-                  onVerticalDragEnd: controller.cancelDrag,
-                  onHorizontalDragUpdate: controller.handleHorizontalDrag,
-                  onHorizontalDragEnd: controller.cancelDrag,
-                  onLongPressStart: () => controller.fastSpeedPlay(true),
-                  onLongPressEnd: () => controller.fastSpeedPlay(false),
-                  child: _buildVideoPlayer(),
-                ),
-                if (controller.showFeedback.value)
-                  VoiceAndLightFeedbackPositoned(
-                    isAdjustingBrightness:
-                        controller.isAdjustingBrightness.value,
-                    text:
-                        "${((controller.isAdjustingBrightness.value ? controller.currentBrightness.value : controller.currentVolume.value) * 100).toInt()}%",
+          child:WillPopScope(
+            onWillPop: _onWillPop,
+            child: Scaffold(
+              backgroundColor: Colors.black,
+              body: Stack(
+                children: [
+                  LongPressOnlyWidget(
+                    onTap: () {
+                      setState(() {
+                        controller.isControllerVisible.value =
+                        !controller.isControllerVisible.value;
+                        controller.autoCloseMenuTimer();
+                      });
+                    },
+                    onDoubleTap: controller.togglePlayPause,
+                    onVerticalDragUpdate: _handleVerticalDrag,
+                    onVerticalDragEnd: controller.cancelDrag,
+                    onHorizontalDragUpdate: controller.handleHorizontalDrag,
+                    onHorizontalDragEnd: controller.cancelDrag,
+                    onLongPressStart: () => controller.fastSpeedPlay(true),
+                    onLongPressEnd: () => controller.fastSpeedPlay(false),
+                    child: _buildVideoPlayer(),
+                  ),
+                  if (controller.showFeedback.value)
+                    VoiceAndLightFeedbackPositoned(
+                      isAdjustingBrightness:
+                      controller.isAdjustingBrightness.value,
+                      text:
+                      "${((controller.isAdjustingBrightness.value ? controller.currentBrightness.value : controller.currentVolume.value) * 100).toInt()}%",
 
-                  ),
-                if (controller.showSkipFeedback.value)
-                  SkipFeedbackPositoned(
-                    text: controller.playPositonTips.value,
-                  ),
-                if (controller.isControllerVisible.value) MenuContainerPage(),
-                if (controller.isLongPressing.value)
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: Padding(
-                        padding: EdgeInsets.only(top: 95.h),
-                        child: Text(
-                          '${SPManager.getLongPressSpeed()}x 加速中',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            shadows: [
-                              Shadow(color: Colors.black87, blurRadius: 4),
-                            ],
+                    ),
+                  if (controller.showSkipFeedback.value)
+                    SkipFeedbackPositoned(
+                      text: controller.playPositonTips.value,
+                    ),
+                  if (controller.isControllerVisible.value) MenuContainerPage(),
+                  if (controller.isLongPressing.value)
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: Padding(
+                          padding: EdgeInsets.only(top: 95.h),
+                          child: Text(
+                            '${SPManager.getLongPressSpeed()}x 加速中',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              shadows: [
+                                Shadow(color: Colors.black87, blurRadius: 4),
+                              ],
+                            ),
+                          )),
+                    ),
+                  if (!controller.isPlaying.value && controller.initialize.value)
+                    Center(
+                      child: GestureDetector(
+                        onTap: controller.togglePlayPause,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.4), // 半透明黑色背景
+                            shape: BoxShape.circle, // 圆形
                           ),
-                        )),
-                  ),
-                if (!controller.isPlaying.value && controller.initialize.value)
-                  Center(
-                    child: GestureDetector(
-                      onTap: controller.togglePlayPause,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.4), // 半透明黑色背景
-                          shape: BoxShape.circle, // 圆形
-                        ),
-                        padding: const EdgeInsets.all(10), // 控制圆的大小
-                        child: const Icon(
-                          Icons.play_arrow,
-                          size: 50,
-                          color: Colors.white,
+                          padding: const EdgeInsets.all(10), // 控制圆的大小
+                          child: const Icon(
+                            Icons.play_arrow,
+                            size: 50,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
-          ));
+          ) );
     });
   }
 
