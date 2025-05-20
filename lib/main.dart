@@ -39,6 +39,7 @@ void initDownLoad() {
   DownloadController downloadController = Get.find();
   downloadController.downloads.value = SPManager.getDownloads();
   downloadController.pauseAllTask();
+  downloadController.startListening();
 }
 
 class ElectronicsStoreApp extends StatelessWidget {

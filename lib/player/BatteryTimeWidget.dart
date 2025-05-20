@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:lemon_tv/download/DownloadController.dart';
 import 'package:lemon_tv/player/controller/VideoPlayerGetController.dart';
 import 'package:lemon_tv/util/CommonUtil.dart';
 
-import '../util/NetworkController.dart';
 
 class BatteryTimeWidget extends StatefulWidget {
   final bool isFullScreen;
@@ -22,6 +22,7 @@ class BatteryTimeWidget extends StatefulWidget {
 
 class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
   VideoPlayerGetController controller = Get.find();
+  DownloadController downloadController = Get.find();
   final Battery _battery = Battery();
 
   String _timeString = "";
@@ -109,7 +110,8 @@ class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
                     bottom: 1.0.h,
                     child: FractionallySizedBox(
                       alignment: Alignment.centerLeft,
-                      widthFactor:   controller.batteryLevel.value / 100, // 计算电池电量
+                      widthFactor: controller.batteryLevel.value / 100,
+                      // 计算电池电量
                       child: Container(
                         decoration: BoxDecoration(
                           color: _getBatteryColor(),
@@ -146,8 +148,10 @@ class _BatteryTimeWidgetState extends State<BatteryTimeWidget> {
   }
 
   Widget _buildNetWorkType() {
-    final NetworkController controller = Get.put(NetworkController());
-    switch (controller.connectionStatus.value) {
+    final status = downloadController.connectionStatus.isNotEmpty
+        ? downloadController.connectionStatus.first
+        : ConnectivityResult.none;
+    switch (status) {
       case ConnectivityResult.wifi:
         return Icon(Icons.wifi, color: Colors.white);
       case ConnectivityResult.mobile:

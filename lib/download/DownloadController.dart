@@ -2,7 +2,9 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:lemon_tv/http/data/RealVideo.dart';
@@ -20,6 +22,57 @@ class DownloadController extends GetxController {
   final RxList<DownloadItem> activeDownloads = <DownloadItem>[].obs;
   final Queue<DownloadItem> pendingQueue = Queue<DownloadItem>();
   VideoPlayerGetController playerGetController = Get.find();
+  final RxList<ConnectivityResult> connectionStatus =
+      <ConnectivityResult>[].obs;
+
+  final Connectivity _connectivity = Connectivity();
+
+  void startListening() {
+    _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  Future<void> _updateConnectionStatus(List<ConnectivityResult> results) async {
+    connectionStatus.value = results;
+    final hasWifi = results.contains(ConnectivityResult.wifi);
+    final hasMobile = results.contains(ConnectivityResult.mobile);
+    final hasNone =
+        results.isEmpty || results.every((r) => r == ConnectivityResult.none);
+
+    if (hasWifi) {
+      resumeAllTask();
+    } else if (hasMobile) {
+      pauseAllTask();
+      await _showNonWifiDialogWithGetX();
+    } else if (hasNone) {
+      pauseAllTask();
+    }
+  }
+
+  Future<void> _showNonWifiDialogWithGetX() async {
+    final result = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text('提示'),
+        content: Text('当前为移动网络，是否继续下载？'),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            child: Text('继续'),
+          ),
+        ],
+      ),
+      barrierDismissible: false, // 不让用户点击外部关闭对话框（可选）
+    );
+
+    if (result == true) {
+      resumeAllTask();
+    } else {
+      pauseAllTask();
+    }
+  }
 
   void pauseAllTask() {
     for (var value in downloads) {
@@ -88,13 +141,18 @@ class DownloadController extends GetxController {
       item.status.value = DownloadStatus.downloading;
       activeDownloads.add(item);
       downloads.refresh();
-
       if (item.url.endsWith('.m3u8')) {
         final resolvedUrl = await resolveFinalM3U8Url(item.url);
-        item.url=resolvedUrl;
+        item.url = resolvedUrl;
         _downloadM3u8(item.url, false).then((_) => _onDownloadComplete(item));
       } else {
         _downloadVideo(item.url).then((_) => _onDownloadComplete(item));
+      }
+      connectionStatus.value = await _connectivity.checkConnectivity();
+      var hasMobile = connectionStatus.contains(ConnectivityResult.mobile);
+      if (hasMobile) {
+        pauseAllTask();
+        await _showNonWifiDialogWithGetX();
       }
     } else {
       print("任务已加入等待队列: ${item.url}");
@@ -105,7 +163,6 @@ class DownloadController extends GetxController {
 
   void _onDownloadComplete(DownloadItem item) {
     activeDownloads.removeWhere((d) => d.url == item.url);
-
     // 检查是否有排队任务
     if (pendingQueue.isNotEmpty) {
       final nextItem = pendingQueue.removeFirst();
@@ -136,11 +193,12 @@ class DownloadController extends GetxController {
 
   void resumeDownload(String url) {
     final item = downloads.firstWhereOrNull((d) => d.url == url);
-    if (item != null && (item.status.value == DownloadStatus.paused||item.status.value == DownloadStatus.failed)) {
+    if (item != null &&
+        (item.status.value == DownloadStatus.paused ||
+            item.status.value == DownloadStatus.failed)) {
       final newCancelToken = CancelToken();
       item.cancelToken = newCancelToken;
       _tryStartDownload(item);
-
     }
   }
 
@@ -244,7 +302,6 @@ class DownloadController extends GetxController {
   }
 
   Future<void> _downloadM3u8(String url, bool isResume) async {
-
     final item = downloads.firstWhereOrNull((d) => d.url == url);
     if (item == null) return;
 
@@ -331,6 +388,7 @@ class DownloadController extends GetxController {
       updateStatus(url, DownloadStatus.failed);
     }
   }
+
   /// 解析并返回真正包含 ts 视频片段的 m3u8 下载地址
   Future<String> resolveFinalM3U8Url(String originUrl) async {
     final uri = Uri.parse(originUrl);
