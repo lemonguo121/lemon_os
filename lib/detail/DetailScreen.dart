@@ -155,8 +155,7 @@ class _DetailScreenState extends State<DetailScreen>
   }
 
   saveProgressAndIndex() {
-    SPManager.saveProgress(controller.videoPlayer.value.vodPlayUrl,
-        controller.controller.value.position);
+    controller.saveProgressAndIndex();
     historyController.saveIndex(
         video, controller.currentIndex.value, controller.fromIndex.value);
   }
@@ -203,16 +202,12 @@ class _DetailScreenState extends State<DetailScreen>
   void _scrollToSelectedItem(int index) {
     // 延迟一点时间，确保列表尺寸和 maxScrollExtent 是准确的
     Future.delayed(Duration(milliseconds: 20), () {
-      print(
-          '_scrollToSelectedItem  _scrollController.hasClients = ${_scrollController.hasClients} ');
       if (!_scrollController.hasClients) return;
       final double itemHeight = 38;
       const int itemsPerRow = 3;
       final double scrollPosition = (index ~/ itemsPerRow) * itemHeight;
       final double maxScrollExtent = _scrollController.position.maxScrollExtent;
       final double targetScroll = scrollPosition.clamp(0.0, maxScrollExtent);
-      print(
-          '_scrollToSelectedItem  scrollPosition = $scrollPosition   maxScrollExtent = $maxScrollExtent  targetScroll  = $targetScroll');
       _scrollController.animateTo(
         targetScroll,
         duration: const Duration(milliseconds: 300),

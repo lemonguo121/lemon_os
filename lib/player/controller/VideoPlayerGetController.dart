@@ -156,9 +156,8 @@ class VideoPlayerGetController extends GetxController {
 
   void playPreviousVideo() async {
     autoCloseMenuTimer();
+    saveProgressAndIndex();
     if (currentIndex.value > 0) {
-      await SPManager.saveProgress(
-          videoPlayer.value.vodPlayUrl, controller.value.position);
       currentIndex.value--;
       isLoadVideoPlayed.value = true;
       await controller.pause();
@@ -171,9 +170,8 @@ class VideoPlayerGetController extends GetxController {
 
   void playNextVideo() async {
     autoCloseMenuTimer();
+    saveProgressAndIndex();
     if (currentIndex.value < videoPlayerList.length - 1) {
-      await SPManager.saveProgress(
-          videoPlayer.value.vodPlayUrl, controller.value.position);
       currentIndex.value++;
       isLoadVideoPlayed.value = true;
       await controller.pause();
@@ -356,14 +354,18 @@ class VideoPlayerGetController extends GetxController {
   void playVideo(String url, int index) async {
     // 找到要播放的视频索引
     if (index != -1) {
-      SPManager.saveProgress(
-          videoPlayer.value.vodId, controller.value.position);
+      saveProgressAndIndex();
       currentIndex.value = index;
       isLoadVideoPlayed.value = true;
       await controller.pause();
       await controller.dispose();
       initializePlayer();
     }
+  }
+
+  saveProgressAndIndex() {
+    SPManager.saveProgress(
+        videoPlayer.value.vodPlayUrl, controller.value.position);
   }
 
   bool isVerticalVideo() {
@@ -373,7 +375,7 @@ class VideoPlayerGetController extends GetxController {
 
   void dispose() async {
     initialize.value = false;
-    isFullScreen.value=false;
+    isFullScreen.value = false;
     timer?.cancel();
     await controller.dispose();
     controller.removeListener(() {});

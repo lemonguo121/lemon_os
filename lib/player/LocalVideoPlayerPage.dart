@@ -90,7 +90,6 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
             playTitle: play.playTitle);
       }).toList();
       controller.videoPlayerList.value = videoPlayerList;
-      // controller.initializePlayer();
     }
   }
 
@@ -98,7 +97,7 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
   void dispose() async {
     controller.controller.removeListener(() {});
     LocalHttpServer.stop();
-    _saveProgressAndIndex();
+    controller.saveProgressAndIndex();
     controller.dispose();
     if (isVertical) {
       SystemChrome.setPreferredOrientations(
@@ -115,11 +114,6 @@ class _LocalVideoPlayerPageState extends State<LocalVideoPlayerPage> {
       WakelockPlus.toggle(enable: false);
     }
     super.dispose();
-  }
-
-  _saveProgressAndIndex() {
-    SPManager.saveProgress(
-        video?.localPath ?? '', controller.controller.value.position);
   }
 
   @override
