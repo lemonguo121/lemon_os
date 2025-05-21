@@ -367,6 +367,7 @@ class VideoPlayerGetController extends GetxController {
   saveProgressAndIndex() {
     SPManager.saveProgress(
         videoPlayer.value.vodPlayUrl, controller.value.position);
+    print('****** saveProgressAndIndex');
   }
 
   bool isVerticalVideo() {

@@ -47,21 +47,14 @@ class _EpisodeListPageState extends State<EpisodeListPage>
     super.initState();
     var arguments = Get.arguments;
     vodName = arguments['vodName'];
-    downloadController.refreshTrigger.value = false;
-    loadData();
-  }
-
-  void loadData() {
-    episodes = downloadController.downloads
-        .where((e) => e.vodName == vodName)
-        .toList();
-    print('******    loadData');
-    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      episodes = downloadController.downloads
+          .where((e) => e.vodName == vodName)
+          .toList();
       return WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
@@ -146,10 +139,11 @@ class _EpisodeListPageState extends State<EpisodeListPage>
             } else {
               if (item.status.value == DownloadStatus.completed &&
                   item.localPath != null) {
-                downloadController.refreshTrigger.value = true;
                 await Routes.goLocalVideoPage(item.vodId, item.playIndex);
-                await Future.delayed(Duration(milliseconds: 300));
-                loadData();
+                // 因为Get.back的方法执行后，VideoPlayerGetController里的saveProgressAndIndex方法还没执行，这里做个500毫米的延迟来刷新下载列表，保障
+                // 更新播放记录的更新
+                await Future.delayed(Duration(milliseconds: 500));
+                downloadController.downloads.refresh();
               } else if (item.status.value == DownloadStatus.downloading) {
                 downloadController.pauseDownload(item.url, true);
               } else if (item.status.value == DownloadStatus.paused ||
