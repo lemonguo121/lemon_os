@@ -25,8 +25,6 @@ class DownloadController extends GetxController {
   final RxList<ConnectivityResult> connectionStatus =
       <ConnectivityResult>[].obs;
   final Connectivity _connectivity = Connectivity();
-
-  var  refreshTrigger =false.obs;
   void startListening() {
     _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }

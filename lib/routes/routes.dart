@@ -109,10 +109,15 @@ abstract class Routes {
     Get.toNamed(downloadPage);
   }
 
-  static goLocalVideoPage(String vodId, int playIndex) {
-    Get.toNamed(localVideoPage,
-        arguments: {'vodId': vodId, 'playIndex': playIndex});
+  static Future<bool?> goLocalVideoPage(String vodId, int playIndex) async {
+    final result = await Get.toNamed(localVideoPage, arguments: {
+      'vodId': vodId,
+      'playIndex': playIndex,
+    });
+
+    return result as bool?;
   }
+
 
   static goEpisodeListPage(String vodName) {
     Get.toNamed(episodeList, arguments: {'vodName': vodName});

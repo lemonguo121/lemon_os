@@ -65,8 +65,11 @@ class _VideoPlayerPageState extends State<VideoPlayerPage>
     }
   }
   Future<bool> _onWillPop() async {
-    downloadController.refreshTrigger.value = true;
-    return true;
+    // downloadController.refreshTrigger.value=true;
+    // downloadController.refreshTrigger.refresh();
+
+    Get.back(result: true);
+    return false;
   }
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {

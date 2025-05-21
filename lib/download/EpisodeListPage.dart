@@ -22,13 +22,14 @@ class EpisodeListPage extends StatefulWidget {
 }
 
 class _EpisodeListPageState extends State<EpisodeListPage>
-    with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
   String vodName = '';
   var downloadController = Get.find<DownloadController>();
   var themeController = Get.find<ThemeController>();
   var isShowEdit = false;
+  var episodes = [];
 
   Future<bool> _onWillPop() async {
     if (isShowEdit) {
@@ -44,242 +45,70 @@ class _EpisodeListPageState extends State<EpisodeListPage>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     var arguments = Get.arguments;
     vodName = arguments['vodName'];
+    downloadController.refreshTrigger.value = false;
+    loadData();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    print('*****   didChangeAppLifecycleState state = $state');
-    if (state == AppLifecycleState.resumed) {
-      // 重新获取数据
-      setState(() {});
-    }
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
+  void loadData() {
+    episodes = downloadController.downloads
+        .where((e) => e.vodName == vodName)
+        .toList();
+    print('******    loadData');
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final episodes = downloadController.downloads
-          .where((e) => e.vodName == vodName)
-          .toList();
       return WillPopScope(
         onWillPop: _onWillPop,
         child: Scaffold(
-          appBar: AppBar(
-            title: Text(
-              vodName,
-              style: TextStyle(
-                color: themeController.currentAppTheme.normalTextColor,
+            appBar: AppBar(
+              title: Text(
+                vodName,
+                style: TextStyle(
+                  color: themeController.currentAppTheme.normalTextColor,
+                ),
               ),
-            ),
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              color: themeController.currentAppTheme.normalTextColor,
-              onPressed: () {
-                // 自定义返回事件
-                if (isShowEdit) {
-                  // 如果正在编辑，先退出编辑模式
-                  isShowEdit = false;
-                  setState(() {});
-                } else {
-                  Navigator.pop(context); // 正常返回
-                }
-              },
-            ),
-            iconTheme: IconThemeData(
-              color: themeController.currentAppTheme.normalTextColor,
-            ),
-            actions: [
-              isShowEdit
-                  ? TextButton(
-                      onPressed: () {
-                        isShowEdit = false;
-                        setState(() {});
-                      },
-                      child: Text(
-                        '取消',
-                        style: TextStyle(
-                          color:
-                              themeController.currentAppTheme.normalTextColor,
-                          fontSize: 16,
-                        ),
-                      ),
-                    )
-                  : SizedBox.shrink(),
-            ],
-          ),
-          body: ListView.builder(
-            itemCount: episodes.length,
-            itemBuilder: (context, index) {
-              final item = episodes[index];
-
-              return InkWell(
-                onTap: () {
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                color: themeController.currentAppTheme.normalTextColor,
+                onPressed: () {
+                  // 自定义返回事件
                   if (isShowEdit) {
-                    downloadController.deleteDownload(item.url);
+                    // 如果正在编辑，先退出编辑模式
+                    isShowEdit = false;
+                    setState(() {});
                   } else {
-                    if (item.status.value == DownloadStatus.completed &&
-                        item.localPath != null) {
-                      downloadController.refreshTrigger.value = false;
-                      Routes.goLocalVideoPage(item.vodId, item.playIndex);
-                    } else if (item.status.value ==
-                        DownloadStatus.downloading) {
-                      downloadController.pauseDownload(item.url, true);
-                    } else if (item.status.value == DownloadStatus.paused ||
-                        item.status.value == DownloadStatus.failed) {
-                      downloadController.resumeDownload(item.url);
-                    }
+                    Navigator.pop(context); // 正常返回
                   }
                 },
-                onLongPress: () {
-                  isShowEdit = true;
-                  setState(() {});
-                },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.h),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 8.0,
-                      ),
-                      isShowEdit
-                          ? SizedBox(
-                              height: 200.r,
-                              child: Center(
-                                child: MiniIconButton(
-                                  icon: Icons.delete_outlined,
-                                  color: Colors.red,
-                                  onPressed: () {
-                                    downloadController.deleteDownload(item.url);
-                                  },
-                                ),
-                              ),
-                            )
-                          : SizedBox.shrink(),
-                      SizedBox(
-                        width: 8.0,
-                      ),
-                      // 左侧封面图
-                      SizedBox(
-                        width: 150.r,
-                        height: 200.r,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10.r),
-                          child: LoadingImage(pic: item.vodPic),
-                        ),
-                      ),
-                      SizedBox(width: 20.w),
-                      // 中间文字信息
-                      Expanded(
-                        child: SizedBox(
-                          height: 200.r,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                height: 16.h,
-                              ),
-                              Text(
-                                item.playTitle,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: themeController
-                                        .currentAppTheme.normalTextColor),
-                              ),
-                              Spacer(),
-                              item.status.value == DownloadStatus.completed
-                                  ? Text(
-                                      getPlayPosition(item),
-                                      style: TextStyle(
-                                          color: themeController
-                                              .currentAppTheme.normalTextColor
-                                              .withAlpha(160)),
-                                    )
-                                  : SizedBox.shrink(),
-                              SizedBox(
-                                height: 8.h,
-                              ),
-                              Text(
-                                getDownloadStatus(item),
-                                style: TextStyle(
-                                    color: themeController
-                                        .currentAppTheme.normalTextColor
-                                        .withAlpha(150)),
-                              ),
-                              SizedBox(
-                                height: 8.h,
-                              ),
-                            ],
+              ),
+              iconTheme: IconThemeData(
+                color: themeController.currentAppTheme.normalTextColor,
+              ),
+              actions: [
+                isShowEdit
+                    ? TextButton(
+                        onPressed: () {
+                          isShowEdit = false;
+                          setState(() {});
+                        },
+                        child: Text(
+                          '取消',
+                          style: TextStyle(
+                            color:
+                                themeController.currentAppTheme.normalTextColor,
+                            fontSize: 16,
                           ),
                         ),
-                      ),
-                      // 右侧操作按钮
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          MiniIconButton(
-                            icon: Icons.more_vert,
-                            color: themeController
-                                .currentAppTheme.normalTextColor
-                                .withAlpha(210),
-                            onPressed: () {
-                              Routes.goDetailPage(
-                                  item.vodId, item.site, item.playIndex);
-                            },
-                          ),
-                          SizedBox(
-                            height: 24.h,
-                          ),
-                          if (item.status.value == DownloadStatus.downloading)
-                            MiniIconButton(
-                              icon: Icons.pause,
-                              color: Colors.orange,
-                              onPressed: () {
-                                downloadController.pauseDownload(
-                                    item.url, true);
-                              },
-                            ),
-                          if (item.status.value == DownloadStatus.paused ||
-                              item.status.value == DownloadStatus.pending)
-                            MiniIconButton(
-                              icon: Icons.play_arrow,
-                              color: Colors.green,
-                              onPressed: () {
-                                downloadController.resumeDownload(item.url);
-                              },
-                            ),
-                          if (item.status.value == DownloadStatus.failed)
-                            MiniIconButton(
-                              icon: Icons.error,
-                              color: Colors.red,
-                              onPressed: () {
-                                downloadController.resumeDownload(item.url);
-                              },
-                            ),
-                        ],
-                      ),
-                      SizedBox(
-                        width: 8.0,
                       )
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
+                    : SizedBox.shrink(),
+              ],
+            ),
+            body: _buildList()),
       );
     });
   }
@@ -305,6 +134,170 @@ class _EpisodeListPageState extends State<EpisodeListPage>
     }
   }
 
+  Widget _buildList() {
+    return ListView.builder(
+      itemCount: episodes.length,
+      itemBuilder: (context, index) {
+        final item = episodes[index];
+        return InkWell(
+          onTap: () async {
+            if (isShowEdit) {
+              downloadController.deleteDownload(item.url);
+            } else {
+              if (item.status.value == DownloadStatus.completed &&
+                  item.localPath != null) {
+                downloadController.refreshTrigger.value = true;
+                await Routes.goLocalVideoPage(item.vodId, item.playIndex);
+                await Future.delayed(Duration(milliseconds: 300));
+                loadData();
+              } else if (item.status.value == DownloadStatus.downloading) {
+                downloadController.pauseDownload(item.url, true);
+              } else if (item.status.value == DownloadStatus.paused ||
+                  item.status.value == DownloadStatus.failed) {
+                downloadController.resumeDownload(item.url);
+              }
+            }
+          },
+          onLongPress: () {
+            isShowEdit = true;
+            setState(() {});
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.h),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 8.0,
+                ),
+                isShowEdit
+                    ? SizedBox(
+                        height: 200.r,
+                        child: Center(
+                          child: MiniIconButton(
+                            icon: Icons.delete_outlined,
+                            color: Colors.red,
+                            onPressed: () {
+                              downloadController.deleteDownload(item.url);
+                            },
+                          ),
+                        ),
+                      )
+                    : SizedBox.shrink(),
+                SizedBox(
+                  width: 8.0,
+                ),
+                // 左侧封面图
+                SizedBox(
+                  width: 150.r,
+                  height: 200.r,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10.r),
+                    child: LoadingImage(pic: item.vodPic),
+                  ),
+                ),
+                SizedBox(width: 20.w),
+                // 中间文字信息
+                Expanded(
+                  child: SizedBox(
+                    height: 200.r,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 16.h,
+                        ),
+                        Text(
+                          item.playTitle,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: themeController
+                                  .currentAppTheme.normalTextColor),
+                        ),
+                        Spacer(),
+                        item.status.value == DownloadStatus.completed
+                            ? Obx(() => Text(
+                                  getPlayPosition(item),
+                                  style: TextStyle(
+                                      color: themeController
+                                          .currentAppTheme.normalTextColor
+                                          .withAlpha(160)),
+                                ))
+                            : SizedBox.shrink(),
+                        SizedBox(
+                          height: 8.h,
+                        ),
+                        Text(
+                          getDownloadStatus(item),
+                          style: TextStyle(
+                              color: themeController
+                                  .currentAppTheme.normalTextColor
+                                  .withAlpha(150)),
+                        ),
+                        SizedBox(
+                          height: 8.h,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // 右侧操作按钮
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    MiniIconButton(
+                      icon: Icons.more_vert,
+                      color: themeController.currentAppTheme.normalTextColor
+                          .withAlpha(210),
+                      onPressed: () {
+                        Routes.goDetailPage(
+                            item.vodId, item.site, item.playIndex);
+                      },
+                    ),
+                    SizedBox(
+                      height: 24.h,
+                    ),
+                    if (item.status.value == DownloadStatus.downloading)
+                      MiniIconButton(
+                        icon: Icons.pause,
+                        color: Colors.orange,
+                        onPressed: () {
+                          downloadController.pauseDownload(item.url, true);
+                        },
+                      ),
+                    if (item.status.value == DownloadStatus.paused ||
+                        item.status.value == DownloadStatus.pending)
+                      MiniIconButton(
+                        icon: Icons.play_arrow,
+                        color: Colors.green,
+                        onPressed: () {
+                          downloadController.resumeDownload(item.url);
+                        },
+                      ),
+                    if (item.status.value == DownloadStatus.failed)
+                      MiniIconButton(
+                        icon: Icons.error,
+                        color: Colors.red,
+                        onPressed: () {
+                          downloadController.resumeDownload(item.url);
+                        },
+                      ),
+                  ],
+                ),
+                SizedBox(
+                  width: 8.0,
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   double getFileSize(String filePath) {
     if (filePath.isEmpty) return 0;
     final file = File(filePath);
@@ -317,7 +310,9 @@ class _EpisodeListPageState extends State<EpisodeListPage>
     var localUrl = Platform.isAndroid
         ? localPath
         : 'http://127.0.0.1:12345/${item.vodName}/${item.playTitle}/$m3u8FileName';
-
+    // if (downloadController.refreshTrigger.value) {
+    //   await Future.delayed(Duration(milliseconds: 300));
+    // }
     final savedPosition = SPManager.getProgress(localUrl);
     if (savedPosition == Duration.zero) {
       return '暂未观看';

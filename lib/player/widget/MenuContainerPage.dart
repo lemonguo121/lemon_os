@@ -93,8 +93,7 @@ class _MenuContainerPageState extends State<MenuContainerPage> {
                                     if (controller.isFullScreen.value) {
                                       controller.toggleFullScreen();
                                     } else {
-                                      downloadController.refreshTrigger.value = true;
-                                      Navigator.pop(context);
+                                      Get.back(result: true);
                                     }
                                   },
                                   child: const Icon(Icons.arrow_back,
