@@ -193,7 +193,9 @@ class DownloadController extends GetxController {
     final item = downloads.firstWhereOrNull((d) => d.url == url);
     if (item != null &&
         (item.status.value == DownloadStatus.paused ||
-            item.status.value == DownloadStatus.failed)) {
+            item.status.value == DownloadStatus.failed||
+            item.status.value == DownloadStatus.pending
+        )) {
       final newCancelToken = CancelToken();
       item.cancelToken = newCancelToken;
       _tryStartDownload(item);
