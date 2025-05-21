@@ -305,8 +305,13 @@ class DownloadController extends GetxController {
 
     // 断点续传时，回退一个切片索引，保证最后一个切片重新下载
     if (isResume && item.currentIndex > 0) {
-      item.currentIndex = item.currentIndex - 1;
-      print('断点续传，回退一个切片重新下载，currentIndex=${item.currentIndex}');
+      final currentSegmentPath = item.localSegments.length > item.currentIndex
+          ? item.localSegments[item.currentIndex]
+          : null;
+      // 删除当前切片文件，准备重新下载
+      if (currentSegmentPath != null && File(currentSegmentPath).existsSync()) {
+        File(currentSegmentPath).deleteSync();
+      }
     }
 
     var downloadedBytes = item.downloadedBytes;
