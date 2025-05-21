@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:lemon_tv/download/DownloadController.dart';
+import 'package:lemon_tv/reader/home/ReaderHomePage.dart';
 import 'package:lemon_tv/routes/routes.dart';
 import 'package:lemon_tv/splash_page/splash_page.dart';
 import 'package:lemon_tv/util/Injection.dart';
@@ -93,6 +94,7 @@ class _HomePageState extends State<HomePage> {
     MovieHomeScreen(),
     PlayHistory(),
     MusicHomePage(),
+    ReaderHomePage(),
     ProfileScreen(key: UniqueKey()),
   ];
 
@@ -150,6 +152,8 @@ class _HomePageState extends State<HomePage> {
             BottomNavigationBarItem(icon: Icon(Icons.history), label: "记录"),
             BottomNavigationBarItem(
                 icon: Icon(Icons.library_music), label: "音乐"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.menu_book), label: "小说"),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: "我的"),
           ],
         ),
