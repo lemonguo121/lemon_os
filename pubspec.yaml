@@ -60,6 +60,7 @@ dependencies:
   media_kit_libs_macos_video: any
   media_kit_libs_windows_video: any
   html_unescape: ^2.0.0
+  archive: ^3.4.6
 
 
 dev_dependencies:
