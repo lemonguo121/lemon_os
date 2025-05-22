@@ -147,7 +147,9 @@ class _EpisodeListPageState extends State<EpisodeListPage>
               } else if (item.status.value == DownloadStatus.downloading) {
                 downloadController.pauseDownload(item.url, true);
               } else if (item.status.value == DownloadStatus.paused ||
-                  item.status.value == DownloadStatus.failed) {
+                  item.status.value == DownloadStatus.failed||
+                  item.status.value == DownloadStatus.pending
+              ) {
                 downloadController.resumeDownload(item.url);
               }
             }

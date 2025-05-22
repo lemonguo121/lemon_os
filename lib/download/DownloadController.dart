@@ -35,7 +35,10 @@ class DownloadController extends GetxController {
     final hasMobile = results.contains(ConnectivityResult.mobile);
     final hasNone =
         results.isEmpty || results.every((r) => r == ConnectivityResult.none);
-
+    // 如果下载任务都完成，后面不需要操作下载任务
+    if (checkTaskAllDone()) {
+      return;
+    }
     if (hasWifi) {
       resumeAllTask();
     } else if (hasMobile) {
@@ -193,7 +196,9 @@ class DownloadController extends GetxController {
     final item = downloads.firstWhereOrNull((d) => d.url == url);
     if (item != null &&
         (item.status.value == DownloadStatus.paused ||
-            item.status.value == DownloadStatus.failed)) {
+            item.status.value == DownloadStatus.failed||
+            item.status.value == DownloadStatus.pending
+        )) {
       final newCancelToken = CancelToken();
       item.cancelToken = newCancelToken;
       _tryStartDownload(item);
