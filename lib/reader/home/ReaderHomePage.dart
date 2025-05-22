@@ -5,7 +5,9 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 
 import 'package:http/http.dart' as http;
-import 'package:xml/xml.dart';
+import 'package:html/parser.dart' show parse;
+import 'package:html/dom.dart' as dom;  // ✅ 使用别名 dom
+import 'package:html_unescape/html_unescape.dart';
 
 class ReaderHomePage extends StatefulWidget {
   const ReaderHomePage({super.key});
@@ -58,39 +60,56 @@ class _ReaderHomePageState extends State<ReaderHomePage> {
     for (var element in chapterElements) {
       final title = element.text.trim();
       final url = element.attributes['href'] ?? '';
-      print('$title => https://www.biqukan.co/$url');
+      print('$title => https://www.biqukan.co$url');
     }
-    final contentRes = await http.get(Uri.parse('https://www.biqukan.co//book/9091/8934454.html'));
-    if (contentRes.statusCode != 200) {
-      print('内容页请求失败');
+    var s = chapterElements[1].attributes['href'] ?? '';
+    fetchChapterContent('https://www.biqukan.co$s');
+
+  }
+
+  Future<void> fetchChapterContent(String url) async {
+    print('chaper content url = $url');
+    final res = await http.get(Uri.parse(url));
+    if (res.statusCode != 200) {
+      print('请求失败');
       return;
     }
-    final contentDecodedBody = utf8.decode(res.bodyBytes);
-    final contentDoc = parse(contentDecodedBody);
 
-    // 获取章节标题
-    final title = contentDoc.querySelector('.readTitle')?.text.trim() ?? '未知标题';
+    final document = parse(utf8.decode(res.bodyBytes));
+    final title = document.querySelector('.readTitle')?.text.trim() ?? '未知标题';
+    final contentElement = document.querySelector('#htmlContent');
 
-    // 获取正文容器
-    final contentElement = contentDoc.querySelector('#htmlContent');
-
+    final unescape = HtmlUnescape();
     final buffer = StringBuffer();
 
     for (var node in contentElement?.nodes ?? []) {
-      // 只保留 <br> 之后的明文段落
+      // 处理 script 标签中 base64 文本
       if (node.nodeType == Node.ELEMENT_NODE &&
-          node.localName == 'br' &&
-          node.nextSibling != null &&
-          node.nextSibling!.nodeType == Node.TEXT_NODE) {
-        final text = node.nextSibling!.text?.trim() ?? '';
-        if (text.isNotEmpty) {
-          buffer.writeln(text);
+          node is dom.Element &&
+          node.localName == 'script') {
+        final scriptText = node.text;
+        final match = RegExp(r"qsbs\.bb\('(.+?)'\)").firstMatch(scriptText);
+        if (match != null) {
+          try {
+            final base64Str = match.group(1)!;
+            final decoded = utf8.decode(base64.decode(base64Str));
+            final unescaped = unescape.convert(decoded);
+
+            // 替换 <br> 为换行，&nbsp; 为空格，保留段首缩进
+            final cleaned = unescaped
+                .replaceAll(RegExp(r'<br\s*/?>', caseSensitive: false), '\n')
+                .replaceAll('&nbsp;', ' ');
+
+            buffer.writeln(cleaned);
+          } catch (e) {
+            print('解码失败: $e');
+          }
         }
       }
     }
 
-    print('\n章节标题：$title\n');
-    print('章节正文（纯净明文）：\n${buffer.toString()}');
+    print('\r\n章节标题：\r$title\n');
+    print('\r\n章节正文：\r${buffer.toString()}');
   }
 
   Future<String> fetchChapter(String url) async {
