@@ -35,6 +35,7 @@ class DownloadController extends GetxController {
     final hasMobile = results.contains(ConnectivityResult.mobile);
     final hasNone =
         results.isEmpty || results.every((r) => r == ConnectivityResult.none);
+    // 如果下载任务都完成，后面不需要操作下载任务
     if (checkTaskAllDone()) {
       return;
     }
