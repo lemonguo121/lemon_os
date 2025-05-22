@@ -35,7 +35,9 @@ class DownloadController extends GetxController {
     final hasMobile = results.contains(ConnectivityResult.mobile);
     final hasNone =
         results.isEmpty || results.every((r) => r == ConnectivityResult.none);
-
+    if (checkTaskAllDone()) {
+      return;
+    }
     if (hasWifi) {
       resumeAllTask();
     } else if (hasMobile) {
