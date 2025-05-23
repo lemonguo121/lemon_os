@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart' as dom; // ✅ 使用别名 dom
 import 'package:html_unescape/html_unescape.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import '../data/Chapter.dart';
 
@@ -23,38 +24,154 @@ class _ReaderHomePageState extends State<ReaderHomePage> {
   // https://www.hetushu.com/search/?keyword=%E6%96%97%E7%A0%B4%E8%8B%8D%E7%A9%B9
   // final indexUrl = 'https://www.biqukan.co';
   final indexUrl = 'https://www.hetushu.com';
+  late final WebViewController _controller;
+  var funcType = '';
 
   @override
   void initState() {
     super.initState();
     // loadHomeData();
-    loadHeTuShu();
+
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(NavigationDelegate(
+        onPageFinished: (String url) async {
+          print('页面加载完成：$url');
+          // funcType   只是临时区分业务的方法，后续再考虑怎么优化
+          switch (funcType) {
+            case 'bookdetail':
+              await parseBookDetail();
+              break;
+            case 'chapterdetail':
+              await parseChapterDetail();
+              break;
+          }
+        },
+      ));
+    loadBookDetail();
   }
 
-  void loadHeTuShu() async {
-    // https://www.hetushu.com/book/5763/index.html
-    final url = '$indexUrl/book/5763/index.html';
-    final res = await http.get(Uri.parse(url), headers: {
-      'User-Agent':
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36',
-      'Referer':
-      'https://www.hetushu.com/book/5763/index.html?__cf_chl_tk=GF6mFPJ3cfbherhtgDXXpIuzkDp5te9.KLjWjz.z8Bc-1747928033-1.0.1.1-jIBlT8VZdgdt1QIXbGcRIBOetoUtTv5TliE0T.oOIhw',
-      'Accept':
-      'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-      'Accept-Encoding': 'gzip',
-      'Accept-Language': 'en,zh-CN;q=0.9,zh;q=0.8',
-      'Cookie': '_ga=GA1.1.1297985070.1747926175; '
-          'bh=%7B%22path%22%3A%22book%22%2C%22bid%22%3A%225763%22%2C%22bname%22%3A%22%E5%A4%A7%E5%A5%89%E6%89%93%E6%9B%B4%E4%BA%BA%22%2C%22sid%22%3A%224327466%22%2C%22sname%22%3A%22%E7%AC%AC%E4%B8%80%E5%8D%B7%20%E4%BA%AC%E5%AF%9F%E9%A3%8E%E4%BA%91%20%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%89%A2%E7%8B%B1%E4%B9%8B%E7%81%BE%22%7D; '
-          '_ga_333KCL0K1B=GS2.1.s1747930370\$o2\$g0\$t1747930370\$j0\$l0\$h0; '
-          'cf_clearance=cjZ4RyHZq9CtFQ8VfiC6rBKRmupqGKxcw.jWWyPSm_I-1747930374-1.2.1.1-OXfAUEcB3t1.j6RdEN9eqqwPMEvzvK_Gu.VpAUpLXp3nH2gkDS00OCsQvgHZOWIdC87a4ipK5Zp8rkYiXpjxHE4TISWGRU.cksJFTEM9oBBcwxNs5dgdPLWUBWTaBiKFqDyCBDMV30SSGDjlqlwscLzbGhD20FMM15P_MduEyWcj8RJPi0j0ebX75cKpA68_V2XoH_bkEU9qd6AVYBLSBdPRQNw07amuPCS6NE82oerTVUtzbqAGwEGTE1MrpnulW3mc4edoCSAQ_.MMpgzfjfI7KhP0I01pP.391l.WyeT.6h5GZXK9cqCud0UCJv7mJSS44v_aivuoaC67BUzR1j81gx.Ks0hqL0bUFPf2XjWw28qvCwkEpsVm3Ik1FBAJ',
-    });
-    if (res.statusCode != 200) {
-      print('详情页请求失败');
-      return;
-    }
+  parseChapterDetail() async {
+    try {
+      final jsCode = """
+      (function() {
+        const content = document.querySelector('#content');
+        if (!content) return '';
 
-    String decodedBody = utf8.decode(res.bodyBytes);
-    final doc = parse(decodedBody);
+        function getTextNodes(node) {
+          let text = '';
+          node.childNodes.forEach(child => {
+            if (child.nodeType === Node.TEXT_NODE) {
+              const t = child.textContent;
+              if (t.trim().length > 0) {
+                text += t + '\\n\\n'; // 保留原始缩进
+              }
+            } else if (child.nodeType === Node.ELEMENT_NODE) {
+              const style = window.getComputedStyle(child);
+              if (style && style.display !== 'none' && style.visibility !== 'hidden') {
+                text += getTextNodes(child);
+              }
+            }
+          });
+          return text;
+        }
+
+        return getTextNodes(content).trim();
+      })();
+    """;
+
+      var rawText = await _controller.runJavaScriptReturningResult(jsCode);
+
+      print('********  parseChapterDetail');
+
+// 清理JS返回的字符串
+      String cleanedText = rawText
+          .toString()
+          .replaceAllMapped(RegExp(r'^"|"$'), (m) => '') // 去前后引号
+          .replaceAll(r'\"', '"') // 解码引号
+          .replaceAll(r'\\n', '\n'); // 恢复换行（注意是两个反斜杠）
+
+// 每段添加两个全角空格作为缩进
+      String formattedText = cleanedText
+          .split('\n')
+          .map((line) => line.trim().isEmpty ? '' : '　　$line')
+          .join('\n');
+
+      print('节内容：\n$formattedText');
+    } catch (e) {
+      print('获取章节内容失败：$e');
+    }
+  }
+
+  // 通过标签取爬取内容，网页有防爬虫机制，顺序都是错乱且重复
+  // parseChapterDetail() async {
+  //   try {
+  //     var html = await _controller.runJavaScriptReturningResult(
+  //         "window.document.documentElement.outerHTML;");
+  //
+  //     print('********  parseChapterDetail');
+  //     // rawHtml 是带引号的字符串，要先转义去掉前后引号和反斜杠
+  //     String cleanedHtml = html
+  //         .toString()
+  //         .replaceAll(r'\u003C', '<') // 替换编码
+  //         .replaceAll(r'\n', '\n')
+  //         .replaceAll(r'\t', '\t')
+  //         .replaceAll(r'\r', '')
+  //         .replaceAllMapped(RegExp(r'^"|"$'), (m) => '') // 去掉开头结尾引号
+  //         .replaceAll(r'\"', '"'); // 解码内部引号
+  //
+  //     final doc = parse(cleanedHtml);
+  //
+  //     // 1. 获取章节标题
+  //     final title = doc.querySelector('#ctitle .title')?.text.trim() ?? '未知标题';
+  //     print('章节标题：$title');
+  //
+  //     // 2. 获取正文内容
+  //     final contentElement = doc.querySelector('#content');
+  //     if (contentElement != null) {
+  //       // 获取所有内容块（段落）
+  //       final paragraphs = contentElement.querySelectorAll('div, h2');
+  //
+  //       // 先抽取所有文本段落
+  //       List<String> texts = paragraphs
+  //           .map((e) => e.text.trim())
+  //           .where((text) => text.isNotEmpty)
+  //           .toList();
+  //
+  //       // 去重函数（保留顺序）
+  //       List<String> deduplicate(List<String> items) {
+  //         final seen = <String>{};
+  //         final result = <String>[];
+  //         for (var text in items) {
+  //           if (!seen.contains(text)) {
+  //             seen.add(text);
+  //             result.add(text);
+  //           }
+  //         }
+  //         return result;
+  //       }
+  //
+  //       // 去重后文本列表
+  //       final uniqueTexts = deduplicate(texts);
+  //
+  //       // 拼接成字符串
+  //       final content = uniqueTexts.join('\n\n');
+  //
+  //       print('去重后章节内容：\n$content');
+  //     } else {
+  //       print('未找到章节内容');
+  //     }
+  //   } catch (e) {
+  //     print('获取 HTML 失败：$e');
+  //   }
+  // }
+
+  Future<void> parseBookDetail() async {
+    final html = await _controller.runJavaScriptReturningResult(
+      'document.documentElement.outerHTML;',
+    );
+
+    final doc = parse(html);
 
     // 获取标题
     final novelTitle =
@@ -74,43 +191,46 @@ class _ReaderHomePageState extends State<ReaderHomePage> {
     final novelType = typeElement.text.replaceAll('类型：', '').trim();
     print('类型：$novelType');
 
-    // 获取图片地址
+    // 获取封面图地址
     final imgElement = doc.querySelector('.book_info img');
     String imgSrc = imgElement?.attributes['src'] ?? '';
-
     if (imgSrc.isNotEmpty) {
       if (imgSrc.startsWith('./')) {
-        // ./ 开头，去掉 ./ 拼接
         imgSrc = '$indexUrl${imgSrc.substring(2)}';
       } else if (imgSrc.startsWith('/')) {
-        // 根路径，拼接域名
         final uri = Uri.parse(indexUrl);
         imgSrc = '${uri.scheme}://${uri.host}$imgSrc';
       } else if (!imgSrc.startsWith('http')) {
-        // 其它相对路径，如 "images/pic.jpg"
-        final uri = Uri.parse(indexUrl);
         final basePath = indexUrl.substring(0, indexUrl.lastIndexOf('/') + 1);
         imgSrc = '$basePath$imgSrc';
       }
     }
-    print('图片地址：$imgSrc');
-    // 获取简介内容
+    print('封面图地址：$imgSrc');
+
+    // 获取简介
     final introParagraphs = doc.querySelectorAll('.book_info .intro p');
     final intro = introParagraphs.map((p) => p.text.trim()).join('\n');
     print('简介：\n$intro');
 
     final volumes = parseVolumes(doc);
-    for (var vol in volumes) {
-      print('卷名：${vol.title}');
-      for (var chapter in vol.chapters) {
-        print('章节：${chapter.title}，链接：${chapter.url}');
+    // for (var vol in volumes) {
+    //   print('卷名：${vol.title}');
+    //   for (var chapter in vol.chapters) {
+    //     print('章节：${chapter.title}，链接：${chapter.url}');
+    //   }
+    // }
+    print('******   parseBookDetail');
+    loadChapterDetail(volumes[0].chapters[1].url);
+  }
 
-        // 这里示例，假设你有获取章节页面 html 的方法 fetchHtml(url)
-        // String chapterHtml = await fetchHtml(chapter.url);
-        // String content = await parseChapterContent(chapterHtml);
-        // print('内容：$content');
-      }
-    }
+  void loadBookDetail() async {
+    funcType = 'bookdetail';
+    _controller.loadRequest(Uri.parse('$indexUrl/book/5763/'));
+  }
+
+  void loadChapterDetail(String url) async {
+    funcType = 'chapterdetail';
+    _controller.loadRequest(Uri.parse('$indexUrl$url'));
   }
 
   void loadHomeData() async {
